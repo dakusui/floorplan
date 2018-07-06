@@ -5,6 +5,8 @@ import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 
 import static com.github.dakusui.floorplan.UtUtils.printf;
+import com.github.dakusui.floorplan.component.Operator;
+
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.resolver.Resolvers.slotValue;
 

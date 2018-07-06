@@ -8,6 +8,9 @@ import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.policy.Slot;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.Resolvers;
+import com.github.dakusui.floorplan.policy.Profile;
+import com.github.dakusui.floorplan.policy.Slot;
+import com.github.dakusui.floorplan.resolver.Resolver;
 
 public class BookstoreProfile implements Profile {
   @Override
