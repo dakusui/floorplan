@@ -10,39 +10,39 @@ import java.util.function.Function;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
-  Function<Context, Action> actionFactoryFor(Operation op);
+  Function<Context, Action> actionFactoryFor(Operator.Type op);
 
   default Function<Context, Action> install() {
-    return actionFactoryFor(Operation.INSTALL);
+    return actionFactoryFor(Operator.Type.INSTALL);
   }
 
   default Function<Context, Action> start() {
-    return actionFactoryFor(Operation.START);
+    return actionFactoryFor(Operator.Type.START);
   }
 
   default Function<Context, Action> stop() {
-    return actionFactoryFor(Operation.STOP);
+    return actionFactoryFor(Operator.Type.STOP);
   }
 
   default Function<Context, Action> nuke() {
-    return actionFactoryFor(Operation.NUKE);
+    return actionFactoryFor(Operator.Type.NUKE);
   }
 
   default Function<Context, Action> uninstall() {
-    return actionFactoryFor(Operation.UNINSTALL);
+    return actionFactoryFor(Operator.Type.UNINSTALL);
   }
 
   <T> T valueOf(A attr);
 
   class Impl<A extends Attribute> implements Component<A> {
-    private final Ref                         ref;
+    private final Ref                             ref;
     @SuppressWarnings(
         "MismatchedQueryAndUpdateOfCollection"/* This field is updated in its static block on assignment*/
     )
-    private final Map<A, Object>              values;
-    private final Map<Operation, Operator<A>> operators;
+    private final Map<A, Object>                  values;
+    private final Map<Operator.Type, Operator<A>> operators;
 
-    Impl(Ref ref, Map<A, Object> values, Map<Operation, Operator<A>> operators) {
+    Impl(Ref ref, Map<A, Object> values, Map<Operator.Type, Operator<A>> operators) {
       this.ref = ref;
       this.values = new HashMap<A, Object>() {{
         putAll(requireNonNull(values));
@@ -62,10 +62,10 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     }
 
     @Override
-    public Function<Context, Action> actionFactoryFor(Operation op) {
+    public Function<Context, Action> actionFactoryFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),
-          o -> Operator.unsupported()
+          o -> (Operator<A>) Operator.Factory.unsupported(op).apply((ComponentSpec<Attribute>) spec())
       ).apply(
           this
       );

@@ -1,6 +1,6 @@
 package com.github.dakusui.floorplan.policy;
 
-import com.github.dakusui.floorplan.DeploymentConfigurator;
+import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
@@ -24,15 +24,15 @@ public interface Policy {
   Profile profile();
 
   /**
-   * Returns a {@code DeploymentConfigurator} instance.
+   * Returns a {@code FixtureConfigurator} instance.
    *
-   * @return A {@code DeploymentConfigurator}.
+   * @return A {@code FixtureConfigurator}.
    */
-  DeploymentConfigurator deploymentConfigurator();
+  FixtureConfigurator fixtureConfigurator();
 
   class Impl implements Policy {
-    private final DeploymentConfigurator deploymentConfigurator;
-    private final Profile                profile;
+    private final FixtureConfigurator fixtureConfigurator;
+    private final Profile             profile;
 
     Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan floorPlan, Profile profile) {
       requireArgument(
@@ -44,7 +44,7 @@ public interface Policy {
           )
       );
       this.resolvers = unmodifiableList(requireNonNull(resolvers));
-      this.deploymentConfigurator = requireNonNull(floorPlan).configurator(this);
+      this.fixtureConfigurator = requireNonNull(floorPlan).configurator(this);
       this.profile = requireNonNull(profile);
     }
 
@@ -68,8 +68,8 @@ public interface Policy {
     }
 
     @Override
-    public DeploymentConfigurator deploymentConfigurator() {
-      return this.deploymentConfigurator;
+    public FixtureConfigurator fixtureConfigurator() {
+      return this.fixtureConfigurator;
     }
 
   }

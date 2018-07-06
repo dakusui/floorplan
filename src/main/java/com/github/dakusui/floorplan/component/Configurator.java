@@ -3,8 +3,11 @@ package com.github.dakusui.floorplan.component;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
+import com.github.dakusui.floorplan.utils.Utils;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
@@ -12,9 +15,9 @@ import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   Configurator<A> configure(A attr, Resolver<A, ?> resolver);
 
-  Configurator<A> configure(Operation op, Operator<A> operator);
+  Configurator<A> addOperator(Operator<A> operator);
 
-  Component<A> build(Policy policy);
+  Component<A> build(Policy policy, Map<Ref, Component<?>> pool);
 
   /**
    * Returns a resolver for a specified attribute {@code attr} set to this object
@@ -42,11 +45,36 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     private final ComponentSpec<A>       spec;
     private final Map<A, Resolver<A, ?>> resolvers = new LinkedHashMap<>();
     Ref ref;
-    private Map<Operation, Operator<A>> operators = new HashMap<>();
+    private Map<Operator.Type, Operator<A>> operators = new HashMap<>();
 
     Impl(ComponentSpec<A> spec, String id) {
       this.spec = spec;
       this.ref = Ref.ref(this.spec, id);
+      this.operators = new HashMap<Operator.Type, Operator<A>>() {{
+        spec.operatorFactories().entrySet().stream().map(new Function<Entry<Operator.Type, Operator.Factory<A>>, Entry<Operator.Type, Operator<A>>>() {
+          @Override
+          public Entry<Operator.Type, Operator<A>> apply(Entry<Operator.Type, Operator.Factory<A>> entry) {
+            return new Entry<Operator.Type, Operator<A>>() {
+              Operator<A> value = entry.getValue().apply(spec);
+
+              @Override
+              public Operator.Type getKey() {
+                return entry.getKey();
+              }
+
+              @Override
+              public Operator<A> getValue() {
+                return value;
+              }
+
+              @Override
+              public Operator<A> setValue(Operator<A> value) {
+                return this.value = value;
+              }
+            };
+          }
+        }).forEach(entry -> put(entry.getKey(), entry.getValue()));
+      }};
     }
 
     @Override
@@ -77,27 +105,26 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     }
 
     @Override
-    public Configurator<A> configure(Operation op, Operator<A> operator) {
-      this.operators.put(requireNonNull(op), requireNonNull(operator));
+    public Configurator<A> addOperator(Operator<A> operator) {
+      this.operators.put(requireNonNull(operator.type()), requireNonNull(operator));
       return this;
     }
 
     @Override
-    public Component<A> build(Policy policy) {
+    public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
       return new Component.Impl<>(this.ref, new LinkedHashMap<A, Object>() {{
         Arrays.stream(spec.attributes()).forEach(
             (A attr) -> {
-              Object v = resolverFor(attr, policy)
-                  .apply(attr)
-                  .apply(Impl.this)
-                  .apply(policy);
-              put(
-                  attr,
-                  require(
-                      v,
-                      attr::test,
-                      Exceptions.typeMismatch(attr.valueType(), v)
-                  ));
+              Object u;
+              Object v = require(
+                  u = Utils.resolve(attr, Impl.this, policy),
+                  attr::test,
+                  Exceptions.typeMismatch(attr.valueType(), u)
+              );
+              if (v instanceof Configurator)
+                put(attr, ((Configurator) v).build(policy, pool));
+              else
+                put(attr, v);
             });
       }}, operators);
     }

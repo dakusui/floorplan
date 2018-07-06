@@ -1,5 +1,9 @@
 package com.github.dakusui.floorplan.utils;
 
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Configurator;
+import com.github.dakusui.floorplan.policy.Policy;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,5 +38,10 @@ public class Utils {
               Optional.of(list.get(0));
         }
     );
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Attribute, T> T resolve(A attr, Configurator<A> configurator, Policy policy) {
+    return (T)configurator.resolverFor(attr, policy).apply(attr, configurator, policy);
   }
 }

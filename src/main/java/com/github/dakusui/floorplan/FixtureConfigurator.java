@@ -14,24 +14,25 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface DeploymentConfigurator {
+public interface FixtureConfigurator {
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
   Set<Ref> allReferences();
 
-  Deployment build();
+  Fixture build();
 
-  default <A extends Attribute> DeploymentConfigurator configure(Ref ref, A attr, Resolver<A, ?> resolver) {
+  default <A extends Attribute> FixtureConfigurator configure(Ref ref, A attr, Resolver<A, ?> resolver) {
     this.<A>lookUp(ref).configure(attr, resolver);
     return this;
   }
 
-  default <A extends Attribute> DeploymentConfigurator configure(Ref ref, Operation op, Operator<A> operator) {
-    this.<A>lookUp(ref).configure(op, operator);
+  @SuppressWarnings("unchecked")
+  default <A extends Attribute> FixtureConfigurator addOperatorFactory(Ref ref, Operator.Factory<A> operator) {
+    this.<A>lookUp(ref).addOperator(operator.apply((ComponentSpec<A>) ref.spec()));
     return this;
   }
 
-  class Impl implements DeploymentConfigurator {
+  class Impl implements FixtureConfigurator {
     private final Set<Ref>              refs;
     private final List<Configurator<?>> configurators;
     private final Policy                policy;
@@ -66,8 +67,8 @@ public interface DeploymentConfigurator {
     }
 
     @Override
-    public Deployment build() {
-      return new Deployment.Impl(this.policy, this);
+    public Fixture build() {
+      return new Fixture.Impl(this.policy, this);
     }
   }
 

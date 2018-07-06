@@ -19,3 +19,7 @@ spec.
 
 
 A component is built by a configurator.
+
+# References
+* ActionUnit (A library to write scenarios and programs as objects inside Java)
+* Cmd (A library to execute command line tools from Java)

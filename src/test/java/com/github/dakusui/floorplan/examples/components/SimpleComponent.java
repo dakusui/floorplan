@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.examples.components;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Operation;
 import com.github.dakusui.floorplan.component.Operator;
 
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
@@ -26,9 +25,6 @@ public class SimpleComponent {
   }
 
   public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
-      SimpleComponent.class.getSimpleName(),
       Attr.class
-  ).setOperator(
-      Operation.INSTALL, Operator.nop()
   ).build();
 }

@@ -65,14 +65,14 @@ public class FloorPlan {
     return Collections.unmodifiableSet(this.refs);
   }
 
-  public DeploymentConfigurator configurator(Policy policy) {
-    return new DeploymentConfigurator.Impl(policy, refs, wires);
+  public FixtureConfigurator configurator(Policy policy) {
+    return new FixtureConfigurator.Impl(policy, refs, wires);
   }
 
   public List<? extends ResolverEntry> allWires() {
     return this.wires.entrySet().stream().map(entry -> new ResolverEntry(
         (ref, attribute) -> entry.getKey().equals(Connector.connector(ref, attribute)),
-        Resolver.of(a -> c -> p -> p.deploymentConfigurator().lookUp(entry.getValue()))
+        Resolver.of(a -> c -> p -> p.fixtureConfigurator().lookUp(entry.getValue()))
     )).collect(toList()
     );
   }

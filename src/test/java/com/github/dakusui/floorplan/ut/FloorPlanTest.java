@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
-import com.github.dakusui.floorplan.Deployment;
+import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.examples.components.ReferenceComponent;
@@ -25,7 +25,7 @@ public class FloorPlanTest {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Policy policy = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC);
 
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
@@ -33,7 +33,7 @@ public class FloorPlanTest {
     ).build();
 
     assertThat(
-        deployment.lookUp(simple1),
+        fixture.lookUp(simple1),
         allOf(
             asObject(
                 (Component<SimpleComponent.Attr> c) -> c.valueOf(SimpleComponent.Attr.INSTANCE_NAME)
@@ -50,7 +50,7 @@ public class FloorPlanTest {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Policy policy = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC);
 
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
@@ -58,7 +58,7 @@ public class FloorPlanTest {
     ).build();
 
     assertThat(
-        deployment.lookUp(simple1),
+        fixture.lookUp(simple1),
         allOf(
             asObject(
                 (Component<SimpleComponent.Attr> c) -> c.valueOf(SimpleComponent.Attr.INSTANCE_NAME)
@@ -75,7 +75,7 @@ public class FloorPlanTest {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Policy policy = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC);
 
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
@@ -83,7 +83,7 @@ public class FloorPlanTest {
     ).build();
 
     assertThat(
-        deployment.lookUp(simple1),
+        fixture.lookUp(simple1),
         allOf(
             asObject(
                 (Component<SimpleComponent.Attr> c) -> c.valueOf(SimpleComponent.Attr.INSTANCE_NAME)
@@ -101,22 +101,21 @@ public class FloorPlanTest {
     Policy policy = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC);
 
     List<String> out = new LinkedList<>();
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
         immediate("configured-instance-name-simple1")
-    ).configure(
+    ).addOperatorFactory(
         simple1,
-        Operation.INSTALL,
-        Operator.of(
-            c -> context -> context.simple("simple", () -> out.add("hello")),
-            () -> "simpleActionThatAddsAMessageToOut"
+        Operator.Factory.of(
+            Operator.Type.INSTALL,
+            c -> context -> context.simple("simple", () -> out.add("hello"))
         )
     ).build();
 
     new ReportingActionPerformer.Builder(
-        deployment.lookUp(simple1).install().apply(new Context.Impl())
+        fixture.lookUp(simple1).install().apply(new Context.Impl())
     ).build(
     ).performAndReport();
 
@@ -134,7 +133,7 @@ public class FloorPlanTest {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Policy policy = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC);
 
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
@@ -142,7 +141,7 @@ public class FloorPlanTest {
     ).build();
 
     new ReportingActionPerformer.Builder(
-        deployment.lookUp(simple1).install().apply(new Context.Impl())
+        fixture.lookUp(simple1).install().apply(new Context.Impl())
     ).build(
     ).performAndReport();
   }
@@ -158,7 +157,7 @@ public class FloorPlanTest {
         ReferenceComponent.SPEC
     );
 
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
@@ -170,11 +169,11 @@ public class FloorPlanTest {
     ).build();
 
     assertThat(
-        deployment.lookUp(ref1),
+        fixture.lookUp(ref1),
         allOf(
             asObject(
                 "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
-            ).isInstanceOf(Configurator.class).$(),
+            ).isInstanceOf(Component.class).$(),
             asString(
                 "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE
             ).equalTo(
@@ -201,7 +200,7 @@ public class FloorPlanTest {
         ReferenceComponent.SPEC
     );
 
-    Deployment deployment = policy.deploymentConfigurator(
+    Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
         SimpleComponent.Attr.INSTANCE_NAME,
@@ -209,11 +208,11 @@ public class FloorPlanTest {
     ).build();
 
     assertThat(
-        deployment.lookUp(ref1),
+        fixture.lookUp(ref1),
         allOf(
             asObject(
                 "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
-            ).isInstanceOf(Configurator.class).$(),
+            ).isInstanceOf(Component.class).$(),
             asString(
                 "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE
             ).equalTo(
@@ -244,7 +243,7 @@ public class FloorPlanTest {
   public void missingValue() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      policy(new FloorPlan().add(simple1), SimpleComponent.SPEC).deploymentConfigurator().build();
+      policy(new FloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator().build();
     } catch (MissingValueException e) {
       assertThat(
           e,
@@ -263,10 +262,10 @@ public class FloorPlanTest {
   public void typeMismatch() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      Deployment deployment = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC).deploymentConfigurator()
+      Fixture fixture = policy(new FloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
           .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, immediate(123))
           .build();
-      System.out.println(String.format("value='%s'", deployment.lookUp(simple1).valueOf(SimpleComponent.Attr.INSTANCE_NAME)));
+      System.out.println(String.format("value='%s'", fixture.lookUp(simple1).valueOf(SimpleComponent.Attr.INSTANCE_NAME)));
     } catch (TypeMismatch e) {
       assertThat(
           e,

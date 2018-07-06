@@ -1,6 +1,5 @@
 package com.github.dakusui.floorplan.examples.components;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
@@ -29,11 +28,10 @@ public class ReferenceComponent {
     }
   }
 
-  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<Attr>(
-      ReferenceComponent.class.getSimpleName(),
+  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
       Attr.class
-  ).setOperator(
-      Operation.INSTALL, Operator.nop()
+  ).addOperatorFactory(
+      Operator.Factory.nop(Operator.Type.INSTALL)
   ).build();
 
 }

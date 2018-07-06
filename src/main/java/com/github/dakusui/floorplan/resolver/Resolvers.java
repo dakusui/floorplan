@@ -4,8 +4,15 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
+import com.github.dakusui.floorplan.utils.Utils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 public enum Resolvers {
   ;
@@ -19,7 +26,7 @@ public enum Resolvers {
 
   public static <A extends Attribute, B extends Attribute> Resolver<A, Configurator<B>> referenceTo(Ref ref) {
     return Resolver.of(
-        a -> c -> p -> p.deploymentConfigurator().lookUp(ref),
+        a -> c -> p -> p.fixtureConfigurator().lookUp(ref),
         () -> String.format("referenceTo(component:%s)", ref)
     );
   }
@@ -35,10 +42,7 @@ public enum Resolvers {
   @SuppressWarnings("unchecked")
   public static <A extends Attribute, B extends Attribute, T extends Configurator<B>, R> Resolver<A, R> attributeValueOf(B attr, Resolver<A, T> holder) {
     return Resolver.of(
-        a -> c -> p -> {
-          T configurator = holder.apply(a).apply(c).apply(p);
-          return (R) configurator.resolverFor(attr, p).apply(attr).apply(configurator).apply(p);
-        },
+        a -> c -> p -> Utils.resolve(attr, holder.apply(a).apply(c).apply(p), p),
         () -> String.format("attributeValueOf(%s, %s)", attr, holder)
     );
   }
@@ -54,6 +58,24 @@ public enum Resolvers {
     return Resolver.<A, T>of(
         a -> c -> p -> p.profile().slotFor(c.ref()).<A, T>resolverFor(key).apply(a).apply(c).apply(p),
         () -> String.format("slotValueOf(%s)", key)
+    );
+  }
+
+  public static <A extends Attribute, E> Resolver<A, List<E>> listOf(Class<E> type, Resolver<A, ? extends E>... resolvers) {
+    return Resolver.of(
+        a -> c -> p ->
+            Arrays.stream(resolvers).map(new Function<Resolver<?,? extends E>, E>() {
+              @Override
+              public E apply(Resolver<?, ? extends E> resolver) {
+                return null; // resolver.apply(a, c, p);
+              }
+            }).collect(Collectors.toList())
+        ,
+        () -> String.format(
+            "listOf(%s)",
+            String.join(
+                ",",
+                Arrays.stream(resolvers).map(Object::toString).collect(toList())))
     );
   }
 

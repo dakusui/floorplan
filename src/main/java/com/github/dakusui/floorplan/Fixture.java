@@ -12,18 +12,21 @@ import java.util.Objects;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
 
-public interface Deployment {
+public interface Fixture {
   <A extends Attribute> Component<A> lookUp(Ref ref);
 
-  class Impl implements Deployment {
+  class Impl implements Fixture {
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<Ref, Component<?>> components;
 
-    Impl(Policy policy, DeploymentConfigurator deploymentConfigurator) {
+    Impl(Policy policy, FixtureConfigurator fixtureConfigurator) {
       this.components = new LinkedHashMap<Ref, Component<?>>() {{
-        deploymentConfigurator.allReferences().stream().map(
-            ref -> (Configurator<?>) deploymentConfigurator.lookUp(ref)
+        fixtureConfigurator.allReferences().stream().map(
+            ref -> (Configurator<?>) fixtureConfigurator.lookUp(ref)
+        ).filter(
+            configurator -> !this.containsKey(configurator.ref())
         ).map(
-            configurator -> configurator.build(policy)
+            configurator -> configurator.build(policy, this)
         ).forEach(
             component -> put(component.ref(), component)
         );
