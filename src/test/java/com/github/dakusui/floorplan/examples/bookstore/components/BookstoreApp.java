@@ -16,7 +16,6 @@ public class BookstoreApp {
     APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
     WEBSERVER(SPEC.property(Configurator.class).defaultsTo(nothing()).$()),
     WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
-    WEBSERVER_DATADIR(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.DATADIR, referenceTo(WEBSERVER))).$()),
     DBSERVER(SPEC.property(Configurator.class).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
@@ -72,7 +71,7 @@ public class BookstoreApp {
                     "scp -r ~/apps/%s root@%s:%s/%s",
                     component.valueOf(Attr.APPNAME),
                     component.valueOf(Attr.WEBSERVER_HOST),
-                    component.valueOf(Attr.WEBSERVER_DATADIR),
+                    component.<Component<Apache.Attr>>valueOf(Attr.WEBSERVER).valueOf(Apache.Attr.DATADIR),
                     component.valueOf(Attr.APPNAME)
                 );
               }),

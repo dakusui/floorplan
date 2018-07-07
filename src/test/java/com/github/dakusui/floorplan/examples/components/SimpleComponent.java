@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.examples.components;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Operator;
 
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 

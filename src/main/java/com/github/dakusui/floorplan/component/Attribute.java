@@ -60,8 +60,7 @@ public interface Attribute {
   /**
    * Returns a bean class of this attribute interface.
    * Accessing this method from outside this interface is discouraged.
-   *
-   * @param <A> Type of the attribute
+   *  @param <A> Type of the attribute
    * @param <B> Type of the bean
    */
   <A extends Attribute, B extends Bean<A>> B bean();

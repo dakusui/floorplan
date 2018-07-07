@@ -8,9 +8,10 @@ import com.github.dakusui.floorplan.utils.Utils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.typeMismatch;
+import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -34,7 +35,7 @@ public enum Resolvers {
   public static <A extends Attribute, T> Resolver<A, T> referenceTo(A another) {
     requireNonNull(another);
     return Resolver.of(
-        a -> c -> p -> c.<T>resolverFor(another, p).apply(another).apply(c).apply(p),
+        a -> c -> p -> Utils.resolve(another, c, p),
         () -> String.format("referenceTo(attr:%s)", another)
     );
   }
@@ -54,22 +55,30 @@ public enum Resolvers {
     );
   }
 
+  /**
+   * Returned resolver will give a value specified by a {@code key} from a slot.
+   *
+   * @param key A key to specify a value in a slot
+   * @param <A> Type of attribute
+   * @param <T> Type of returned value.
+   */
   public static <A extends Attribute, T> Resolver<A, T> slotValue(String key) {
-    return Resolver.<A, T>of(
+    return Resolver.of(
         a -> c -> p -> p.profile().slotFor(c.ref()).<A, T>resolverFor(key).apply(a).apply(c).apply(p),
         () -> String.format("slotValueOf(%s)", key)
     );
   }
 
-  public static <A extends Attribute, E> Resolver<A, List<E>> listOf(Class<E> type, Resolver<A, ? extends E>... resolvers) {
+  @SuppressWarnings("unchecked")
+  public static <A extends Attribute, E>
+  Resolver<A, List<E>> listOf(Class<E> type, Resolver<A, ? extends E>... resolvers) {
     return Resolver.of(
         a -> c -> p ->
-            Arrays.stream(resolvers).map(new Function<Resolver<?,? extends E>, E>() {
-              @Override
-              public E apply(Resolver<?, ? extends E> resolver) {
-                return null; // resolver.apply(a, c, p);
-              }
-            }).collect(Collectors.toList())
+            Arrays.stream(resolvers).map(
+                resolver -> resolver.apply(a, c, p)
+            ).map(
+                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(type, e))
+            ).collect(Collectors.toList())
         ,
         () -> String.format(
             "listOf(%s)",
