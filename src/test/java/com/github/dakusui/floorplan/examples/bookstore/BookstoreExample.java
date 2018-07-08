@@ -45,7 +45,7 @@ public class BookstoreExample {
     ////
     // Set up
     new ReportingActionPerformer.Builder(
-        installationAction(topLevelContext, fixture, dbms, httpd, app)
+        setUpAction(topLevelContext, fixture, dbms, httpd, app)
     ).build().performAndReport();
 
     ////
@@ -56,7 +56,7 @@ public class BookstoreExample {
     // Tear down
   }
 
-  private Action installationAction(Context context, Fixture fixture, Ref... refs) {
+  private Action setUpAction(Context context, Fixture fixture, Ref... refs) {
     return context.sequential(
         Arrays.stream(
             refs
