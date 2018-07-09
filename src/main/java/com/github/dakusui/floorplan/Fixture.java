@@ -25,10 +25,8 @@ public interface Fixture {
             ref -> (Configurator<?>) fixtureConfigurator.lookUp(ref)
         ).filter(
             configurator -> !this.containsKey(configurator.ref())
-        ).map(
-            configurator -> configurator.build(policy, this)
         ).forEach(
-            component -> put(component.ref(), component)
+            configurator -> configurator.build(policy, this)
         );
       }};
     }

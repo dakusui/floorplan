@@ -41,13 +41,15 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     )
     private final Map<A, Object>                  values;
     private final Map<Operator.Type, Operator<A>> operators;
+    private final Map<Ref, Component<?>>          pool;
 
-    Impl(Ref ref, Map<A, Object> values, Map<Operator.Type, Operator<A>> operators) {
+    Impl(Ref ref, Map<A, Object> values, Map<Operator.Type, Operator<A>> operators, Map<Ref, Component<?>> pool) {
       this.ref = ref;
       this.values = new HashMap<A, Object>() {{
         putAll(requireNonNull(values));
       }};
       this.operators = requireNonNull(operators);
+      this.pool = pool;
     }
 
     @Override
@@ -74,8 +76,10 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T valueOf(A attr) {
-      requireNonNull(attr);
-      return (T) this.values.get(attr);
+      Object ret = this.values.get(requireNonNull(attr));
+      return (T) ((ret instanceof Ref) ?
+          pool.get(ret) :
+          ret);
     }
 
     @Override

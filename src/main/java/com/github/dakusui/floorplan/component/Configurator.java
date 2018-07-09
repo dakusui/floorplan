@@ -110,23 +110,30 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
-      return new Component.Impl<>(this.ref, new LinkedHashMap<A, Object>() {{
-        Arrays.stream(spec.attributes()).forEach(
-            (A attr) -> {
-              Object u;
-              Object v = require(
-                  u = Utils.resolve(attr, Impl.this, policy),
-                  attr::test,
-                  Exceptions.typeMismatch(attr.valueType(), u)
-              );
-              if (v instanceof Configurator)
-                put(attr, ((Configurator) v).build(policy, pool));
-              else
-                put(attr, v);
-            });
-      }}, operators);
+      return (Component<A>) pool.put(
+          this.ref,
+          new Component.Impl<>(this.ref, new LinkedHashMap<A, Object>() {{
+            Arrays.stream(spec.attributes()).forEach(
+                (A attr) -> {
+                  Object u;
+                  Object v = require(
+                      u = Utils.resolve(attr, Impl.this, policy),
+                      attr::test,
+                      Exceptions.typeMismatch(attr.valueType(), u)
+                  );
+                  if (v instanceof Configurator)
+                    put(attr, ((Configurator) v).ref());
+                  else
+                    put(attr, v);
+                });
+          }},
+              operators,
+              pool
+          )
+      );
     }
 
     @Override
