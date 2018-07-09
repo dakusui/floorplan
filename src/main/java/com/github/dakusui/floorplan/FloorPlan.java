@@ -4,18 +4,15 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.policy.Policy;
+import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static com.github.dakusui.floorplan.Connector.connector;
 import static com.github.dakusui.floorplan.component.Ref.ref;
-import static com.github.dakusui.floorplan.resolver.Resolvers.listOf;
-import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
 import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -115,5 +112,19 @@ public class FloorPlan {
     ).collect(
         toList()
     );
+  }
+
+  /**
+   * This method checks if a given {@code Profile} can be used with this {@code FloorPlan}
+   * object.
+   *
+   * A user should override this method if there are requirements on floor plans
+   * to be used for this profile.
+   *
+   * @param profile A profile to be checked.
+   * @return true - {@code profile} can be used with this floorplan / false - otherwise
+   */
+  public boolean canBeDeployedOn(Profile profile) {
+    return true;
   }
 }

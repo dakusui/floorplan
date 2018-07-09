@@ -1,35 +1,31 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.component.Attribute;
-import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Configurator;
-import com.github.dakusui.floorplan.component.Operator;
-import com.github.dakusui.floorplan.resolver.Resolver;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.floorplan.resolver.Resolvers;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.floorplan.resolver.Resolvers.listOf;
-import static com.github.dakusui.floorplan.resolver.Resolvers.nothing;
-import static com.github.dakusui.floorplan.resolver.Resolvers.slotValue;
+import static com.github.dakusui.floorplan.UtUtils.printf;
+import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class Nginx {
   public enum Attr implements Attribute {
+    @SuppressWarnings("unchecked")
     HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue("hostname")).$()),
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
-    TARGET_APP(SPEC.property(Configurator.class).defaultsTo(nothing()).$()),
+    BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
+    UPSTREAM(SPEC.property(List.class).defaultsTo(listOf(Ref.class)).$()),
     @SuppressWarnings("unchecked")
-    UPSTREAM(SPEC.property(List.class).defaultsTo(listOf(Configurator.class)).$()),
-    APP_URL(SPEC.property(String.class).defaultsTo(
-        Resolver.of(
-            a -> c -> p -> {
-              Configurator<BookstoreApp.Attr> app = Utils.resolve(Nginx.Attr.APP_URL, c, p);
-              return null;
-            },
-            () -> "An endpoint to access this application"
-        )
-    ).$());
+    ENDPOINT(SPEC.property(String.class).defaultsTo(Resolvers.transform(
+        listOf(
+            Object.class,
+            referenceTo(HOSTNAME),
+            referenceTo(PORTNUMBER),
+            referenceTo(BOOKSTORE_APPNAME)
+        ),
+        args -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2))
+    )).$());
     private final Bean<Attr> bean;
 
     Attr(Bean<Attr> bean) {
@@ -49,7 +45,30 @@ public class Nginx {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.INSTALL,
-          component -> Context::nop
+          component -> $ -> $.sequential(
+              $.simple(
+                  "yum install",
+                  () -> printf("ssh -l root@%s 'yum install nginx'", component.valueOf(Attr.HOSTNAME))),
+              $.simple(
+                  "configure",
+                  () -> printf(
+                      "ssh -l root@%s, echo \"upstream dynamic {%n" +
+                          "%s",
+                      "}\" > /etc/nginx.conf%n",
+                      component.valueOf(Attr.HOSTNAME),
+                      new LinkedList<String>() {{
+                        component.<List<Component<BookstoreApp.Attr>>>valueOf(Attr.UPSTREAM).forEach(
+                            (app) -> add(
+                                String.format(
+                                    "  server:%s:%s",
+                                    app.valueOf(BookstoreApp.Attr.WEBSERVER_HOST),
+                                    app.valueOf(BookstoreApp.Attr.WEBSERVER_PORT)
+                                )
+                            ));
+                      }}
+                  )
+              )
+          )
       )
   ).build();
 }

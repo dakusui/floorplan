@@ -1,7 +1,9 @@
 package com.github.dakusui.floorplan.exception;
 
+import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.policy.Profile;
 
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
@@ -82,6 +84,17 @@ public enum Exceptions {
               v.getClass().getCanonicalName() :
               "n/a"
       ));
+    };
+  }
+
+  public static Supplier<RuntimeException> incompatibleProfile(FloorPlan floorPlan, Profile profile) {
+    return () -> {
+      throw new IncompatibleProfile(
+          format(
+              "Given profile is not compatible with the floorplan. (floorplan='%s', profile='%s')",
+              floorPlan,
+              profile
+          ));
     };
   }
 }

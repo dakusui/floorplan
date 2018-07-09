@@ -8,11 +8,21 @@ import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.policy.Slot;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.Resolvers;
-import com.github.dakusui.floorplan.policy.Profile;
-import com.github.dakusui.floorplan.policy.Slot;
-import com.github.dakusui.floorplan.resolver.Resolver;
 
 public class BookstoreProfile implements Profile {
+  enum Category {
+    LOCAL,
+    DEV,
+    STG,
+    PROD
+  }
+
+  private final Category category = Category.LOCAL;
+
+  public Category getCategory() {
+    return this.category;
+  }
+
   @Override
   public Slot slotFor(Ref ref) {
     if (ref.spec() == Apache.SPEC)

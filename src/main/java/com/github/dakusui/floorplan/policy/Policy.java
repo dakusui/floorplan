@@ -6,14 +6,14 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
 
 import java.util.*;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
-import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
-import static com.github.dakusui.floorplan.utils.Checks.requireState;
+import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Collections.reverse;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -109,6 +109,11 @@ public interface Policy {
     }
 
     public Policy build() {
+      require(
+          requireNonNull(this.profile),
+          p -> requireNonNull(this.floorPlan).canBeDeployedOn(p),
+          Exceptions.incompatibleProfile(floorPlan, profile)
+      );
       return new Impl(new LinkedList<ResolverEntry>(resolvers) {{
         reverse(this);
       }}, this.specs,

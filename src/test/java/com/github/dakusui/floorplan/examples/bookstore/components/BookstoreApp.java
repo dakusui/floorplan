@@ -16,6 +16,7 @@ public class BookstoreApp {
     APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
     WEBSERVER(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
     WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
+    WEBSERVER_PORT(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
     DBSERVER(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
@@ -32,7 +33,7 @@ public class BookstoreApp {
             () -> "An endpoint to access a database server where data of this application is stored."
         )
     ).$()),
-    APP_URL(SPEC.property(String.class).defaultsTo(
+    ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
             a -> c -> p -> {
               Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(Utils.resolve(WEBSERVER, c, p));

@@ -10,6 +10,7 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
+import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
 import com.github.dakusui.floorplan.examples.bookstore.components.PostgreSQL;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.policy.Profile;
@@ -51,7 +52,6 @@ public class BookstoreExample {
     ////
     // Test
 
-
     ////
     // Tear down
   }
@@ -83,6 +83,7 @@ public class BookstoreExample {
         .addComponentSpec(Apache.SPEC)
         .addComponentSpec(PostgreSQL.SPEC)
         .addComponentSpec(BookstoreApp.SPEC)
+        .addComponentSpec(Nginx.SPEC)
         .setFloorPlan(floorPlan)
         .setProfile(profile)
         .build();
