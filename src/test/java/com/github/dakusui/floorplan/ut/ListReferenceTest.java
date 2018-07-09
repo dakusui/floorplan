@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class ListReferenceTest {
@@ -39,7 +41,7 @@ public class ListReferenceTest {
   }
 
   @Test
-  public void test() {
+  public void givenListAttribute$whenConfiguredThroughFloorPlan$thenResolvedToCorrectValue() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "1");
     Ref simple2 = Ref.ref(SimpleComponent.SPEC, "2");
     Ref cut = Ref.ref(Cut.SPEC, "1");
@@ -55,12 +57,15 @@ public class ListReferenceTest {
     ).configure(simple2, SimpleComponent.Attr.INSTANCE_NAME, immediate("ins02")
     ).build();
 
-    System.out.printf("value='%s'", fixture.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0));
+    assertThat(
+        fixture.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0),
+        asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME).equalTo("ins01").$()
+    );
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void test2() {
+  public void givenListAttribute$whenConfiguredThroughConfigurator$thenResolvedToCorrectValue() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "1");
     Ref simple2 = Ref.ref(SimpleComponent.SPEC, "2");
     Ref cut = Ref.ref(Cut.SPEC, "1");
@@ -76,7 +81,9 @@ public class ListReferenceTest {
     ).configure(simple2, SimpleComponent.Attr.INSTANCE_NAME, immediate("ins02")
     ).build();
 
-    System.out.printf("value='%s'%n", fixture.lookUp(cut).<Component<SimpleComponent.Attr>>valueOf(Cut.Attr.LIST_REF_ATTR, 0).<String>valueOf(SimpleComponent.Attr.INSTANCE_NAME));
-    System.out.printf("value='%s'%n", fixture.lookUp(cut).<Component<SimpleComponent.Attr>>valueOf(Cut.Attr.LIST_REF_ATTR, 1).<String>valueOf(SimpleComponent.Attr.INSTANCE_NAME));
+    assertThat(
+        fixture.lookUp(cut).<Component<SimpleComponent.Attr>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
+        asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME).eq("ins02").$()
+    );
   }
 }

@@ -1,14 +1,12 @@
 package com.github.dakusui.floorplan.resolver;
 
 import com.github.dakusui.floorplan.component.Attribute;
-import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.typeMismatch;
 import static com.github.dakusui.floorplan.utils.Checks.require;
@@ -26,9 +24,9 @@ public enum Resolvers {
     );
   }
 
-  public static <A extends Attribute, B extends Attribute> Resolver<A, Ref> referenceTo(Ref ref) {
+  public static <A extends Attribute> Resolver<A, Ref> referenceTo(Ref ref) {
     return Resolver.of(
-        a -> c -> p -> ref,//p.fixtureConfigurator().lookUp(ref),
+        a -> c -> p -> ref,
         () -> String.format("referenceTo(component:%s)", ref)
     );
   }
@@ -94,6 +92,38 @@ public enum Resolvers {
                 resolvers.stream().map(Object::toString).collect(toList())))
     );
   }
+
+  public static <A extends Attribute, T, R>
+  Resolver<A, R> transform(Resolver<A, T> resolver, Function<T, R> mapper) {
+    return Resolver.of(
+        a -> c -> p ->
+            mapper.apply(resolver.apply(a, c, p)),
+        () -> String.format(
+            "transform(%s, %s)",
+            resolver,
+            mapper
+        )
+    );
+  }
+
+  public static <A extends Attribute, T, R>
+  Resolver<A, List<R>> transformList(Resolver<A, List<T>> resolver, Function<T, R> mapper) {
+    return Resolver.of(
+        a -> c -> p ->
+            resolver.apply(a, c, p).stream().map(mapper).collect(toList()),
+        () -> String.format(
+            "transformList(%s, %s)",
+            resolver,
+            mapper
+        )
+    );
+  }
+
+  public static <A extends Attribute, E>
+  Resolver<A, Integer> sizeOf(Resolver<A, List<E>> resolver) {
+    return a -> c -> p -> resolver.apply(a, c, p).size();
+  }
+
 
   /**
    * Returns a resolver that always throw a missing value exception.
