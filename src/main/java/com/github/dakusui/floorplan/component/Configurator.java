@@ -1,12 +1,11 @@
 package com.github.dakusui.floorplan.component;
 
-import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.exception.Exceptions;
+import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.Utils;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
@@ -42,10 +41,10 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   }
 
   class Impl<A extends Attribute> implements Configurator<A> {
-    private final ComponentSpec<A>       spec;
-    private final Map<A, Resolver<A, ?>> resolvers = new LinkedHashMap<>();
-    Ref ref;
-    private Map<Operator.Type, Operator<A>> operators = new HashMap<>();
+    private final ComponentSpec<A>                spec;
+    private final Map<A, Resolver<A, ?>>          resolvers = new LinkedHashMap<>();
+    private final Ref                             ref;
+    private final Map<Operator.Type, Operator<A>> operators;
 
     Impl(ComponentSpec<A> spec, String id) {
       this.spec = spec;
