@@ -2,16 +2,24 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
+import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
   Function<Context, Action> actionFactoryFor(Operator.Type op);
 
+  /**
+   * This method should return
+   */
   default Function<Context, Action> install() {
     return actionFactoryFor(Operator.Type.INSTALL);
   }
@@ -33,6 +41,8 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
   }
 
   <T> T valueOf(A attr);
+
+  <T> T valueOf(A attr, int index);
 
   class Impl<A extends Attribute> implements Component<A> {
     private final Ref                             ref;
@@ -78,15 +88,28 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T valueOf(A attr) {
-      Object ret = this.values.get(requireNonNull(attr));
-      return (T) ((ret instanceof Ref) ?
-          pool.get(ret) :
-          ret);
+      return lookUpIfReference(this.values.get(requireNonNull(attr)));
+    }
+
+    @Override
+    public <T> T valueOf(A attr, int index) {
+      return lookUpIfReference(List.class.cast(this.<List<T>>valueOf(attr)).get(index));
     }
 
     @Override
     public String toString() {
       return String.format("component(%s)", ref());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T lookUpIfReference(Object obj) {
+      return (T) (obj instanceof Ref ?
+          require(
+              this.pool.get(obj),
+              Objects::nonNull,
+              noSuchElement("Component '%s' was not found", obj)
+          ) :
+          obj);
     }
   }
 }

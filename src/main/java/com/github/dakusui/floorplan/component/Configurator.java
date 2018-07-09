@@ -116,20 +116,17 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
         Arrays.stream(spec.attributes()).forEach(
             (A attr) -> {
               Object u;
-              Object v = require(
-                  u = Utils.resolve(attr, Impl.this, policy),
-                  attr::test,
-                  Exceptions.typeMismatch(attr.valueType(), u)
-              );
-              if (v instanceof Configurator)
-                put(attr, ((Configurator) v).ref());
-              else
-                put(attr, v);
+              put(attr,
+                  require(
+                      u = Utils.resolve(attr, Impl.this, policy),
+                      attr::test,
+                      Exceptions.typeMismatch(attr, attr.valueType(), u)
+                  ));
             });
       }},
           operators,
           pool
-  );
+      );
     }
 
     @Override

@@ -37,7 +37,7 @@ public interface FixtureConfigurator {
     private final List<Configurator<?>> configurators;
     private final Policy                policy;
 
-    Impl(Policy policy, Set<Ref> refs, Map<Connector, Ref> wires) {
+    Impl(Policy policy, Set<Ref> refs) {
       this.policy = requireNonNull(policy);
       this.refs = unmodifiableSet(refs);
       this.configurators = unmodifiableList(

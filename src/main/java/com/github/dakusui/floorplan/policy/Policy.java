@@ -4,6 +4,7 @@ import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
@@ -25,10 +26,10 @@ public interface Policy {
 
   /**
    * Returns a {@code FixtureConfigurator} instance.
-   *
-   * @return A {@code FixtureConfigurator}.
    */
   FixtureConfigurator fixtureConfigurator();
+
+  <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
   class Impl implements Policy {
     private final FixtureConfigurator fixtureConfigurator;
@@ -70,6 +71,11 @@ public interface Policy {
     @Override
     public FixtureConfigurator fixtureConfigurator() {
       return this.fixtureConfigurator;
+    }
+
+    @Override
+    public <A extends Attribute> Configurator<A> lookUp(Ref ref) {
+      return this.fixtureConfigurator().lookUp(ref);
     }
 
   }

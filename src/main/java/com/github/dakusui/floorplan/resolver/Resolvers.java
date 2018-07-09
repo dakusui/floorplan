@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import static com.github.dakusui.floorplan.exception.Exceptions.typeMismatch;
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public enum Resolvers {
@@ -72,19 +73,25 @@ public enum Resolvers {
   @SuppressWarnings("unchecked")
   public static <A extends Attribute, E>
   Resolver<A, List<E>> listOf(Class<E> type, Resolver<A, ? extends E>... resolvers) {
+    return listOf(type, asList(resolvers));
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Attribute, E>
+  Resolver<A, List<E>> listOf(Class<E> type, List<Resolver<A, ? extends E>> resolvers) {
     return Resolver.of(
         a -> c -> p ->
-            Arrays.stream(resolvers).map(
+            resolvers.stream().map(
                 resolver -> resolver.apply(a, c, p)
             ).map(
-                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(type, e))
-            ).collect(Collectors.toList())
-        ,
+                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(a, type, e))
+            ).collect(toList()),
         () -> String.format(
-            "listOf(%s)",
+            "listOf(%s, %s)",
+            type.getSimpleName(),
             String.join(
                 ",",
-                Arrays.stream(resolvers).map(Object::toString).collect(toList())))
+                resolvers.stream().map(Object::toString).collect(toList())))
     );
   }
 

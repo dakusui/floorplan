@@ -21,7 +21,7 @@ public class BookstoreApp {
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
             a -> c -> p -> {
-              Configurator<PostgreSQL.Attr> dbServer = p.fixtureConfigurator().lookUp(Utils.resolve(DBSERVER, c, p));
+              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(Utils.resolve(DBSERVER, c, p));
               return String.format(
                   "jdbc:postgresql://%s:%s/%s",
                   Utils.resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),

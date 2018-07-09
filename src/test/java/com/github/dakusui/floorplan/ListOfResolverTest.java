@@ -12,17 +12,18 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.listOf;
 import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
 
 public class ListOfResolverTest {
-  public static class CUT {
+  /**
+   * Component under test
+   */
+  public static class Cut {
     public enum Attr implements Attribute {
       STR(SPEC.property(String.class).defaultsTo(immediate("hi")).$()),
       @SuppressWarnings("unchecked")
       LIST_ATTR(
           SPEC.property(List.class).defaultsTo(listOf(String.class, immediate("hello"), immediate("world"), referenceTo(STR))).$()
-      ),
-      ;
+      ),;
 
-
-      private Bean<Attr> bean;
+      final private Bean<Attr> bean;
 
       Attr(Bean<Attr> bean) {
         this.bean = bean;
@@ -40,10 +41,10 @@ public class ListOfResolverTest {
 
   @Test
   public void test() {
-    Ref cut = Ref.ref(CUT.SPEC, "1");
-    Fixture fixture = UtUtils.buildPolicy(new FloorPlan().add(cut), CUT.SPEC).fixtureConfigurator().build();
+    Ref cut = Ref.ref(Cut.SPEC, "1");
+    Fixture fixture = UtUtils.buildPolicy(new FloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
-    System.out.println("" + fixture.lookUp(cut).valueOf(CUT.Attr.LIST_ATTR));
+    System.out.println("" + fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR));
 
   }
 }

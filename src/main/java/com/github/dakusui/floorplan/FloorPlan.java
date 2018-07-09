@@ -6,18 +6,24 @@ import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
+import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.floorplan.Connector.connector;
 import static com.github.dakusui.floorplan.component.Ref.ref;
-import static com.github.dakusui.floorplan.utils.Checks.requireState;
+import static com.github.dakusui.floorplan.resolver.Resolvers.listOf;
+import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
+import static com.github.dakusui.floorplan.utils.Checks.*;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public class FloorPlan {
 
-  private final Set<Ref>            refs  = new LinkedHashSet<>();
-  private final Map<Connector, Ref> wires = new LinkedHashMap<>();
+  private final Set<Ref>              refs  = new LinkedHashSet<>();
+  private final Map<Connector, Ref[]> wires = new LinkedHashMap<>();
 
   public FloorPlan() {
   }
@@ -37,26 +43,40 @@ public class FloorPlan {
 
   @SuppressWarnings("unchecked")
   public FloorPlan add(Ref... refs) {
-    this.refs.addAll(Arrays.asList(refs));
+    this.refs.addAll(asList(refs));
     return this;
   }
 
   public FloorPlan wire(
       Ref from,
-      Ref to,
-      Attribute as
+      Attribute as,
+      Ref... tos
   ) {
     requireState(
         from, r -> this.refs.contains(from),
         a -> String.format("'%s' is not yet added to this object. (from)", a)
     );
-    requireState(
-        to, r -> this.refs.contains(from),
-        a -> String.format("'%s' is not yet added to this object. (to)", a)
+    requireArgument(
+        requireNonNull(as),
+        a -> Ref.class.equals(a.valueType()) || List.class.equals(a.valueType()),
+        a -> String.format("Type of '%s' must either be '%s' or '%s'", a.name(), Ref.class, List.class)
     );
+    if (as.valueType().equals(Ref.class))
+      if (tos.length != 1)
+        throw new IllegalArgumentException(
+            String.format(
+                "The number of arguments for 'tos' must exactly be 1 ('%s' is not a list attribute)",
+                as
+            ));
+    Arrays.stream(tos).forEach(
+        each -> requireArgument(
+            each,
+            this.refs::contains,
+            (Ref v) -> String.format("'%s' is not yet added to this object. (to)", v)
+        ));
     this.wires.put(
         connector(from, as),
-        to
+        tos
     );
     return this;
   }
@@ -66,14 +86,34 @@ public class FloorPlan {
   }
 
   public FixtureConfigurator configurator(Policy policy) {
-    return new FixtureConfigurator.Impl(policy, refs, wires);
+    return new FixtureConfigurator.Impl(policy, refs);
   }
 
   public List<? extends ResolverEntry> allWires() {
-    return this.wires.entrySet().stream().map(entry -> new ResolverEntry(
-        (ref, attribute) -> entry.getKey().equals(Connector.connector(ref, attribute)),
-        Resolver.of(a -> c -> p -> entry.getValue())
-    )).collect(toList()
+    return this.wires.entrySet().stream().map(
+        entry -> new ResolverEntry(
+            (ref, attribute) ->
+                entry.getKey().equals(Connector.connector(ref, attribute)),
+            Resolver.of(
+                a -> c -> p ->
+                    a.valueType().equals(List.class) ?
+                        Resolvers.listOf(
+                            Ref.class,
+                            Arrays.stream(
+                                entry.getValue()
+                            ).map(
+                                Ref.class::cast
+                            ).map(
+                                Resolvers::referenceTo
+                            ).collect(
+                                toList()
+                            )
+                        ).apply(a, c, p) :
+                        entry.getValue()[0]
+            )
+        )
+    ).collect(
+        toList()
     );
   }
 }

@@ -194,7 +194,7 @@ public class FloorPlanTest {
         ).add(
             ref1
         ).wire(
-            ref1, simple1, ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
+            ref1, ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, simple1
         ),
         SimpleComponent.SPEC,
         ReferenceComponent.SPEC

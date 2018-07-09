@@ -14,8 +14,8 @@ public abstract class BookstoreFloorPlan extends FloorPlan {
   public static class ForSmoke extends BookstoreFloorPlan {
     ForSmoke() {
       this.add(httpd).add(dbms).add(app)
-          .wire(app, dbms, BookstoreApp.Attr.DBSERVER)
-          .wire(app, httpd, BookstoreApp.Attr.WEBSERVER);
+          .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
+          .wire(app, BookstoreApp.Attr.WEBSERVER, httpd);
     }
   }
 }
