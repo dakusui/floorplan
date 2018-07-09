@@ -14,14 +14,14 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 public class BookstoreApp {
   public enum Attr implements Attribute {
     APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    WEBSERVER(SPEC.property(Configurator.class).defaultsTo(nothing()).$()),
+    WEBSERVER(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
     WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
-    DBSERVER(SPEC.property(Configurator.class).defaultsTo(nothing()).$()),
+    DBSERVER(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
             a -> c -> p -> {
-              Configurator<PostgreSQL.Attr> dbServer = Utils.resolve(DBSERVER, c, p);
+              Configurator<PostgreSQL.Attr> dbServer = p.fixtureConfigurator().lookUp(Utils.resolve(DBSERVER, c, p));
               return String.format(
                   "jdbc:postgresql://%s:%s/%s",
                   Utils.resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
@@ -35,7 +35,7 @@ public class BookstoreApp {
     APP_URL(SPEC.property(String.class).defaultsTo(
         Resolver.of(
             a -> c -> p -> {
-              Configurator<Apache.Attr> webServer = Utils.resolve(WEBSERVER, c, p);
+              Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(Utils.resolve(WEBSERVER, c, p));
               return String.format(
                   "http://%s:%s/%s",
                   Utils.resolve(Apache.Attr.HOSTNAME, webServer, p),

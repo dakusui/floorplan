@@ -72,7 +72,7 @@ public class FloorPlan {
   public List<? extends ResolverEntry> allWires() {
     return this.wires.entrySet().stream().map(entry -> new ResolverEntry(
         (ref, attribute) -> entry.getKey().equals(Connector.connector(ref, attribute)),
-        Resolver.of(a -> c -> p -> p.fixtureConfigurator().lookUp(entry.getValue()))
+        Resolver.of(a -> c -> p -> entry.getValue())
     )).collect(toList()
     );
   }

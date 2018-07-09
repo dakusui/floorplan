@@ -60,7 +60,7 @@ public class PostgreSQL {
                             component.<Integer>valueOf(Attr.PORTNUMBER)
                         );
                       }),
-                      $.simple("Update port", () -> {
+                      $.simple("Update data dir", () -> {
                         printf(
                             "ssh -l root@%s sed -i /etc/postgresql.conf s/DATADIR=.+/DATADIR=%s/g",
                             component.<String>valueOf(Attr.HOSTNAME),

@@ -12,7 +12,7 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
  */
 public class ReferenceComponent {
   public enum Attr implements Attribute {
-    REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE(SPEC.property(AttributeBundle.class).defaultsTo(nothing()).$()),
+    REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
     REFERENCE_TO_ATTRIBUTE(SPEC.property(String.class).defaultsTo(Resolvers.attributeValueOf(SimpleComponent.Attr.INSTANCE_NAME, referenceTo(REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE))).$());
 
     private final Bean<Attr> bean;

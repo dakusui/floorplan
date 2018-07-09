@@ -25,9 +25,9 @@ public enum Resolvers {
     );
   }
 
-  public static <A extends Attribute, B extends Attribute> Resolver<A, Configurator<B>> referenceTo(Ref ref) {
+  public static <A extends Attribute, B extends Attribute> Resolver<A, Ref> referenceTo(Ref ref) {
     return Resolver.of(
-        a -> c -> p -> p.fixtureConfigurator().lookUp(ref),
+        a -> c -> p -> ref,//p.fixtureConfigurator().lookUp(ref),
         () -> String.format("referenceTo(component:%s)", ref)
     );
   }
@@ -41,9 +41,9 @@ public enum Resolvers {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A extends Attribute, B extends Attribute, T extends Configurator<B>, R> Resolver<A, R> attributeValueOf(B attr, Resolver<A, T> holder) {
+  public static <A extends Attribute, B extends Attribute, R> Resolver<A, R> attributeValueOf(B attr, Resolver<A, Ref> holder) {
     return Resolver.of(
-        a -> c -> p -> Utils.resolve(attr, holder.apply(a).apply(c).apply(p), p),
+        a -> c -> p -> Utils.resolve(attr, p.fixtureConfigurator().lookUp(holder.apply(a).apply(c).apply(p)), p),
         () -> String.format("attributeValueOf(%s, %s)", attr, holder)
     );
   }

@@ -50,6 +50,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
       }};
       this.operators = requireNonNull(operators);
       this.pool = pool;
+      this.pool.put(this.ref, this);
     }
 
     @Override
@@ -63,6 +64,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
       return (ComponentSpec<A>) ref.spec();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Function<Context, Action> actionFactoryFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
