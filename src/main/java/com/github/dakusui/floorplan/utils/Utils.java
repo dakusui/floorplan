@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.utils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
-import com.github.dakusui.floorplan.Fixture;
+import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Configurator;

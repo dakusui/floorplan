@@ -57,9 +57,7 @@ public class Nginx {
                       "}\" > /etc/nginx.conf%n",
                       component.<String>valueOf(Attr.HOSTNAME),
                       new LinkedList<String>() {{
-                        IntStream.range(0, component.sizeOf(Attr.UPSTREAM)).mapToObj(
-                            i -> component.<Component<BookstoreApp.Attr>>valueOf(Attr.UPSTREAM, i)
-                        ).forEach(
+                        component.<Component<BookstoreApp.Attr>>streamOf(Attr.UPSTREAM).forEach(
                             (app) -> add(
                                 String.format(
                                     "  server:%s:%s",

@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan.examples.bookstore;
+package com.github.dakusui.floorplan.examples.bookstore.floorplan;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;

@@ -2,8 +2,8 @@ package com.github.dakusui.floorplan.ut.tdesc;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.Fixture;
-import com.github.dakusui.floorplan.TestSuiteDescriptor;
+import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 
 import java.util.List;

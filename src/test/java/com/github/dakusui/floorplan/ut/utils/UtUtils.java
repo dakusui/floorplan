@@ -1,6 +1,6 @@
 package com.github.dakusui.floorplan.ut.utils;
 
-import com.github.dakusui.floorplan.FloorPlan;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;

@@ -1,8 +1,8 @@
-package com.github.dakusui.floorplan.examples.bookstore;
+package com.github.dakusui.floorplan.examples.bookstore.floorplan;
 
-import com.github.dakusui.floorplan.Fixture;
-import com.github.dakusui.floorplan.FixtureConfigurator;
-import com.github.dakusui.floorplan.FloorPlan;
+import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;

@@ -1,6 +1,6 @@
 package com.github.dakusui.floorplan.ut.tdesc;
 
-import com.github.dakusui.floorplan.FloorPlan;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.Ref;
 
 import static com.github.dakusui.floorplan.component.Ref.ref;

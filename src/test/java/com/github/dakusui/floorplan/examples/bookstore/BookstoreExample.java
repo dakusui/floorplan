@@ -1,16 +1,16 @@
-package com.github.dakusui.floorplan.examples;
+package com.github.dakusui.floorplan.examples.bookstore;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.Fixture;
-import com.github.dakusui.floorplan.FixtureConfigurator;
-import com.github.dakusui.floorplan.TestSuiteDescriptor;
+import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.examples.bookstore.BookstoreFixture;
-import com.github.dakusui.floorplan.examples.bookstore.BookstoreFloorPlan;
-import com.github.dakusui.floorplan.examples.bookstore.BookstoreProfile;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFloorPlan;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;

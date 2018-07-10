@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.TestSuiteDescriptor;
+import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.ut.tdesc.UtTsDescProfile;
 import com.github.dakusui.floorplan.ut.tdesc.UtTsDescriptorBuilder;
 import com.github.dakusui.floorplan.utils.Utils;

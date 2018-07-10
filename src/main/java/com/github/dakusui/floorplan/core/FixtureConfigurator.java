@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan;
+package com.github.dakusui.floorplan.core;
 
 import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.policy.Policy;

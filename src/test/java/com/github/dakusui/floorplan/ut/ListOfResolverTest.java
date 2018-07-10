@@ -1,6 +1,6 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.floorplan.Fixture;
+import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;

@@ -1,9 +1,11 @@
-package com.github.dakusui.floorplan;
+package com.github.dakusui.floorplan.tdesc;
 
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.policy.Profile;
 
