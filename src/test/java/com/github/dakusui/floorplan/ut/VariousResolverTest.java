@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.UtUtils.buildPolicy;
+import static com.github.dakusui.floorplan.ut.UtUtils.buildPolicy;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 @RunWith(Enclosed.class)

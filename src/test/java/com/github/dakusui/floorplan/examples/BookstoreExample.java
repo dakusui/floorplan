@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.TestSuiteDescriptor;
-import com.github.dakusui.floorplan.UtUtils;
+import com.github.dakusui.floorplan.ut.UtUtils;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.examples.bookstore.BookstoreFixture;

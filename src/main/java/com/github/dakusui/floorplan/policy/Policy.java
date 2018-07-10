@@ -94,9 +94,9 @@ public interface Policy {
     public Builder() {
     }
 
-    public Builder setFloorPlan(FloorPlan floorPlan) {
+    public Builder setFloorPlan(FloorPlan<?> floorPlan) {
       requireState(this, v -> v.floorPlan == null);
-      this.resolvers.addAll(createResolversForFloorPlan(floorPlan));
+      this.resolvers.addAll(createResolversForFloorPlan(requireNonNull(floorPlan)));
       this.floorPlan = requireNonNull(floorPlan);
       return this;
     }
