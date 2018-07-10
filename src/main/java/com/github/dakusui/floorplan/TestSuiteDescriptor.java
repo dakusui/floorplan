@@ -11,50 +11,66 @@ import java.util.List;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
-public interface TestSuite {
+public interface TestSuiteDescriptor {
   String getName();
 
   int size();
 
   String getNameFor(int i);
 
-  Action setUpFirstTime(Context context);
+  Named setUpFirstTime(Context context);
 
-  Action setUp(Context context, int i);
+  Named setUp(Context context, int i);
 
-  Action test(Context context, int i);
+  Named test(Context context, int i);
 
-  Action tearDown(Context context, int i);
+  Named tearDown(Context context, int i);
 
-  Action tearDownLastTime(Context context);
+  Named tearDownLastTime(Context context);
 
-  interface Factory {
-    TestSuite create(Profile profile);
+  interface Factory<P extends FloorPlan> {
+    TestSuiteDescriptor create(Profile profile);
 
-    abstract class Base<P extends FloorPlan<P>, F extends Fixture> implements Factory {
+    P floorPlan();
+
+    abstract class Base<P extends FloorPlan, F extends Fixture> implements Factory<P> {
+      private final P floorPlan = buildFloorPlan();
+
       @SuppressWarnings("unchecked")
-      public TestSuite create(Profile profile) {
+      public TestSuiteDescriptor create(Profile profile) {
         F fixture = (F) addComponentSpecsTo(
             allKnownComponentSpecs(),
             new Policy.Builder()
-                .setFloorPlan(buildFloorPlan())
-                .setProfile(requireNonNull(profile))
-                .setFixtureFactory(createFixtureFactory())
+        ).setFloorPlan(
+            floorPlan
+        ).setProfile(
+            requireNonNull(profile)
+        ).setFixtureFactory(
+            createFixtureFactory()
         ).build().fixtureConfigurator().build();
-        return new TestSuite() {
+        return new TestSuiteDescriptor() {
           @Override
-          public Action setUpFirstTime(Context context) {
-            return createActionForSetUpFirstTime(context, fixture);
+          public Named setUpFirstTime(Context context) {
+            return (Named) context.named(
+                "BEFORE ALL",
+                createActionForSetUpFirstTime(context, fixture)
+            );
           }
 
           @Override
-          public Action setUp(Context context, int i) {
-            return createActionForSetUp(i, context, fixture);
+          public Named setUp(Context context, int i) {
+            return (Named) context.named(
+                "BEFORE",
+                createActionForSetUp(i, context, fixture)
+            );
           }
 
           @Override
           public Named test(Context context, int i) {
-            return createActionForTest(i, context, fixture);
+            return (Named) context.named(
+                String.format("TEST[%02d]", i),
+                createActionForTest(i, context, fixture)
+            );
           }
 
           @Override
@@ -73,15 +89,25 @@ public interface TestSuite {
           }
 
           @Override
-          public Action tearDown(Context context, int i) {
-            return createActionForTearDown(i, context, fixture);
+          public Named tearDown(Context context, int i) {
+            return (Named) context.named(
+                "AFTER",
+                createActionForTearDown(i, context, fixture)
+            );
           }
 
           @Override
-          public Action tearDownLastTime(Context context) {
-            return createActionForTearDownLastTime(context, fixture);
+          public Named tearDownLastTime(Context context) {
+            return (Named) context.named("AFTER ALL",
+                createActionForTearDownLastTime(context, fixture)
+            );
           }
         };
+      }
+
+      @Override
+      public P floorPlan() {
+        return this.floorPlan;
       }
 
       protected abstract String name();
@@ -100,7 +126,7 @@ public interface TestSuite {
 
       protected abstract Action createActionForSetUpFirstTime(Context context, F fixture);
 
-      protected abstract Named createActionForTest(int i, Context context, F fixture);
+      protected abstract Action createActionForTest(int i, Context context, F fixture);
 
       protected abstract Action createActionForTearDown(int i, Context context, F fixture);
 

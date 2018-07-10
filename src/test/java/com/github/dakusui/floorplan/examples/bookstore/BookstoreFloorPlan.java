@@ -1,7 +1,5 @@
 package com.github.dakusui.floorplan.examples.bookstore;
 
-import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.FloorPlan;
@@ -45,11 +43,6 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
             public String endpoint() {
               return this.lookUp(app).valueOf(BookstoreApp.Attr.ENDPOINT);
             }
-
-            @Override
-            public Action install(Context $) {
-              return null;
-            }
           };
         }
       };
@@ -65,8 +58,7 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
       this.add(httpd).add(dbms).add(app).add(proxy)
           .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
           .wire(app, BookstoreApp.Attr.WEBSERVER, httpd)
-          .wire(proxy, Nginx.Attr.UPSTREAM, app)
-      ;
+          .wire(proxy, Nginx.Attr.UPSTREAM, app);
     }
 
     @Override
@@ -78,11 +70,6 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
             @Override
             public String endpoint() {
               return this.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
-            }
-
-            @Override
-            public Action install(Context $) {
-              return null;
             }
           };
         }
@@ -116,11 +103,6 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
             @Override
             public String endpoint() {
               return this.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
-            }
-
-            @Override
-            public Action install(Context $) {
-              return null;
             }
           };
         }

@@ -5,6 +5,9 @@ import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.floorplan.UtUtils.printf;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
@@ -47,21 +50,23 @@ public class Nginx {
           component -> $ -> $.sequential(
               $.simple(
                   "yum install",
-                  () -> printf("ssh -l root@%s 'yum install nginx'", component.valueOf(Attr.HOSTNAME))),
+                  () -> printf("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
               $.simple(
                   "configure",
                   () -> printf(
                       "ssh -l root@%s, echo \"upstream dynamic {%n" +
                           "%s",
                       "}\" > /etc/nginx.conf%n",
-                      component.valueOf(Attr.HOSTNAME),
+                      component.<String>valueOf(Attr.HOSTNAME),
                       new LinkedList<String>() {{
-                        component.<List<Component<BookstoreApp.Attr>>>valueOf(Attr.UPSTREAM).forEach(
+                        IntStream.range(0, component.sizeOf(Attr.UPSTREAM)).mapToObj(
+                            i -> component.<Component<BookstoreApp.Attr>>valueOf(Attr.UPSTREAM, i)
+                        ).forEach(
                             (app) -> add(
                                 String.format(
                                     "  server:%s:%s",
-                                    app.valueOf(BookstoreApp.Attr.WEBSERVER_HOST),
-                                    app.valueOf(BookstoreApp.Attr.WEBSERVER_PORT)
+                                    app.<String>valueOf(BookstoreApp.Attr.WEBSERVER_HOST),
+                                    app.<String>valueOf(BookstoreApp.Attr.WEBSERVER_PORT)
                                 )
                             ));
                       }}

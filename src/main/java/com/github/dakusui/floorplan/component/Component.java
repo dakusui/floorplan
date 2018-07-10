@@ -17,6 +17,7 @@ import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
   interface ActionFactory extends Function<Context, Action> {
   }
+
   ActionFactory actionFactoryFor(Operator.Type op);
 
   /**
@@ -45,6 +46,8 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
   <T> T valueOf(A attr);
 
   <T> T valueOf(A attr, int index);
+
+  <T> int sizeOf(A attr);
 
   class Impl<A extends Attribute> implements Component<A> {
     private final Ref                             ref;
@@ -96,6 +99,11 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     @Override
     public <T> T valueOf(A attr, int index) {
       return lookUpIfReference(List.class.cast(this.<List<T>>valueOf(attr)).get(index));
+    }
+
+    @Override
+    public <T> int sizeOf(A attr) {
+      return List.class.cast(this.<List>valueOf(attr)).size();
     }
 
     @Override

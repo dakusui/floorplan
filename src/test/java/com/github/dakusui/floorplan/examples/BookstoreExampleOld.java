@@ -47,7 +47,8 @@ public class BookstoreExampleOld {
             topLevelContext,
             true,
             Component::install,
-            fixture, dbms, httpd, app
+            fixture,
+            dbms, httpd, app
         )
     ).build().performAndReport();
 
@@ -75,9 +76,7 @@ public class BookstoreExampleOld {
   }
 
   private BookstoreFloorPlan buildFloorPlan() {
-    return new BookstoreFloorPlan.ForSmoke().add(httpd).add(dbms).add(app)
-        .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
-        .wire(app, BookstoreApp.Attr.WEBSERVER, httpd);
+    return new BookstoreFloorPlan.ForSmoke();
 
   }
 }

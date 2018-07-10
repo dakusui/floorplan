@@ -2,6 +2,7 @@ package com.github.dakusui.floorplan.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
@@ -77,5 +78,13 @@ public class Utils {
     return parallel ?
         context.concurrent(actions) :
         context.sequential(actions);
+  }
+
+  public static void perform(Action action) {
+    new ReportingActionPerformer.Builder(action).build().performAndReport();
+  }
+
+  public static Context newContext() {
+    return new Context.Impl();
   }
 }
