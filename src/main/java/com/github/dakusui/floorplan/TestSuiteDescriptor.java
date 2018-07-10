@@ -60,7 +60,7 @@ public interface TestSuiteDescriptor {
           @Override
           public Named setUp(Context context, int i) {
             return (Named) context.named(
-                "BEFORE",
+                String.format("BEFORE:%s", getNameFor(i)),
                 createActionForSetUp(i, context, fixture)
             );
           }
@@ -91,7 +91,7 @@ public interface TestSuiteDescriptor {
           @Override
           public Named tearDown(Context context, int i) {
             return (Named) context.named(
-                "AFTER",
+                String.format("AFTER:%s", getNameFor(i)),
                 createActionForTearDown(i, context, fixture)
             );
           }

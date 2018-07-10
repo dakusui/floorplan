@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import static com.github.dakusui.floorplan.ut.UtUtils.printf;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.printf;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 /**

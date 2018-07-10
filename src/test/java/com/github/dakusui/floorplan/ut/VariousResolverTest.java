@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.ut.floorplan.UtFloorPlan;
+import com.github.dakusui.floorplan.ut.tdesc.UtTsDescFloorPlan;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.ut.UtUtils.buildPolicy;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.buildPolicy;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 @RunWith(Enclosed.class)
@@ -43,7 +43,7 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      Fixture fixture = buildPolicy(new UtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      Fixture fixture = buildPolicy(new UtTsDescFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
       assertThat(
           fixture.lookUp(cut).valueOf(Cut.Attr.TRANSFORM),
@@ -78,7 +78,7 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      Fixture fixture = buildPolicy(new UtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      Fixture fixture = buildPolicy(new UtTsDescFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
       assertThat(
           fixture.lookUp(cut).valueOf(Cut.Attr.TRANSFORM_LIST),
@@ -117,7 +117,7 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      Fixture fixture = buildPolicy(new UtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      Fixture fixture = buildPolicy(new UtTsDescFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
       assertThat(
           fixture.lookUp(cut).valueOf(Cut.Attr.SIZE_OF),

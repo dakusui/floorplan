@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.TestSuiteDescriptor;
-import com.github.dakusui.floorplan.ut.UtUtils;
+import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.examples.bookstore.BookstoreFixture;
@@ -102,26 +102,31 @@ public class BookstoreExample {
 
   @BeforeClass
   public static void beforeAll() {
+    System.out.printf("TestSuite:%s[%stests]%n", DESCRIPTOR.getName(), DESCRIPTOR.size());
     Utils.perform(DESCRIPTOR.setUpFirstTime(Utils.newContext()));
   }
 
   @Before
   public void before() {
+    System.out.printf("TestSuite:%s.TestCase%s%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
     Utils.perform(DESCRIPTOR.setUp(Utils.newContext(), 0));
   }
 
   @Test
   public void test() {
+    System.out.printf("TestSuite:%s.TestCase%s%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
     Utils.perform(DESCRIPTOR.test(Utils.newContext(), 0));
   }
 
   @After
   public void after() {
+    System.out.printf("TestSuite:%s.TestCase%s%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
     Utils.perform(DESCRIPTOR.tearDown(Utils.newContext(), 0));
   }
 
   @AfterClass
   public static void afterAll() {
+    System.out.printf("TestSuite:%s%n", DESCRIPTOR.getName());
     Utils.perform(DESCRIPTOR.tearDownLastTime(Utils.newContext()));
   }
 }

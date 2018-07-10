@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.github.dakusui.floorplan.ut.UtUtils.printf;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.printf;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class Nginx {
