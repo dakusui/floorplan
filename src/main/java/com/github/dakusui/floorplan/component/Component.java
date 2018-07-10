@@ -2,52 +2,78 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
+import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
-  Function<Context, Action> actionFactoryFor(Operation op);
-
-  default Function<Context, Action> install() {
-    return actionFactoryFor(Operation.INSTALL);
+  interface ActionFactory extends Function<Context, Action> {
   }
 
-  default Function<Context, Action> start() {
-    return actionFactoryFor(Operation.START);
+  ActionFactory actionFactoryFor(Operator.Type op);
+
+  /**
+   * This method should return
+   */
+  default ActionFactory install() {
+    return actionFactoryFor(Operator.Type.INSTALL);
   }
 
-  default Function<Context, Action> stop() {
-    return actionFactoryFor(Operation.STOP);
+  default ActionFactory start() {
+    return actionFactoryFor(Operator.Type.START);
   }
 
-  default Function<Context, Action> nuke() {
-    return actionFactoryFor(Operation.NUKE);
+  default ActionFactory stop() {
+    return actionFactoryFor(Operator.Type.STOP);
   }
 
-  default Function<Context, Action> uninstall() {
-    return actionFactoryFor(Operation.UNINSTALL);
+  default ActionFactory nuke() {
+    return actionFactoryFor(Operator.Type.NUKE);
+  }
+
+  default ActionFactory uninstall() {
+    return actionFactoryFor(Operator.Type.UNINSTALL);
   }
 
   <T> T valueOf(A attr);
 
+  <T> T valueOf(A attr, int index);
+
+  int sizeOf(A attr);
+
+  default <T> Stream<T> streamOf(A attr) {
+    return IntStream.range(0, sizeOf(attr)).mapToObj(
+        i -> valueOf(attr, i)
+    );
+  }
+
   class Impl<A extends Attribute> implements Component<A> {
-    private final Ref                         ref;
+    private final Ref                             ref;
     @SuppressWarnings(
         "MismatchedQueryAndUpdateOfCollection"/* This field is updated in its static block on assignment*/
     )
-    private final Map<A, Object>              values;
-    private final Map<Operation, Operator<A>> operators;
+    private final Map<A, Object>                  values;
+    private final Map<Operator.Type, Operator<A>> operators;
+    private final Map<Ref, Component<?>>          pool;
 
-    Impl(Ref ref, Map<A, Object> values, Map<Operation, Operator<A>> operators) {
+    Impl(Ref ref, Map<A, Object> values, Map<Operator.Type, Operator<A>> operators, Map<Ref, Component<?>> pool) {
       this.ref = ref;
       this.values = new HashMap<A, Object>() {{
         putAll(requireNonNull(values));
       }};
       this.operators = requireNonNull(operators);
+      this.pool = pool;
+      this.pool.put(this.ref, this);
     }
 
     @Override
@@ -61,11 +87,12 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
       return (ComponentSpec<A>) ref.spec();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Function<Context, Action> actionFactoryFor(Operation op) {
+    public ActionFactory actionFactoryFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),
-          o -> Operator.unsupported()
+          o -> (Operator<A>) Operator.Factory.unsupported(op).apply((ComponentSpec<Attribute>) spec())
       ).apply(
           this
       );
@@ -74,13 +101,33 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T valueOf(A attr) {
-      requireNonNull(attr);
-      return (T) this.values.get(attr);
+      return lookUpIfReference(this.values.get(requireNonNull(attr)));
+    }
+
+    @Override
+    public <T> T valueOf(A attr, int index) {
+      return lookUpIfReference(List.class.cast(this.<List<T>>valueOf(attr)).get(index));
+    }
+
+    @Override
+    public int sizeOf(A attr) {
+      return List.class.cast(this.<List>valueOf(attr)).size();
     }
 
     @Override
     public String toString() {
       return String.format("component(%s)", ref());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T lookUpIfReference(Object obj) {
+      return (T) (obj instanceof Ref ?
+          require(
+              this.pool.get(obj),
+              Objects::nonNull,
+              noSuchElement("Component '%s' was not found", obj)
+          ) :
+          obj);
     }
   }
 }

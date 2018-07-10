@@ -18,15 +18,17 @@ public interface ComponentSpec<A extends Attribute> {
     return new Attribute.Bean.Builder<>(this, type);
   }
 
-  class Impl<A extends Attribute> implements ComponentSpec<A> {
-    private final Class<A>                    attributeType;
-    private final String                      specName;
-    private final Map<Operation, Operator<A>> operators;
+  Map<Operator.Type, Operator.Factory<A>> operatorFactories();
 
-    Impl(String specName, Class<A> attributeType, Map<Operation, Operator<A>> operators) {
+  class Impl<A extends Attribute> implements ComponentSpec<A> {
+    private final Class<A>                                attributeType;
+    private final String                                  specName;
+    private final Map<Operator.Type, Operator.Factory<A>> operatorFactories;
+
+    Impl(String specName, Class<A> attributeType, Map<Operator.Type, Operator.Factory<A>> operatorFactories) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);
-      this.operators = operators;
+      this.operatorFactories = operatorFactories;
     }
 
     @Override
@@ -40,6 +42,11 @@ public interface ComponentSpec<A extends Attribute> {
     }
 
     @Override
+    public Map<Operator.Type, Operator.Factory<A>> operatorFactories() {
+      return this.operatorFactories;
+    }
+
+    @Override
     public String toString() {
       return this.specName;
     }
@@ -47,23 +54,27 @@ public interface ComponentSpec<A extends Attribute> {
   }
 
   class Builder<A extends Attribute> {
-    private final Class<A>                    attributeType;
-    private final String                      specName;
-    private       Map<Operation, Operator<A>> operators;
+    private final Class<A>                                attributeType;
+    private final String                                  specName;
+    private       Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
     public Builder(String specName, Class<A> attributeType) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);
-      this.operators= new HashMap<>();
+      this.operatorFactories = new HashMap<>();
     }
 
-    public Builder<A> setOperator(Operation op, Operator<A> operator) {
-      this.operators.put(requireNonNull(op), requireNonNull(operator));
+    public Builder(Class<A> attributeType) {
+      this(requireNonNull(requireNonNull(attributeType).getEnclosingClass()).getSimpleName(), attributeType);
+    }
+
+    public Builder<A> addOperatorFactory(Operator.Factory<A> operator) {
+      this.operatorFactories.put(requireNonNull(operator.type()), requireNonNull(operator));
       return this;
     }
 
     public ComponentSpec<A> build() {
-      return new Impl<A>(this.specName, this.attributeType, this.operators);
+      return new Impl<>(this.specName, this.attributeType, this.operatorFactories);
     }
   }
 }

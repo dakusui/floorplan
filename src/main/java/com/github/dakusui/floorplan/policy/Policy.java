@@ -1,18 +1,20 @@
 package com.github.dakusui.floorplan.policy;
 
-import com.github.dakusui.floorplan.DeploymentConfigurator;
+import com.github.dakusui.floorplan.Fixture;
+import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
 
 import java.util.*;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
-import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
-import static com.github.dakusui.floorplan.utils.Checks.requireState;
+import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Collections.reverse;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -24,27 +26,27 @@ public interface Policy {
   Profile profile();
 
   /**
-   * Returns a {@code DeploymentConfigurator} instance.
-   *
-   * @return A {@code DeploymentConfigurator}.
+   * Returns a {@code FixtureConfigurator} instance.
    */
-  DeploymentConfigurator deploymentConfigurator();
+  FixtureConfigurator fixtureConfigurator();
+
+  <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
   class Impl implements Policy {
-    private final DeploymentConfigurator deploymentConfigurator;
-    private final Profile                profile;
+    private final FixtureConfigurator fixtureConfigurator;
+    private final Profile             profile;
 
-    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan floorPlan, Profile profile) {
+    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan<?> floorPlan, Profile profile, Fixture.Factory fixtureFactory) {
       requireArgument(
           floorPlan,
-          f -> f.allReferences().stream().allMatch(ref -> specs.contains(ref.spec())),
+          f -> f.allReferences().stream().allMatch((Ref ref) -> specs.contains(ref.spec())),
           () -> String.format(
               "References using unknown specs are found.: %s",
-              floorPlan.allReferences().stream().filter(ref -> !specs.contains(ref.spec())).collect(toList())
+              floorPlan.allReferences().stream().filter((Ref ref) -> !specs.contains(ref.spec())).collect(toList())
           )
       );
       this.resolvers = unmodifiableList(requireNonNull(resolvers));
-      this.deploymentConfigurator = requireNonNull(floorPlan).configurator(this);
+      this.fixtureConfigurator = requireNonNull(floorPlan).configurator(this, fixtureFactory);
       this.profile = requireNonNull(profile);
     }
 
@@ -68,24 +70,33 @@ public interface Policy {
     }
 
     @Override
-    public DeploymentConfigurator deploymentConfigurator() {
-      return this.deploymentConfigurator;
+    public FixtureConfigurator fixtureConfigurator() {
+      return this.fixtureConfigurator;
+    }
+
+    @Override
+    public <A extends Attribute> Configurator<A> lookUp(Ref ref) {
+      return this.fixtureConfigurator().lookUp(ref);
     }
 
   }
 
   class Builder {
-    private final List<ResolverEntry>    resolvers = new LinkedList<>();
-    private final List<ComponentSpec<?>> specs     = new LinkedList<>();
-    private       FloorPlan              floorPlan = null;
+    private final List<ResolverEntry>    resolvers      = new LinkedList<>();
+    private final List<ComponentSpec<?>> specs          = new LinkedList<>();
+    private       FloorPlan              floorPlan      = null;
     private       Profile                profile;
+    @SuppressWarnings("unchecked")
+    private       Fixture.Factory        fixtureFactory =
+        (policy, fixtureConfigurator) -> new Fixture.Base(policy, fixtureConfigurator) {
+        };
 
     public Builder() {
     }
 
-    public Builder setFloorPlan(FloorPlan floorPlan) {
+    public Builder setFloorPlan(FloorPlan<?> floorPlan) {
       requireState(this, v -> v.floorPlan == null);
-      this.resolvers.addAll(createResolversForFloorPlan(floorPlan));
+      this.resolvers.addAll(createResolversForFloorPlan(requireNonNull(floorPlan)));
       this.floorPlan = requireNonNull(floorPlan);
       return this;
     }
@@ -102,16 +113,27 @@ public interface Policy {
       return this;
     }
 
+    public Builder setFixtureFactory(Fixture.Factory fixtureFactory) {
+      this.fixtureFactory = requireNonNull(fixtureFactory);
+      return this;
+    }
+
+    @SuppressWarnings("unchecked")
     public Policy build() {
+      require(
+          requireNonNull(this.profile),
+          p -> requireNonNull(this.floorPlan).canBeDeployedOn(p),
+          Exceptions.incompatibleProfile(floorPlan, profile)
+      );
       return new Impl(new LinkedList<ResolverEntry>(resolvers) {{
         reverse(this);
       }}, this.specs,
           this.floorPlan,
-          this.profile
-      );
+          this.profile,
+          requireNonNull(this.fixtureFactory));
     }
 
-    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan floorPlan) {
+    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan<?> floorPlan) {
       return floorPlan.allWires();
     }
 

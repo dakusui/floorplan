@@ -1,7 +1,9 @@
 package com.github.dakusui.floorplan.exception;
 
+import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.policy.Profile;
 
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
@@ -71,16 +73,28 @@ public enum Exceptions {
     };
   }
 
-  public static Supplier<RuntimeException> typeMismatch(Class<?> expected, Object v) {
+  public static Supplier<RuntimeException> typeMismatch(Attribute attr, Class<?> expected, Object v) {
     return () -> {
       throw new TypeMismatch(String.format(
-          "A value of '%s' was expected, but '%s'(%s) was given.",
+          "A value of '%s' was expected to be type '%s', but '%s'(%s) was given.",
+          attr.name(),
           expected.getCanonicalName(),
           v,
           v != null ?
               v.getClass().getCanonicalName() :
               "n/a"
       ));
+    };
+  }
+
+  public static Supplier<RuntimeException> incompatibleProfile(FloorPlan floorPlan, Profile profile) {
+    return () -> {
+      throw new IncompatibleProfile(
+          format(
+              "Given profile is not compatible with the floorplan. (floorplan='%s', profile='%s')",
+              floorPlan,
+              profile
+          ));
     };
   }
 }
