@@ -10,5 +10,5 @@ public abstract class BookstoreFixture extends Fixture.Base {
     super(policy, fixtureConfigurator);
   }
 
-  public abstract String endpoint();
+  public abstract String applicationEndpoint();
 }

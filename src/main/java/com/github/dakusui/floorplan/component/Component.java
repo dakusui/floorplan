@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
 import static com.github.dakusui.floorplan.utils.Checks.require;
@@ -47,7 +49,13 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
 
   <T> T valueOf(A attr, int index);
 
-  <T> int sizeOf(A attr);
+  int sizeOf(A attr);
+
+  default <T> Stream<T> streamOf(A attr) {
+    return IntStream.range(0, sizeOf(attr)).mapToObj(
+        i -> valueOf(attr, i)
+    );
+  }
 
   class Impl<A extends Attribute> implements Component<A> {
     private final Ref                             ref;
@@ -102,7 +110,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     }
 
     @Override
-    public <T> int sizeOf(A attr) {
+    public int sizeOf(A attr) {
       return List.class.cast(this.<List>valueOf(attr)).size();
     }
 

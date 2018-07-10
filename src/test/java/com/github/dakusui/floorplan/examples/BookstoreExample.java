@@ -33,7 +33,7 @@ public class BookstoreExample {
 
     @Override
     protected String nameFor(int i) {
-      return String.format("example-test-%02d", i);
+      return String.format("example-test[%02d]", i);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class BookstoreExample {
         public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
           return new BookstoreFixture(policy, fixtureConfigurator) {
             @Override
-            public String endpoint() {
+            public String applicationEndpoint() {
               return this.lookUp(floorPlan().proxy).valueOf(Nginx.Attr.ENDPOINT);
             }
           };
@@ -85,7 +85,7 @@ public class BookstoreExample {
     @Override
     protected Action createActionForTest(int i, Context context, BookstoreFixture fixture) {
       return context.simple("Issue a request to end point",
-          () -> UtUtils.printf("ssh -l myuser@%s curl '%s'", "localhost", fixture.endpoint())
+          () -> UtUtils.printf("ssh -l myuser@%s curl '%s'", "localhost", fixture.applicationEndpoint())
       );
     }
 

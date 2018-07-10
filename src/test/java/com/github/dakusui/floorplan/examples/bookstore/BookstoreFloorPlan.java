@@ -40,7 +40,7 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
         public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
           return new BookstoreFixture(policy, fixtureConfigurator) {
             @Override
-            public String endpoint() {
+            public String applicationEndpoint() {
               return this.lookUp(app).valueOf(BookstoreApp.Attr.ENDPOINT);
             }
           };
@@ -68,7 +68,7 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
         public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
           return new BookstoreFixture(policy, fixtureConfigurator) {
             @Override
-            public String endpoint() {
+            public String applicationEndpoint() {
               return this.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
             }
           };
@@ -101,7 +101,7 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
         public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
           return new BookstoreFixture(policy, fixtureConfigurator) {
             @Override
-            public String endpoint() {
+            public String applicationEndpoint() {
               return this.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
             }
           };

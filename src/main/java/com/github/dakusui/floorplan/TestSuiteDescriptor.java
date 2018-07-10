@@ -68,7 +68,7 @@ public interface TestSuiteDescriptor {
           @Override
           public Named test(Context context, int i) {
             return (Named) context.named(
-                String.format("TEST[%02d]", i),
+                String.format("TEST:%s", getNameFor(i)),
                 createActionForTest(i, context, fixture)
             );
           }
@@ -101,6 +101,11 @@ public interface TestSuiteDescriptor {
             return (Named) context.named("AFTER ALL",
                 createActionForTearDownLastTime(context, fixture)
             );
+          }
+
+          @Override
+          public String toString() {
+            return String.format("%s(%s[testcases])", this.getName(), size());
           }
         };
       }
