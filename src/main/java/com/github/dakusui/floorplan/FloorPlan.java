@@ -17,25 +17,25 @@ import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public interface FloorPlan<F extends Fixture> {
-  <A extends Attribute> FloorPlan add(ComponentSpec<A> spec, String name);
+public interface FloorPlan<F extends FloorPlan<F>> {
+  <A extends Attribute> F add(ComponentSpec<A> spec, String name);
 
-  FloorPlan<F> add(Ref... refs);
+  F add(Ref... refs);
 
-  FloorPlan<F> wire(Ref from,
+  F wire(Ref from,
       Attribute as,
       Ref... tos
   );
 
   Set<Ref> allReferences();
 
-  FixtureConfigurator<F> configurator(Policy policy, Fixture.Factory<F> fixtureFactory);
+  FixtureConfigurator configurator(Policy policy, Fixture.Factory fixtureFactory);
 
   List<? extends ResolverEntry> allWires();
 
   boolean canBeDeployedOn(Profile profile);
 
-  abstract class Base<F extends Fixture> implements FloorPlan<F> {
+  abstract class Base<F extends FloorPlan<F>> implements FloorPlan<F> {
     private final Set<Ref>              refs  = new LinkedHashSet<>();
     private final Map<Connector, Ref[]> wires = new LinkedHashMap<>();
 
@@ -51,17 +51,17 @@ public interface FloorPlan<F extends Fixture> {
      * @return this object.
      */
     @SuppressWarnings("unchecked")
-    public <A extends Attribute> FloorPlan<F> add(ComponentSpec<A> spec, String name) {
+    public <A extends Attribute> F add(ComponentSpec<A> spec, String name) {
       return this.add(ref(spec, name));
     }
 
     @SuppressWarnings("unchecked")
-    public FloorPlan<F> add(Ref... refs) {
+    public F add(Ref... refs) {
       this.refs.addAll(asList(refs));
-      return this;
+      return (F) this;
     }
 
-    public FloorPlan<F> wire(
+    public F wire(
         Ref from,
         Attribute as,
         Ref... tos
@@ -92,15 +92,15 @@ public interface FloorPlan<F extends Fixture> {
           connector(from, as),
           tos
       );
-      return this;
+      return (F) this;
     }
 
     public Set<Ref> allReferences() {
       return Collections.unmodifiableSet(this.refs);
     }
 
-    public FixtureConfigurator<F> configurator(Policy policy, Fixture.Factory<F> fixtureFactory) {
-      return new FixtureConfigurator.Impl<>(policy, refs, fixtureFactory);
+    public FixtureConfigurator configurator(Policy policy, Fixture.Factory fixtureFactory) {
+      return new FixtureConfigurator.Impl(policy, refs, fixtureFactory);
     }
 
     public List<? extends ResolverEntry> allWires() {

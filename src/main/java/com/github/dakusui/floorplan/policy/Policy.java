@@ -20,7 +20,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface Policy<F extends Fixture> {
+public interface Policy {
   <A extends Attribute, T> Resolver<A, T> fallbackResolverFor(Ref ref, A attr);
 
   Profile profile();
@@ -28,21 +28,21 @@ public interface Policy<F extends Fixture> {
   /**
    * Returns a {@code FixtureConfigurator} instance.
    */
-  FixtureConfigurator<F> fixtureConfigurator();
+  FixtureConfigurator fixtureConfigurator();
 
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
-  class Impl<F extends Fixture> implements Policy<F> {
-    private final FixtureConfigurator<F> fixtureConfigurator;
-    private final Profile                profile;
+  class Impl implements Policy {
+    private final FixtureConfigurator fixtureConfigurator;
+    private final Profile             profile;
 
-    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan<F> floorPlan, Profile profile, Fixture.Factory<F> fixtureFactory) {
+    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan<?> floorPlan, Profile profile, Fixture.Factory fixtureFactory) {
       requireArgument(
           floorPlan,
-          f -> f.allReferences().stream().allMatch(ref -> specs.contains(ref.spec())),
+          f -> f.allReferences().stream().allMatch((Ref ref) -> specs.contains(ref.spec())),
           () -> String.format(
               "References using unknown specs are found.: %s",
-              floorPlan.allReferences().stream().filter(ref -> !specs.contains(ref.spec())).collect(toList())
+              floorPlan.allReferences().stream().filter((Ref ref) -> !specs.contains(ref.spec())).collect(toList())
           )
       );
       this.resolvers = unmodifiableList(requireNonNull(resolvers));
@@ -70,7 +70,7 @@ public interface Policy<F extends Fixture> {
     }
 
     @Override
-    public FixtureConfigurator<F> fixtureConfigurator() {
+    public FixtureConfigurator fixtureConfigurator() {
       return this.fixtureConfigurator;
     }
 
@@ -81,51 +81,51 @@ public interface Policy<F extends Fixture> {
 
   }
 
-  class Builder<F extends Fixture> {
+  class Builder {
     private final List<ResolverEntry>    resolvers      = new LinkedList<>();
     private final List<ComponentSpec<?>> specs          = new LinkedList<>();
     private       FloorPlan              floorPlan      = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
-    private       Fixture.Factory<?>     fixtureFactory =
-        (policy, fixtureConfigurator) -> (F) new Fixture.Base(policy, fixtureConfigurator) {
+    private       Fixture.Factory        fixtureFactory =
+        (policy, fixtureConfigurator) -> new Fixture.Base(policy, fixtureConfigurator) {
         };
 
     public Builder() {
     }
 
-    public Builder<F> setFloorPlan(FloorPlan<F> floorPlan) {
+    public Builder setFloorPlan(FloorPlan floorPlan) {
       requireState(this, v -> v.floorPlan == null);
       this.resolvers.addAll(createResolversForFloorPlan(floorPlan));
       this.floorPlan = requireNonNull(floorPlan);
       return this;
     }
 
-    public Builder<F> setProfile(Profile profile) {
+    public Builder setProfile(Profile profile) {
       this.profile = profile;
       return this;
     }
 
-    public Builder<F> addComponentSpec(ComponentSpec<?> spec) {
+    public Builder addComponentSpec(ComponentSpec<?> spec) {
       requireNonNull(spec);
       this.resolvers.addAll(createResolversForComponentSpec(spec));
       this.specs.add(spec);
       return this;
     }
 
-    public Builder<F> setFixtureFactory(Fixture.Factory<F> fixtureFactory) {
+    public Builder setFixtureFactory(Fixture.Factory fixtureFactory) {
       this.fixtureFactory = requireNonNull(fixtureFactory);
       return this;
     }
 
     @SuppressWarnings("unchecked")
-    public Policy<F> build() {
+    public Policy build() {
       require(
           requireNonNull(this.profile),
           p -> requireNonNull(this.floorPlan).canBeDeployedOn(p),
           Exceptions.incompatibleProfile(floorPlan, profile)
       );
-      return new Impl<>(new LinkedList<ResolverEntry>(resolvers) {{
+      return new Impl(new LinkedList<ResolverEntry>(resolvers) {{
         reverse(this);
       }}, this.specs,
           this.floorPlan,
@@ -133,7 +133,7 @@ public interface Policy<F extends Fixture> {
           requireNonNull(this.fixtureFactory));
     }
 
-    private static <F extends Fixture> List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan<F> floorPlan) {
+    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan<?> floorPlan) {
       return floorPlan.allWires();
     }
 

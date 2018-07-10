@@ -23,7 +23,7 @@ public interface Fixture {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<Ref, Component<?>> components;
 
-    protected Base(Policy policy, FixtureConfigurator<?> fixtureConfigurator) {
+    protected Base(Policy policy, FixtureConfigurator fixtureConfigurator) {
       this.components = new LinkedHashMap<Ref, Component<?>>() {{
         fixtureConfigurator.allReferences().stream().map(
             ref -> (Configurator<?>) fixtureConfigurator.lookUp(ref)

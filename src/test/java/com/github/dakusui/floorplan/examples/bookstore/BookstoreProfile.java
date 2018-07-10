@@ -81,6 +81,11 @@ public class BookstoreProfile implements Profile {
     throw new RuntimeException("Unknown key:" + key);
   }
 
+  @Override
+  public String toString() {
+    return this.getCategory().name();
+  }
+
   private String hostname(String hoststem) {
     return this.getCategory().hostname(hoststem);
   }

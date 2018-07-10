@@ -14,12 +14,12 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface FixtureConfigurator<F extends Fixture> {
+public interface FixtureConfigurator {
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
   Set<Ref> allReferences();
 
-  F build();
+  Fixture build();
 
   default <A extends Attribute> FixtureConfigurator configure(Ref ref, A attr, Resolver<A, ?> resolver) {
     this.<A>lookUp(ref).configure(attr, resolver);
@@ -32,13 +32,13 @@ public interface FixtureConfigurator<F extends Fixture> {
     return this;
   }
 
-  class Impl<F extends Fixture> implements FixtureConfigurator<F> {
+  class Impl implements FixtureConfigurator {
     private final Set<Ref>              refs;
     private final List<Configurator<?>> configurators;
     private final Policy                policy;
-    private final Fixture.Factory<F>    fixtureFactory;
+    private final Fixture.Factory       fixtureFactory;
 
-    Impl(Policy policy, Set<Ref> refs, Fixture.Factory<F> fixtureFactory) {
+    Impl(Policy policy, Set<Ref> refs, Fixture.Factory fixtureFactory) {
       this.policy = requireNonNull(policy);
       this.refs = unmodifiableSet(requireNonNull(refs));
       this.configurators = unmodifiableList(
@@ -69,10 +69,8 @@ public interface FixtureConfigurator<F extends Fixture> {
     }
 
     @Override
-    public F build() {
-      return  this.fixtureFactory.create(this.policy, this);
-//      return new Fixture.Base(this.policy, this);
+    public Fixture build() {
+      return this.fixtureFactory.create(this.policy, this);
     }
   }
-
 }

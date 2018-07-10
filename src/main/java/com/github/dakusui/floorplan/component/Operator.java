@@ -6,7 +6,7 @@ import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.util.function.Function;
 
-public interface Operator<A extends Attribute> extends Function<Component<A>, Function<Context, Action>> {
+public interface Operator<A extends Attribute> extends Function<Component<A>, Component.ActionFactory> {
   /**
    * This enumerates categories of actions that can be performed on a component.
    */
@@ -43,8 +43,6 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Fu
   interface Factory<A extends Attribute> extends Function<ComponentSpec<A>, Operator<A>> {
     static <A extends Attribute> Factory<A> of(Type type, Function<Component<A>, Function<Context, Action>> func) {
       return new Factory<A>() {
-
-
         @Override
         public Operator<A> apply(ComponentSpec<A> aComponentSpec) {
           return new Operator<A>() {
@@ -54,7 +52,7 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Fu
             }
 
             @Override
-            public Function<Context, Action> apply(Component<A> component) {
+            public Component.ActionFactory apply(Component<A> component) {
               return context -> context.named(
                   String.format("%s %s", type, component),
                   func.apply(component).apply(context)
