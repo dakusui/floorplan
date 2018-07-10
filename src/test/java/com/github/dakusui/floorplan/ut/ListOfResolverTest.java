@@ -1,18 +1,16 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.Fixture;
-import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.UtUtils;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.ut.floorplan.UtFloorPlan;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
-import static com.github.dakusui.floorplan.resolver.Resolvers.listOf;
-import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
+import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class ListOfResolverTest {
   /**
@@ -45,7 +43,7 @@ public class ListOfResolverTest {
   @Test
   public void test() {
     Ref cut = Ref.ref(Cut.SPEC, "1");
-    Fixture fixture = UtUtils.buildPolicy(new FloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
+    Fixture fixture = UtUtils.buildPolicy(new UtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
     System.out.println("" + fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR));
 

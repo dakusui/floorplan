@@ -1,13 +1,13 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.Fixture;
-import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.UtUtils;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.examples.components.SimpleComponent;
+import com.github.dakusui.floorplan.ut.components.SimpleComponent;
+import com.github.dakusui.floorplan.ut.floorplan.UtFloorPlan;
 import org.junit.Test;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class ListReferenceTest {
     Ref cut = Ref.ref(Cut.SPEC, "1");
 
     Fixture fixture = UtUtils.buildPolicy(
-        new FloorPlan()
+        new UtFloorPlan()
             .add(simple1, simple2, cut)
             .wire(cut, Cut.Attr.LIST_REF_ATTR, simple1, simple2),
         Cut.SPEC,
@@ -71,7 +71,7 @@ public class ListReferenceTest {
     Ref cut = Ref.ref(Cut.SPEC, "1");
 
     Fixture fixture = UtUtils.buildPolicy(
-        new FloorPlan()
+        new UtFloorPlan()
             .add(simple1, simple2, cut),
         Cut.SPEC,
         SimpleComponent.SPEC

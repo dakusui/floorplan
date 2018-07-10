@@ -1,6 +1,5 @@
 package com.github.dakusui.floorplan.examples.bookstore;
 
-import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
@@ -11,13 +10,11 @@ import com.github.dakusui.floorplan.policy.Profile;
 
 import static java.util.Arrays.asList;
 
-public abstract class BookstoreFloorPlan extends FloorPlan {
+public abstract class BookstoreFloorPlan extends FloorPlan.Base {
   public final Ref app   = Ref.ref(BookstoreApp.SPEC, "1");
   public final Ref httpd = Ref.ref(Apache.SPEC, "1");
   public final Ref dbms  = Ref.ref(PostgreSQL.SPEC, "1");
 
-
-  public abstract String endpoint(Fixture fixture);
 
   @Override
   public boolean canBeDeployedOn(Profile profile) {
@@ -30,21 +27,10 @@ public abstract class BookstoreFloorPlan extends FloorPlan {
           .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
           .wire(app, BookstoreApp.Attr.WEBSERVER, httpd);
     }
-
-    @Override
-    public String endpoint(Fixture fixture) {
-      return fixture.lookUp(app).valueOf(BookstoreApp.Attr.ENDPOINT);
-    }
   }
 
   public static abstract class WithProxy extends BookstoreFloorPlan {
     public final Ref proxy = Ref.ref(Nginx.SPEC, "1");
-
-
-    @Override
-    public String endpoint(Fixture fixture) {
-      return fixture.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
-    }
   }
 
   public static class ForSmoke extends WithProxy {
@@ -62,11 +48,6 @@ public abstract class BookstoreFloorPlan extends FloorPlan {
     public final Ref httpd2 = Ref.ref(Apache.SPEC, "2");
     public final Ref app3   = Ref.ref(BookstoreApp.SPEC, "3");
     public final Ref httpd3 = Ref.ref(Apache.SPEC, "3");
-
-    @Override
-    public String endpoint(Fixture fixture) {
-      return fixture.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
-    }
 
     @Override
     public boolean canBeDeployedOn(Profile profile) {

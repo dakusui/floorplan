@@ -1,6 +1,6 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.floorplan.examples.components.SimpleComponent;
+import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 import org.junit.Test;
 

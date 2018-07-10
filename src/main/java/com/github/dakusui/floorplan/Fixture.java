@@ -15,11 +15,15 @@ import static com.github.dakusui.floorplan.utils.Checks.requireState;
 public interface Fixture {
   <A extends Attribute> Component<A> lookUp(Ref ref);
 
-  class Impl implements Fixture {
+  interface Factory<F extends Fixture> {
+    F create(Policy policy, FixtureConfigurator fixtureConfigurator);
+  }
+
+  abstract class Base implements Fixture {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<Ref, Component<?>> components;
 
-    Impl(Policy policy, FixtureConfigurator fixtureConfigurator) {
+    protected Base(Policy policy, FixtureConfigurator<?> fixtureConfigurator) {
       this.components = new LinkedHashMap<Ref, Component<?>>() {{
         fixtureConfigurator.allReferences().stream().map(
             ref -> (Configurator<?>) fixtureConfigurator.lookUp(ref)

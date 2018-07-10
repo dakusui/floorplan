@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan;
 
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.examples.profile.SimpleProfile;
+import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import com.github.dakusui.floorplan.policy.Policy;
 
 public enum UtUtils {

@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan.examples.bookstore;
+package com.github.dakusui.floorplan.examples;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
@@ -8,6 +8,7 @@ import com.github.dakusui.floorplan.FixtureConfigurator;
 import com.github.dakusui.floorplan.FloorPlan;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.examples.bookstore.BookstoreProfile;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
@@ -90,8 +91,8 @@ public class BookstoreExample {
   }
 
   private FloorPlan buildFloorPlan() {
-    return new FloorPlan()
-        .add(httpd).add(dbms).add(app)
+    return new FloorPlan.Base() {
+    }.add(httpd).add(dbms).add(app)
         .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
         .wire(app, BookstoreApp.Attr.WEBSERVER, httpd);
   }

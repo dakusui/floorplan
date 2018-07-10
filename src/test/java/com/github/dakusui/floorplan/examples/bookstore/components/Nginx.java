@@ -37,7 +37,6 @@ public class Nginx {
     public Bean<Attr> bean() {
       return this.bean;
     }
-
   }
 
   public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(

@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan.examples.components;
+package com.github.dakusui.floorplan.ut.components;
 
 import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolvers;

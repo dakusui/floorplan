@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan.examples.profile;
+package com.github.dakusui.floorplan.ut.profile;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
