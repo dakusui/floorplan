@@ -1,25 +1,25 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.TestSuiteDescriptor;
+import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.ut.tdesc.UtTsDescProfile;
-import com.github.dakusui.floorplan.ut.tdesc.UtTsDescriptorBuilder;
+import com.github.dakusui.floorplan.ut.tdesc.UtTsDescriptorFactory;
 import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.toPrintable;
+import static com.github.dakusui.floorplan.utils.Utils.toPrintable;
 
 public class TestSuiteDescriptorTest {
   @Test
   public void givenUtTestSuiteDesc$when$then() {
     Context context = Utils.newContext();
     assertThat(
-        new UtTsDescriptorBuilder().create(new UtTsDescProfile()),
+        new UtTsDescriptorFactory().create(new UtTsDescProfile()),
         allOf(
             asString(toPrintable(() -> "getName", TestSuiteDescriptor::getName)).equalTo("UtTsDesc").$(),
             asInteger("size").equalTo(2).$(),
-            asString("getNameFor", 0).equalTo("UtTsDesc[00]").$(),
+            asString("getTestCaseNameFor", 0).equalTo("UtTsDesc[00]").$(),
             asString(toPrintable(
                 () -> "setUpFirstTime(context).getName()",
                 (TestSuiteDescriptor d) -> d.setUpFirstTime(context).getName())
@@ -30,7 +30,7 @@ public class TestSuiteDescriptorTest {
             ).equalTo("BEFORE:UtTsDesc[00]").$(),
             asString(toPrintable(
                 () -> "test(context, 0).getName()",
-                (TestSuiteDescriptor d) -> d.test(context, 0).getName())
+                (TestSuiteDescriptor d) -> d.test(context, 0, 0).getName())
             ).equalTo("TEST:UtTsDesc[00]").$(),
             asString(toPrintable(
                 () -> "tearDoen(context, 0).getName()",

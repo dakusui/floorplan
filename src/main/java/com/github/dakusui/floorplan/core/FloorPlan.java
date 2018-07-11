@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan;
+package com.github.dakusui.floorplan.core;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
@@ -11,7 +11,7 @@ import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.*;
 
-import static com.github.dakusui.floorplan.Connector.connector;
+import static com.github.dakusui.floorplan.core.Connector.connector;
 import static com.github.dakusui.floorplan.component.Ref.ref;
 import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;

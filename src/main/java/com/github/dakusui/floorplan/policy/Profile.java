@@ -1,6 +1,5 @@
 package com.github.dakusui.floorplan.policy;
 
-import com.github.dakusui.floorplan.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.resolver.Resolver;
@@ -14,4 +13,8 @@ public interface Profile {
   Slot slotFor(Ref ref);
 
   <A extends Attribute, T> Resolver<A, T> resolverFor(String key);
+
+  interface Factory<P extends Profile> {
+    P create();
+  }
 }

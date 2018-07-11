@@ -24,6 +24,13 @@ public enum Resolvers {
     );
   }
 
+  public static <A extends Attribute> Resolver<A, String> instanceId() {
+    return Resolver.of(
+        a -> c -> p -> c.ref().id(),
+        () -> "instanceId()"
+    );
+  }
+
   public static <A extends Attribute> Resolver<A, Ref> referenceTo(Ref ref) {
     return Resolver.of(
         a -> c -> p -> ref,
@@ -82,7 +89,7 @@ public enum Resolvers {
             resolvers.stream().map(
                 resolver -> resolver.apply(a, c, p)
             ).map(
-                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(a, type, e))
+                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(a, e))
             ).collect(toList()),
         () -> String.format(
             "listOf(%s, %s)",
@@ -94,10 +101,10 @@ public enum Resolvers {
   }
 
   public static <A extends Attribute, T, R>
-  Resolver<A, R> transform(Resolver<A, T> resolver, Function<T, R> mapper) {
+  Resolver<A, R> transform(Resolver<A, T> resolver, Mapper<A, T, R> mapper) {
     return Resolver.of(
         a -> c -> p ->
-            mapper.apply(resolver.apply(a, c, p)),
+            mapper.apply(a, c, p, resolver.apply(a, c, p)),
         () -> String.format(
             "transform(%s, %s)",
             resolver,
@@ -107,16 +114,26 @@ public enum Resolvers {
   }
 
   public static <A extends Attribute, T, R>
-  Resolver<A, List<R>> transformList(Resolver<A, List<T>> resolver, Function<T, R> mapper) {
+  Resolver<A, R> transform(Resolver<A, T> resolver, Function<T, R> mapper) {
+    return transform(resolver, Mapper.create(mapper));
+  }
+
+  public static <A extends Attribute, T, R>
+  Resolver<A, List<R>> transformList(Resolver<A, List<T>> resolver, Mapper<A, T, R> mapper) {
     return Resolver.of(
         a -> c -> p ->
-            resolver.apply(a, c, p).stream().map(mapper).collect(toList()),
+            resolver.apply(a, c, p).stream().map(t -> mapper.apply(a, c, p, t)).collect(toList()),
         () -> String.format(
             "transformList(%s, %s)",
             resolver,
             mapper
         )
     );
+  }
+
+  public static <A extends Attribute, T, R>
+  Resolver<A, List<R>> transformList(Resolver<A, List<T>> resolver, Function<T, R> mapper) {
+    return transformList(resolver, Mapper.create(mapper));
   }
 
   public static <A extends Attribute, E>

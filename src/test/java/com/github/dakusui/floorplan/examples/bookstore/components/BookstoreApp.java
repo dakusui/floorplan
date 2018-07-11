@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.printf;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 /**
@@ -14,10 +14,10 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 public class BookstoreApp {
   public enum Attr implements Attribute {
     APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    WEBSERVER(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
+    WEBSERVER(SPEC.property(Apache.SPEC).defaultsTo(nothing()).$()),
     WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
     WEBSERVER_PORT(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
-    DBSERVER(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
+    DBSERVER(SPEC.property(PostgreSQL.SPEC).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
@@ -68,7 +68,7 @@ public class BookstoreApp {
           Operator.Type.INSTALL,
           component -> $ -> $.sequential(
               $.simple("Deploy files under apache httpd", () -> {
-                printf(
+                runShell(
                     "scp -r ~/apps/%s root@%s:%s/%s",
                     component.valueOf(Attr.APPNAME),
                     component.valueOf(Attr.WEBSERVER_HOST),
@@ -77,7 +77,7 @@ public class BookstoreApp {
                 );
               }),
               $.simple("Modify database server location", () -> {
-                printf(
+                runShell(
                     "ssh -l root@%s sed -i /etc/bookstoreapp.conf 's!dbms=__DBMS__!dbms=%s!g'",
                     component.valueOf(Attr.WEBSERVER_HOST),
                     component.valueOf(Attr.DBSERVER_ENDPOINT)

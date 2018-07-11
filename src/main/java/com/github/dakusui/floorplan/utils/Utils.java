@@ -3,18 +3,14 @@ package com.github.dakusui.floorplan.utils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
-import com.github.dakusui.floorplan.Fixture;
-import com.github.dakusui.floorplan.component.Attribute;
-import com.github.dakusui.floorplan.component.Component;
-import com.github.dakusui.floorplan.component.Configurator;
-import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.policy.Policy;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toList;
@@ -80,11 +76,87 @@ public class Utils {
         context.sequential(actions);
   }
 
-  public static void perform(Action action) {
-    new ReportingActionPerformer.Builder(action).build().performAndReport();
+  public static void printAction(Action action) {
+    ReportingActionPerformer performer = new ReportingActionPerformer.Builder(action).build();
+    performer.report();
+    performer.performAndReport();
+  }
+
+  public static void performAction(Action action) {
+    ReportingActionPerformer performer = new ReportingActionPerformer.Builder(action).build();
+    performer.report();
+    performer.performAndReport();
   }
 
   public static Context newContext() {
     return new Context.Impl();
+  }
+
+  public static <T, R> Function<T, R> toPrintable(Supplier<String> messageSupplier, Function<T, R> func) {
+    return new Function<T, R>() {
+      @Override
+      public R apply(T t) {
+        return func.apply(t);
+      }
+
+      @Override
+      public String toString() {
+        return messageSupplier.get();
+      }
+    };
+  }
+
+  public static <T> Predicate<T> toPrintable(Supplier<String> messageSupplier, Predicate<T> pred) {
+    return new Predicate<T>() {
+      @Override
+      public boolean test(T t) {
+        return pred.test(t);
+      }
+
+      @Override
+      public Predicate<T> negate() {
+        return toPrintable(() -> String.format("!%s", this.toString()), pred.negate());
+      }
+
+      @Override
+      public Predicate<T> and(Predicate<? super T> another) {
+        return toPrintable(() -> String.format("and(%s,%s)", this.toString(), another.toString()), pred.and(another));
+      }
+
+      @Override
+      public Predicate<T> or(Predicate<? super T> another) {
+        return toPrintable(() -> String.format("or(%s,%s)", this.toString(), another.toString()), pred.or(another));
+      }
+
+
+      @Override
+      public String toString() {
+        return messageSupplier.get();
+      }
+    };
+  }
+
+  public static Predicate<Object> isInstanceOf(Class<?> expectedType) {
+    return Utils.<Object>toPrintable(
+        () -> String.format("assignableTo[%s]", expectedType.getSimpleName()),
+        expectedType.isPrimitive() ?
+            v -> v != null && expectedType.isAssignableFrom(v.getClass()) :
+            v -> v == null || expectedType.isAssignableFrom(v.getClass())
+    );
+  }
+
+  public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
+    return Utils.toPrintable(
+        () -> String.format("hasSpecOf[%s]", spec),
+        (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
+    );
+  }
+
+  @SuppressWarnings("PointlessBooleanExpression")
+  public static Predicate<Object> forAll(Predicate<Object> pred) {
+    return Utils.toPrintable(
+        () -> String.format("allMatch[%s]", pred),
+        (Object v) -> List.class.cast(v).stream().allMatch(pred) == true
+    );
   }
 }

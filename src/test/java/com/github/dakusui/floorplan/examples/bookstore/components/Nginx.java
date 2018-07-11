@@ -5,9 +5,9 @@ import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.function.Function;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.printf;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class Nginx {
@@ -16,16 +16,16 @@ public class Nginx {
     HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue("hostname")).$()),
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
     BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    UPSTREAM(SPEC.property(List.class).defaultsTo(listOf(Ref.class)).$()),
+    UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
-    ENDPOINT(SPEC.property(String.class).defaultsTo(Resolvers.transform(
+    ENDPOINT(SPEC.property(String.class).defaultsTo(transform(
         listOf(
             Object.class,
             referenceTo(HOSTNAME),
             referenceTo(PORTNUMBER),
             referenceTo(BOOKSTORE_APPNAME)
         ),
-        args -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2))
+        (List<Object> args) -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2))
     )).$());
     private final Bean<Attr> bean;
 
@@ -48,18 +48,16 @@ public class Nginx {
           component -> $ -> $.sequential(
               $.simple(
                   "yum install",
-                  () -> printf("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
+                  () -> runShell("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
               $.simple(
                   "configure",
-                  () -> printf(
+                  () -> runShell(
                       "ssh -l root@%s, echo \"upstream dynamic {%n" +
                           "%s",
                       "}\" > /etc/nginx.conf%n",
                       component.<String>valueOf(Attr.HOSTNAME),
                       new LinkedList<String>() {{
-                        IntStream.range(0, component.sizeOf(Attr.UPSTREAM)).mapToObj(
-                            i -> component.<Component<BookstoreApp.Attr>>valueOf(Attr.UPSTREAM, i)
-                        ).forEach(
+                        component.<Component<BookstoreApp.Attr>>streamOf(Attr.UPSTREAM).forEach(
                             (app) -> add(
                                 String.format(
                                     "  server:%s:%s",

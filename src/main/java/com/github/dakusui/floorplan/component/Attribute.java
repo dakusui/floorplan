@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
  * This interface is expected to be implemented by an {@code Enum} class that
  * is defined for a certain component and enumerates attributes belonging to
  * the component.
- *
  */
 public interface Attribute {
   default String name() {
@@ -57,10 +56,15 @@ public interface Attribute {
     return (ComponentSpec<A>) bean().spec;
   }
 
+  default String describeConstraint() {
+    return bean().constraint.toString();
+  }
+
   /**
    * Returns a bean class of this attribute interface.
    * Accessing this method from outside this interface is discouraged.
-   *  @param <A> Type of the attribute
+   *
+   * @param <A> Type of the attribute
    * @param <B> Type of the bean
    */
   <A extends Attribute, B extends Bean<A>> B bean();
@@ -87,30 +91,29 @@ public interface Attribute {
     private Bean(
         Class<?> valueType,
         ComponentSpec<A> spec,
-        Resolver<A, ?> defaultValueResolver
+        Resolver<A, ?> defaultValueResolver,
+        Predicate<Object> constraint
     ) {
       requireNonNull(valueType);
       this.spec = requireNonNull(spec);
       this.defaultValueResolver = defaultValueResolver;
-      this.constraint = (
-          valueType.isPrimitive() ?
-              t -> t != null && valueType.isAssignableFrom(t.getClass()) :
-              t -> t == null || valueType.isAssignableFrom(t.getClass())
-      );
+      this.constraint = constraint;
       this.valueType = valueType;
     }
 
     public static class Builder<A extends Attribute> {
-      private final ComponentSpec<A> spec;
-      private       Class<?>         valueType;
-      private       Resolver<A, ?>   defaultValueResolver = null;
+      private final ComponentSpec<A>  spec;
+      private       Class<?>          valueType;
+      private       Resolver<A, ?>    defaultValueResolver = null;
+      private       Predicate<Object> constraint           = null;
 
       /**
        * @param spec A spec of a component to which the attribute belongs
        */
-      Builder(ComponentSpec<A> spec, Class<?> valueType) {
+      Builder(ComponentSpec<A> spec, Class<?> valueType, Predicate<Object> constraint) {
         this.spec = requireNonNull(spec);
         this.valueType = valueType;
+        this.constraint = requireNonNull(constraint);
       }
 
       /**
@@ -132,7 +135,8 @@ public interface Attribute {
         return new Bean<>(
             this.valueType,
             this.spec,
-            this.defaultValueResolver
+            this.defaultValueResolver,
+            this.constraint
         );
       }
     }
