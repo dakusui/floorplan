@@ -145,5 +145,4 @@ public interface TestSuiteDescriptor {
       }
     }
   }
-
 }
