@@ -31,7 +31,7 @@ public class TestSuiteDescriptorTest {
             asString(toPrintable(
                 () -> "test(context, 0).getName()",
                 (TestSuiteDescriptor d) -> d.test(context, 0, 0).getName())
-            ).equalTo("TEST:UtTsDescOracle[00].UtTsDescCase").$(),
+            ).equalTo("TEST:UtTsDescOracle[00].UtTsDescCase[00]").$(),
             asString(toPrintable(
                 () -> "tearDoen(context, 0).getName()",
                 (TestSuiteDescriptor d) -> d.tearDown(context, 0).getName())
