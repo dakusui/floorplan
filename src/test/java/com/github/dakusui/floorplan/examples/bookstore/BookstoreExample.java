@@ -1,132 +1,99 @@
 package com.github.dakusui.floorplan.examples.bookstore;
 
-import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
-import com.github.dakusui.floorplan.ut.utils.UtUtils;
-import com.github.dakusui.floorplan.component.Component;
-import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture;
-import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
-import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
-import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
-import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
-import com.github.dakusui.floorplan.examples.bookstore.components.PostgreSQL;
-import com.github.dakusui.floorplan.policy.Policy;
+import com.github.dakusui.floorplan.examples.bookstore.tdescs.SmokeTestDesc;
+import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.utils.Utils;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static java.util.Arrays.asList;
+import static com.github.dakusui.floorplan.utils.Utils.newContext;
+import static java.util.stream.Collectors.toList;
 
+@RunWith(Parameterized.class)
 public class BookstoreExample {
   @SuppressWarnings("unchecked")
-  private static final TestSuiteDescriptor DESCRIPTOR = new TestSuiteDescriptor.Factory.Base<BookstoreFloorPlan.ForSmoke, BookstoreFixture>() {
-    @Override
-    protected String name() {
-      return "example";
-    }
+  private static final TestSuiteDescriptor DESCRIPTOR = new SmokeTestDesc().create(new BookstoreProfile());
+  private final        String              testCaseName;
+  private final        List<Named>         testActions;
 
-    @Override
-    protected String nameFor(int i) {
-      return String.format("example-test[%02d]", i);
-    }
+  public BookstoreExample(String testCaseName, List<Named> testActions) {
+    this.testCaseName = testCaseName;
+    this.testActions = testActions;
+  }
 
-    @Override
-    protected int numTests() {
-      return 1;
-    }
-
-    @Override
-    protected BookstoreFloorPlan.ForSmoke buildFloorPlan() {
-      return new BookstoreFloorPlan.ForSmoke();
-    }
-
-    @Override
-    protected Fixture.Factory<BookstoreFixture> createFixtureFactory() {
-      return new Fixture.Factory<BookstoreFixture>() {
-        @Override
-        public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
-          return new BookstoreFixture(policy, fixtureConfigurator) {
-            @Override
-            public String applicationEndpoint() {
-              return this.lookUp(floorPlan().proxy).valueOf(Nginx.Attr.ENDPOINT);
-            }
-          };
+  @Parameterized.Parameters(name = "{index}: {0}")
+  public static Collection<Object[]> data() {
+    return IntStream.range(0, DESCRIPTOR.size()).mapToObj(
+        i -> new Object[] {
+            DESCRIPTOR.getTestCaseNameFor(i),
+            IntStream.range(0, DESCRIPTOR.numTestOracles())
+                .mapToObj(j -> composeTestAction(newContext(), DESCRIPTOR, i, j))
+                .collect(Collectors.toList())
         }
-      };
-    }
-
-    @Override
-    protected List<ComponentSpec<?>> allKnownComponentSpecs() {
-      return asList(Apache.SPEC, PostgreSQL.SPEC, BookstoreApp.SPEC, Nginx.SPEC);
-    }
-
-    @Override
-    protected Action createActionForSetUp(int i, Context context, BookstoreFixture fixture) {
-      return context.nop();
-    }
-
-    @Override
-    protected Action createActionForSetUpFirstTime(Context context, BookstoreFixture fixture) {
-      return Utils.createGroupedAction(
-          context,
-          true,
-          Component::install,
-          fixture,
-          floorPlan().dbms, floorPlan().httpd, floorPlan().app, floorPlan().proxy
-      );
-    }
-
-    @Override
-    protected Action createActionForTest(int i, Context context, BookstoreFixture fixture) {
-      return context.simple("Issue a request to end point",
-          () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", fixture.applicationEndpoint())
-      );
-    }
-
-    @Override
-    protected Action createActionForTearDown(int i, Context context, BookstoreFixture fixture) {
-      return context.named("Collect log files", context.nop());
-    }
-
-    @Override
-    protected Action createActionForTearDownLastTime(Context context, BookstoreFixture fixture) {
-      return context.nop();
-    }
-  }.create(new BookstoreProfile());
+    ).collect(toList());
+  }
 
   @BeforeClass
   public static void beforeAll() {
     System.out.printf("TestSuite:%s[%stests]%n", DESCRIPTOR.getName(), DESCRIPTOR.size());
-    Utils.perform(DESCRIPTOR.setUpFirstTime(Utils.newContext()));
-  }
-
-  @Before
-  public void before() {
-    System.out.printf("TestSuite:%s.TestCase(%s)%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
-    Utils.perform(DESCRIPTOR.setUp(Utils.newContext(), 0));
+    Utils.performAction(DESCRIPTOR.setUpFirstTime(newContext()));
   }
 
   @Test
-  public void test() {
-    System.out.printf("TestSuite:%s.TestCase(%s)%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
-    Utils.perform(DESCRIPTOR.test(Utils.newContext(), 0));
+  public void print0() {
+    System.out.printf(
+        "TestSuite(%s).TestCase(%s).TestOracle(%s)%n",
+        DESCRIPTOR.getName(),
+        this.testCaseName,
+        DESCRIPTOR.getTestOracleNameFor(0)
+    );
+    Utils.printAction(testActions.get(0));
   }
 
-  @After
-  public void after() {
-    System.out.printf("TestSuite:%s.TestCase(%s)%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
-    Utils.perform(DESCRIPTOR.tearDown(Utils.newContext(), 0));
+  @Test
+  public void execute0() {
+    System.out.printf(
+        "TestSuite(%s).TestCase(%s).TestOracle(%s)%n",
+        DESCRIPTOR.getName(),
+        this.testCaseName,
+        DESCRIPTOR.getTestOracleNameFor(0)
+    );
+    Utils.performAction(testActions.get(0));
   }
+
 
   @AfterClass
   public static void afterAll() {
     System.out.printf("TestSuite:%s%n", DESCRIPTOR.getName());
-    Utils.perform(DESCRIPTOR.tearDownLastTime(Utils.newContext()));
+    Utils.performAction(DESCRIPTOR.tearDownLastTime(newContext()));
+  }
+
+  private static Named composeTestAction(Context $, TestSuiteDescriptor tsDesc, int i, int j) {
+    return (Named) $.named(tsDesc.getTestOracleNameFor(j),
+        $.sequential(
+            tsDesc.setUp($, i),
+            $.attempt(
+                tsDesc.test($, i, j)
+            ).recover(
+                AssertionError.class, ($$, supplier) -> $$.simple("rethrow", () -> {
+                  Throwable t = supplier.get();
+                  if (t instanceof AssertionError)
+                    throw (AssertionError) t;
+                  throw new RuntimeException(String.format("Exception was caught:%s%n", t.getMessage()), t);
+                })
+            ).ensure(
+                $$ -> tsDesc.tearDown($$, i)
+            )));
   }
 }

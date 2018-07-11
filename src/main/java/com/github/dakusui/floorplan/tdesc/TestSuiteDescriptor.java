@@ -18,13 +18,17 @@ public interface TestSuiteDescriptor {
 
   int size();
 
-  String getNameFor(int i);
+  int numTestOracles();
+
+  String getTestCaseNameFor(int i);
+
+  String getTestOracleNameFor(int j);
 
   Named setUpFirstTime(Context context);
 
   Named setUp(Context context, int i);
 
-  Named test(Context context, int i);
+  Named test(Context context, int i, int j);
 
   Named tearDown(Context context, int i);
 
@@ -62,16 +66,16 @@ public interface TestSuiteDescriptor {
           @Override
           public Named setUp(Context context, int i) {
             return (Named) context.named(
-                String.format("BEFORE:%s", getNameFor(i)),
+                String.format("BEFORE:%s", getTestCaseNameFor(i)),
                 createActionForSetUp(i, context, fixture)
             );
           }
 
           @Override
-          public Named test(Context context, int i) {
+          public Named test(Context context, int i, int j) {
             return (Named) context.named(
-                String.format("TEST:%s", getNameFor(i)),
-                createActionForTest(i, context, fixture)
+                String.format("TEST:%s[%s]", getTestOracleNameFor(j), getTestCaseNameFor(i)),
+                createActionForTest(i, j, context, fixture)
             );
           }
 
@@ -81,8 +85,18 @@ public interface TestSuiteDescriptor {
           }
 
           @Override
-          public String getNameFor(int i) {
-            return nameFor(i);
+          public int numTestOracles() {
+            return numOracles();
+          }
+
+          @Override
+          public String getTestCaseNameFor(int i) {
+            return testCaseNameFor(i);
+          }
+
+          @Override
+          public String getTestOracleNameFor(int j) {
+            return testOracleNameFor(j);
           }
 
           @Override
@@ -93,7 +107,7 @@ public interface TestSuiteDescriptor {
           @Override
           public Named tearDown(Context context, int i) {
             return (Named) context.named(
-                String.format("AFTER:%s", getNameFor(i)),
+                String.format("AFTER:%s", getTestCaseNameFor(i)),
                 createActionForTearDown(i, context, fixture)
             );
           }
@@ -119,9 +133,13 @@ public interface TestSuiteDescriptor {
 
       protected abstract String name();
 
-      protected abstract String nameFor(int i);
+      protected abstract String testCaseNameFor(int i);
+
+      protected abstract String testOracleNameFor(int j);
 
       protected abstract int numTests();
+
+      protected abstract int numOracles();
 
       protected abstract P buildFloorPlan();
 
@@ -133,7 +151,7 @@ public interface TestSuiteDescriptor {
 
       protected abstract Action createActionForSetUpFirstTime(Context context, F fixture);
 
-      protected abstract Action createActionForTest(int i, Context context, F fixture);
+      protected abstract Action createActionForTest(int i, int j, Context context, F fixture);
 
       protected abstract Action createActionForTearDown(int i, Context context, F fixture);
 

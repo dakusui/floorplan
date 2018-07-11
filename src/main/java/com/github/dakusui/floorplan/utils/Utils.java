@@ -76,8 +76,16 @@ public class Utils {
         context.sequential(actions);
   }
 
-  public static void perform(Action action) {
-    new ReportingActionPerformer.Builder(action).build().performAndReport();
+  public static void printAction(Action action) {
+    ReportingActionPerformer performer = new ReportingActionPerformer.Builder(action).build();
+    performer.report();
+    performer.performAndReport();
+  }
+
+  public static void performAction(Action action) {
+    ReportingActionPerformer performer = new ReportingActionPerformer.Builder(action).build();
+    performer.report();
+    performer.performAndReport();
   }
 
   public static Context newContext() {

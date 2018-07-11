@@ -2,15 +2,15 @@ package com.github.dakusui.floorplan.ut.tdesc;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
-import com.github.dakusui.floorplan.component.ComponentSpec;
 
 import java.util.List;
 
 import static java.util.Collections.singletonList;
 
-public class UtTsDescriptorBuilder extends TestSuiteDescriptor.Factory.Base<UtTsDescFloorPlan, UtFixture>
+public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTsDescFloorPlan, UtFixture>
     implements TestSuiteDescriptor.Factory<UtTsDescFloorPlan> {
   @Override
   protected String name() {
@@ -18,13 +18,23 @@ public class UtTsDescriptorBuilder extends TestSuiteDescriptor.Factory.Base<UtTs
   }
 
   @Override
-  protected String nameFor(int i) {
-    return String.format("UtTsDesc[%02d]", i);
+  protected String testCaseNameFor(int i) {
+    return String.format("UtTsDescCase[%02d]", i);
+  }
+
+  @Override
+  protected String testOracleNameFor(int j) {
+    return String.format("UtTsDescOracle[%02d]", j);
   }
 
   @Override
   protected int numTests() {
     return 2;
+  }
+
+  @Override
+  protected int numOracles() {
+    return 1;
   }
 
   @Override
@@ -53,7 +63,7 @@ public class UtTsDescriptorBuilder extends TestSuiteDescriptor.Factory.Base<UtTs
   }
 
   @Override
-  protected Action createActionForTest(int i, Context context, UtFixture fixture) {
+  protected Action createActionForTest(int i, int j, Context context, UtFixture fixture) {
     return context.nop();
   }
 

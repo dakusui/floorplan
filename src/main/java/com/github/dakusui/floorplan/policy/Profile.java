@@ -13,4 +13,8 @@ public interface Profile {
   Slot slotFor(Ref ref);
 
   <A extends Attribute, T> Resolver<A, T> resolverFor(String key);
+
+  interface Factory<P extends Profile> {
+    P create();
+  }
 }
