@@ -74,7 +74,7 @@ public interface TestSuiteDescriptor {
           @Override
           public Named test(Context context, int i, int j) {
             return (Named) context.named(
-                String.format("TEST:%s[%s]", getTestOracleNameFor(j), getTestCaseNameFor(i)),
+                String.format("TEST:%s.%s", getTestOracleNameFor(j), getTestCaseNameFor(i)),
                 createActionForTest(i, j, context, fixture)
             );
           }

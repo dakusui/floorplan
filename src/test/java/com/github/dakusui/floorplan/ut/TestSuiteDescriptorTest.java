@@ -19,7 +19,7 @@ public class TestSuiteDescriptorTest {
         allOf(
             asString(toPrintable(() -> "getName", TestSuiteDescriptor::getName)).equalTo("UtTsDesc").$(),
             asInteger("size").equalTo(2).$(),
-            asString("getTestCaseNameFor", 0).equalTo("UtTsDesc[00]").$(),
+            asString("getTestCaseNameFor", 0).equalTo("UtTsDescCase[00]").$(),
             asString(toPrintable(
                 () -> "setUpFirstTime(context).getName()",
                 (TestSuiteDescriptor d) -> d.setUpFirstTime(context).getName())
@@ -27,15 +27,15 @@ public class TestSuiteDescriptorTest {
             asString(toPrintable(
                 () -> "setUp(context, 0).getName()",
                 (TestSuiteDescriptor d) -> d.setUp(context, 0).getName())
-            ).equalTo("BEFORE:UtTsDesc[00]").$(),
+            ).equalTo("BEFORE:UtTsDescCase[00]").$(),
             asString(toPrintable(
                 () -> "test(context, 0).getName()",
                 (TestSuiteDescriptor d) -> d.test(context, 0, 0).getName())
-            ).equalTo("TEST:UtTsDesc[00]").$(),
+            ).equalTo("TEST:UtTsDescOracle[00].UtTsDescCase").$(),
             asString(toPrintable(
                 () -> "tearDoen(context, 0).getName()",
                 (TestSuiteDescriptor d) -> d.tearDown(context, 0).getName())
-            ).equalTo("AFTER:UtTsDesc[00]").$(),
+            ).equalTo("AFTER:UtTsDescCase[00]").$(),
             asString(toPrintable(
                 () -> "tearDownLastTime(context).getName()",
                 (TestSuiteDescriptor d) -> d.tearDownLastTime(context).getName())
