@@ -271,7 +271,7 @@ public class FloorPlanTest {
           e,
           asString("getMessage")
               .startsWith("A value of")
-              .containsString(String.class.getCanonicalName())
+              .containsString(String.class.getSimpleName())
               .containsString("123")
               .containsString(Integer.class.getCanonicalName())
               .$()

@@ -1,5 +1,7 @@
 package com.github.dakusui.floorplan.ut;
 
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 import org.junit.Test;
@@ -37,6 +39,23 @@ public class ResolversTest {
             asString().startsWith("referenceTo(attr:").$(),
             asString().containsString(SimpleComponent.Attr.INSTANCE_NAME.name()).$()
         ));
+  }
+
+  @Test
+  public void givenInstanceIdResolver$whenToString$thenCorrectMessageReturned() {
+    assertThat(
+        Resolvers.instanceId(),
+        asString().equalTo("instanceId()").$()
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void givenInstanceIdResolver$whenApplied$thenCorrectMessageReturned() {
+    assertThat(
+        Resolvers.instanceId().apply(null).<Attribute>apply(Configurator.class.cast(SimpleComponent.SPEC.configurator("2"))).apply(null),
+        asString().equalTo("2").$()
+    );
   }
 
 }

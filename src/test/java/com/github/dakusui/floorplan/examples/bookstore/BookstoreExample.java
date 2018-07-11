@@ -85,7 +85,7 @@ public class BookstoreExample {
     @Override
     protected Action createActionForTest(int i, Context context, BookstoreFixture fixture) {
       return context.simple("Issue a request to end point",
-          () -> UtUtils.printf("ssh -l myuser@%s curl '%s'", "localhost", fixture.applicationEndpoint())
+          () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", fixture.applicationEndpoint())
       );
     }
 
@@ -108,19 +108,19 @@ public class BookstoreExample {
 
   @Before
   public void before() {
-    System.out.printf("TestSuite:%s.TestCase%s%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
+    System.out.printf("TestSuite:%s.TestCase(%s)%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
     Utils.perform(DESCRIPTOR.setUp(Utils.newContext(), 0));
   }
 
   @Test
   public void test() {
-    System.out.printf("TestSuite:%s.TestCase%s%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
+    System.out.printf("TestSuite:%s.TestCase(%s)%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
     Utils.perform(DESCRIPTOR.test(Utils.newContext(), 0));
   }
 
   @After
   public void after() {
-    System.out.printf("TestSuite:%s.TestCase%s%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
+    System.out.printf("TestSuite:%s.TestCase(%s)%n", DESCRIPTOR.getName(), DESCRIPTOR.getNameFor(0));
     Utils.perform(DESCRIPTOR.tearDown(Utils.newContext(), 0));
   }
 

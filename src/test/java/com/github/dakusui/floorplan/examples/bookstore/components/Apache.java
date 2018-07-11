@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.printf;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.resolver.Resolvers.slotValue;
@@ -34,17 +34,17 @@ public class Apache {
           Operator.Type.INSTALL,
           component -> $ -> $.sequential(
               $.simple("yum install", () -> {
-                printf("ssh -l root@%s yum install httpd", component.<String>valueOf(Attr.HOSTNAME));
+                runShell("ssh -l root@%s yum install httpd", component.<String>valueOf(Attr.HOSTNAME));
               }),
               $.simple("update datadir", () -> {
-                printf(
+                runShell(
                     "ssh -l root@%s sed -i /etc/httpd.conf 's/^<Directory .+/<Directory \"%s\">/g'",
                     component.<String>valueOf(Attr.HOSTNAME),
                     component.<String>valueOf(Attr.DATADIR)
                 );
               }),
               $.simple("update port number", () -> {
-                printf(
+                runShell(
                     "ssh -l root@%s sed -i /etc/httpd.conf 's/^Listen .+/Listen %s/g'",
                     component.<String>valueOf(Attr.HOSTNAME),
                     component.<String>valueOf(Attr.PORTNUMBER)
@@ -56,28 +56,28 @@ public class Apache {
       Operator.Factory.of(
           Operator.Type.START,
           component -> $ -> $.simple("start", () -> {
-            printf("ssh -l httpd@%s apachectl start", component.<String>valueOf(Attr.HOSTNAME));
+            runShell("ssh -l httpd@%s apachectl start", component.<String>valueOf(Attr.HOSTNAME));
           })
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.STOP,
           component -> $ -> $.simple("stop", () -> {
-            printf("ssh -l httpd@%s apachectl stop", component.<String>valueOf(Attr.HOSTNAME));
+            runShell("ssh -l httpd@%s apachectl stop", component.<String>valueOf(Attr.HOSTNAME));
           })
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.NUKE,
           component -> $ -> $.simple("", () -> {
-            printf("ssh -l root@%s pkill -9 stop", component.<String>valueOf(Attr.HOSTNAME));
+            runShell("ssh -l root@%s pkill -9 stop", component.<String>valueOf(Attr.HOSTNAME));
           })
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.UNINSTALL,
           component -> $ -> $.simple("", () -> {
-            printf("ssh -l root@%s yum remove httpd", component.<String>valueOf(Attr.HOSTNAME));
+            runShell("ssh -l root@%s yum remove httpd", component.<String>valueOf(Attr.HOSTNAME));
           })
       )
   ).build();

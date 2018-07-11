@@ -8,7 +8,7 @@ import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.toPrintable;
+import static com.github.dakusui.floorplan.utils.Utils.toPrintable;
 
 public class TestSuiteDescriptorTest {
   @Test

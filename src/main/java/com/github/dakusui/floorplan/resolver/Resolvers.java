@@ -24,6 +24,13 @@ public enum Resolvers {
     );
   }
 
+  public static <A extends Attribute> Resolver<A, String> instanceId() {
+    return Resolver.of(
+        a -> c -> p -> c.ref().id(),
+        () -> "instanceId()"
+    );
+  }
+
   public static <A extends Attribute> Resolver<A, Ref> referenceTo(Ref ref) {
     return Resolver.of(
         a -> c -> p -> ref,
@@ -82,7 +89,7 @@ public enum Resolvers {
             resolvers.stream().map(
                 resolver -> resolver.apply(a, c, p)
             ).map(
-                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(a, type, e))
+                e -> require(e, o -> o == null || type.isAssignableFrom(o.getClass()), typeMismatch(a, e))
             ).collect(toList()),
         () -> String.format(
             "listOf(%s, %s)",

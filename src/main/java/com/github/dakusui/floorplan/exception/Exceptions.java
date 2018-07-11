@@ -73,12 +73,12 @@ public enum Exceptions {
     };
   }
 
-  public static Supplier<RuntimeException> typeMismatch(Attribute attr, Class<?> expected, Object v) {
+  public static Supplier<RuntimeException> typeMismatch(Attribute attr, Object v) {
     return () -> {
       throw new TypeMismatch(String.format(
-          "A value of '%s' was expected to be type '%s', but '%s'(%s) was given.",
+          "A value of '%s' was expected to satisfy '%s', but '%s'(%s) was given.",
           attr.name(),
-          expected.getCanonicalName(),
+          attr.describeConstraint(),
           v,
           v != null ?
               v.getClass().getCanonicalName() :

@@ -1,8 +1,14 @@
 package com.github.dakusui.floorplan.component;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.github.dakusui.floorplan.utils.Utils;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.floorplan.utils.Utils.*;
 import static java.util.Objects.requireNonNull;
 
 public interface ComponentSpec<A extends Attribute> {
@@ -15,7 +21,38 @@ public interface ComponentSpec<A extends Attribute> {
   }
 
   default Attribute.Bean.Builder<A> property(Class<?> type) {
-    return new Attribute.Bean.Builder<>(this, type);
+    return new Attribute.Bean.Builder<>(this, type, isInstanceOf(type));
+  }
+
+  /**
+   * Returns a builder to create an attribute that references to another component
+   * of a specified type.
+   *
+   * @param spec A type of a component referenced by an attribute built by returned
+   *             builder.
+   * @return An attribute bean builder.
+   */
+  default Attribute.Bean.Builder<A> property(ComponentSpec<?> spec) {
+    return new Attribute.Bean.Builder<>(
+        this,
+        Ref.class,
+        isInstanceOf(Ref.class).and(hasSpecOf(spec)));
+  }
+
+  default Attribute.Bean.Builder<A> listPropertyOf(Class<?> type) {
+    return new Attribute.Bean.Builder<>(
+        this,
+        List.class,
+        isInstanceOf(List.class).and(forAll(isInstanceOf(type)))
+    );
+  }
+
+  default Attribute.Bean.Builder<A> listPropertyOf(ComponentSpec<?> spec) {
+    return new Attribute.Bean.Builder<>(
+        this,
+        List.class,
+        isInstanceOf(List.class).and(forAll(isInstanceOf(Ref.class).and(hasSpecOf(spec))))
+    );
   }
 
   Map<Operator.Type, Operator.Factory<A>> operatorFactories();

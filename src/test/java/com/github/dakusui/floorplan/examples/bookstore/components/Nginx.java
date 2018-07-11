@@ -4,10 +4,8 @@ import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.IntStream;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.printf;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class Nginx {
@@ -16,7 +14,7 @@ public class Nginx {
     HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue("hostname")).$()),
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
     BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    UPSTREAM(SPEC.property(List.class).defaultsTo(listOf(Ref.class)).$()),
+    UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
     ENDPOINT(SPEC.property(String.class).defaultsTo(Resolvers.transform(
         listOf(
@@ -48,10 +46,10 @@ public class Nginx {
           component -> $ -> $.sequential(
               $.simple(
                   "yum install",
-                  () -> printf("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
+                  () -> runShell("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
               $.simple(
                   "configure",
-                  () -> printf(
+                  () -> runShell(
                       "ssh -l root@%s, echo \"upstream dynamic {%n" +
                           "%s",
                       "}\" > /etc/nginx.conf%n",

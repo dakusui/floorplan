@@ -119,7 +119,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
                   require(
                       u = Utils.resolve(attr, Impl.this, policy),
                       attr::test,
-                      Exceptions.typeMismatch(attr, attr.valueType(), u)
+                      Exceptions.typeMismatch(attr, u)
                   ));
             });
       }},
