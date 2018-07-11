@@ -22,7 +22,7 @@ public class VariousResolverTest {
     static class Cut {
       enum Attr implements Attribute {
         BASE(SPEC.property(String.class).defaultsTo(immediate("hello")).$()),
-        TRANSFORM(SPEC.property(Integer.class).defaultsTo(Resolvers.transform(referenceTo(BASE), String::length)).$());
+        TRANSFORM(SPEC.property(Integer.class).defaultsTo(transform(referenceTo(BASE), String::length)).$());
 
         private final Bean<Attr> bean;
 

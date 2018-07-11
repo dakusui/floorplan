@@ -4,6 +4,8 @@ import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
@@ -16,14 +18,14 @@ public class Nginx {
     BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
     UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
-    ENDPOINT(SPEC.property(String.class).defaultsTo(Resolvers.transform(
+    ENDPOINT(SPEC.property(String.class).defaultsTo(transform(
         listOf(
             Object.class,
             referenceTo(HOSTNAME),
             referenceTo(PORTNUMBER),
             referenceTo(BOOKSTORE_APPNAME)
         ),
-        args -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2))
+        (List<Object> args) -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2))
     )).$());
     private final Bean<Attr> bean;
 
