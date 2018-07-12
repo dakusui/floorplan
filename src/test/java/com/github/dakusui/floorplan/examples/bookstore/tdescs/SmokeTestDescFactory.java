@@ -21,7 +21,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class SmokeTestDesc extends TestSuiteDescriptor.Factory.Base<BookstoreFloorPlan.ForSmoke, BookstoreFixture> {
+public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<BookstoreFloorPlan.ForSmoke, BookstoreFixture> {
   @Override
   protected String name() {
     return "example";
