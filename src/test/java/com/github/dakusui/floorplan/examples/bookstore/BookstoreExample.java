@@ -1,10 +1,7 @@
 package com.github.dakusui.floorplan.examples.bookstore;
 
 import com.github.dakusui.actionunit.actions.Named;
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
-import com.github.dakusui.floorplan.examples.bookstore.tdescs.SmokeTestDesc;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.*;
@@ -16,56 +13,54 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static com.github.dakusui.floorplan.utils.Utils.newContext;
 import static java.util.stream.Collectors.toList;
 
-@RunWith(Parameterized.class)
+@RunWith(FloorPlanRunner.class)
+@Parameterized.UseParametersRunnerFactory(FloorPlanParametersRunnerFactory.class)
 @FixMethodOrder(MethodSorters.JVM)
 public class BookstoreExample {
   @SuppressWarnings("unchecked")
-  private static final TestSuiteDescriptor                   DESCRIPTOR = new SmokeTestDesc().create(new BookstoreProfile());
-  private final        String                                testCaseName;
-  private final        Map<String, Function<Context, Named>> testActionFactories;
-  private final        LinkedList<String>                    testOracleNames;
-  private final        Context                               context    = newContext();
+  private final String                                testCaseName;
+  private final Map<String, Function<Context, Named>> testActionFactories;
+  private final LinkedList<String>                    testOracleNames;
+  private final Context                               context = newContext();
+  private final String                                testSuiteName;
 
-  public BookstoreExample(String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
+  public BookstoreExample(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
+    this.testSuiteName = testSuiteName;
     this.testCaseName = testCaseName;
     this.testActionFactories = testActionFactories;
     this.testOracleNames = new LinkedList<>(testActionFactories.keySet());
   }
 
-  @Parameterized.Parameters(name = "{0}")
-  public static Collection<Object[]> data() {
-    return IntStream.range(0, DESCRIPTOR.size()).mapToObj(
-        i -> new LinkedList<Object>() {{
-          add(DESCRIPTOR.getTestCaseNameFor(i));
-          add(new LinkedHashMap<String, Function<Context, Named>>() {
-                {
-                  IntStream.range(0, DESCRIPTOR.numTestOracles()).forEach(
-                      j -> put(
-                          DESCRIPTOR.getTestOracleNameFor(j),
-                          context -> composeTestAction(context, DESCRIPTOR, i, j)
-                      ));
-                }
-              }
-          );
-        }}.toArray()
+  @Parameterized.Parameters(name = "{index}:{0}")
+  public static Collection<Object[]> data(TestSuiteDescriptor descriptor) {
+    return IntStream.range(0, descriptor.size()).mapToObj(
+        i -> new Object[] {
+            descriptor.getName(),
+            descriptor.getTestCaseNameFor(i),
+            new LinkedHashMap<String, Function<Context, Named>>() {{
+              IntStream.range(0, descriptor.numTestOracles())
+                  .forEach(j -> put(
+                      descriptor.getTestOracleNameFor(j),
+                      c -> composeTestAction(c, descriptor, i, j)
+                  ));
+            }}
+        }
     ).collect(toList());
   }
 
   @BeforeClass
-  public static void beforeAll() {
-    System.out.printf("TestSuite:%s[%stests]%n", DESCRIPTOR.getName(), DESCRIPTOR.size());
-    Utils.performAction(DESCRIPTOR.setUpFirstTime(newContext()));
+  public static void beforeAll(TestSuiteDescriptor descriptor) {
+    Utils.performAction(descriptor.setUpFirstTime(newContext()));
   }
+
 
   @Test
   public void executeTestAt0() {
@@ -88,9 +83,8 @@ public class BookstoreExample {
   }
 
   @AfterClass
-  public static void afterAll() {
-    System.out.printf("TestSuite:%s%n", DESCRIPTOR.getName());
-    Utils.performAction(DESCRIPTOR.tearDownLastTime(newContext()));
+  public static void afterAll(TestSuiteDescriptor descriptor) {
+    Utils.performAction(descriptor.tearDownLastTime(newContext()));
   }
 
   private void performTestIfPresent(int oracleId) {
