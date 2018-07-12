@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public class StandardTestBase extends TestBase {
   public StandardTestBase(String testSuiteName, Map<String, Function<Context, Named>> testActionFactories, String testCaseName) {
-    super(testSuiteName, testActionFactories, testCaseName);
+    super(testSuiteName, testCaseName, testActionFactories);
   }
 
   @Test

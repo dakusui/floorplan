@@ -36,7 +36,7 @@ public class TestBase {
   protected final Context                               context = newContext();
 
   @SuppressWarnings("WeakerAccess")
-  protected TestBase(String testSuiteName, Map<String, Function<Context, Named>> testActionFactories, String testCaseName) {
+  protected TestBase(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
     this.testSuiteName = testSuiteName;
     this.testActionFactories = testActionFactories;
     this.testOracleNames = new LinkedList<>(testActionFactories.keySet());
