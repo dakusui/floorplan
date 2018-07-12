@@ -11,8 +11,8 @@ import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.*;
 
-import static com.github.dakusui.floorplan.core.Connector.connector;
 import static com.github.dakusui.floorplan.component.Ref.ref;
+import static com.github.dakusui.floorplan.core.Connector.connector;
 import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -61,6 +61,7 @@ public interface FloorPlan<F extends FloorPlan<F>> {
       return (F) this;
     }
 
+    @SuppressWarnings("unchecked")
     public F wire(
         Ref from,
         Attribute as,

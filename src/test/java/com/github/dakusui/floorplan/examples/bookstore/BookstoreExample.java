@@ -2,141 +2,32 @@ package com.github.dakusui.floorplan.examples.bookstore;
 
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
-import com.github.dakusui.floorplan.utils.Utils;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.junit.runners.Parameterized;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
+import com.github.dakusui.floorplan.examples.bookstore.tdescs.SmokeTestDescFactory;
+import com.github.dakusui.floorplan.policy.Profile;
+import com.github.dakusui.floorplan.tdesc.junit4.StandardTestBase;
+import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseProfileFactory;
+import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseTestSuiteDescriptorFactor;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static com.github.dakusui.floorplan.utils.Utils.newContext;
-import static java.util.stream.Collectors.toList;
-
-@RunWith(FloorPlanRunner.class)
-@Parameterized.UseParametersRunnerFactory(FloorPlanParametersRunnerFactory.class)
-@FixMethodOrder(MethodSorters.JVM)
-public class BookstoreExample {
-  @SuppressWarnings("unchecked")
-  private final String                                testCaseName;
-  private final Map<String, Function<Context, Named>> testActionFactories;
-  private final LinkedList<String>                    testOracleNames;
-  private final Context                               context = newContext();
-  private final String                                testSuiteName;
+@UseTestSuiteDescriptorFactor(SmokeTestDescFactory.class)
+@UseProfileFactory(BookstoreExample.ProfileFactory.class)
+public class BookstoreExample extends StandardTestBase {
+  public static class ProfileFactory implements Profile.Factory<BookstoreProfile> {
+    @Override
+    public BookstoreProfile create() {
+      return new BookstoreProfile();
+    }
+  }
 
   public BookstoreExample(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
-    this.testSuiteName = testSuiteName;
-    this.testCaseName = testCaseName;
-    this.testActionFactories = testActionFactories;
-    this.testOracleNames = new LinkedList<>(testActionFactories.keySet());
-  }
-
-  @Parameterized.Parameters(name = "{index}:{0}")
-  public static Collection<Object[]> data(TestSuiteDescriptor descriptor) {
-    return IntStream.range(0, descriptor.size()).mapToObj(
-        i -> new Object[] {
-            descriptor.getName(),
-            descriptor.getTestCaseNameFor(i),
-            new LinkedHashMap<String, Function<Context, Named>>() {{
-              IntStream.range(0, descriptor.numTestOracles())
-                  .forEach(j -> put(
-                      descriptor.getTestOracleNameFor(j),
-                      c -> composeTestAction(c, descriptor, i, j)
-                  ));
-            }}
-        }
-    ).collect(toList());
-  }
-
-  @BeforeClass
-  public static void beforeAll(TestSuiteDescriptor descriptor) {
-    Utils.performAction(descriptor.setUpFirstTime(newContext()));
-  }
-
-
-  @Test
-  public void executeTestAt0() {
-    performTestIfPresent(0);
-  }
-
-  @Test
-  public void executeTestAt1() {
-    performTestIfPresent(1);
-  }
-
-  @Test
-  public void executeTestAt2() {
-    performTestIfPresent(2);
-  }
-
-  @Test
-  public void executeRemainingTests() {
-    ifPresentPerformTestsFrom(3);
-  }
-
-  @AfterClass
-  public static void afterAll(TestSuiteDescriptor descriptor) {
-    Utils.performAction(descriptor.tearDownLastTime(newContext()));
-  }
-
-  private void performTestIfPresent(int oracleId) {
-    if (oracleId < this.testActionFactories.size())
-      performTest(oracleId);
-    else
-      throw noTestOracleFor(oracleId);
-  }
-
-  protected void performTest(int oracleId) {
-    Utils.performAction(testActionFactories.get(testOracleNames.get(oracleId)).apply(this.context));
-  }
-
-  protected void performTests(int fromOracleIdInclusive, int toOracleIdExclusive) {
-    Utils.performAction(this.context.named(
+    super(testSuiteName, testActionFactories, testCaseName);
+    System.out.printf("Hello, I am executing a testcase:%s in a test suite:%s. Defined oracles are following.%n",
         this.testCaseName,
-        this.context.concurrent(
-            IntStream.range(fromOracleIdInclusive, toOracleIdExclusive)
-                .mapToObj(oracleId -> testActionFactories.get(testOracleNames.get(oracleId)).apply(context))
-                .collect(toList())
-        )
-    ));
-  }
-
-  protected void ifPresentPerformTestsFrom(int firstOracleId) {
-    if (firstOracleId >= this.testActionFactories.size())
-      throw noTestOracleFor(firstOracleId);
-    if (firstOracleId == this.testActionFactories.size() - 1)
-      performTest(firstOracleId);
-    else
-      performTests(firstOracleId, this.testOracleNames.size());
-  }
-
-  private static AssumptionViolatedException noTestOracleFor(int oracleId) {
-    throw new AssumptionViolatedException(String.format("No test oracle provided for id:%s", oracleId));
-  }
-
-  private static Named composeTestAction(Context $, TestSuiteDescriptor tsDesc, int i, int j) {
-    return (Named) $.named(tsDesc.getTestOracleNameFor(j),
-        $.sequential(
-            tsDesc.setUp($, i),
-            $.attempt(
-                tsDesc.test($, i, j)
-            ).recover(
-                AssertionError.class, ($$, supplier) -> $$.simple("rethrow", () -> {
-                  Throwable t = supplier.get();
-                  if (t instanceof AssertionError)
-                    throw (AssertionError) t;
-                  throw new RuntimeException(String.format("Exception was caught:%s%n", t.getMessage()), t);
-                })
-            ).ensure(
-                $$ -> tsDesc.tearDown($$, i)
-            )));
+        this.testSuiteName
+    );
+    this.testOracleNames.forEach(k -> System.out.printf("  %s:%s%n", k, this.testActionFactories.get(k)));
   }
 }

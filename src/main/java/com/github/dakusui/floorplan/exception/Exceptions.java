@@ -1,8 +1,8 @@
 package com.github.dakusui.floorplan.exception;
 
-import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.policy.Profile;
 
 import java.util.NoSuchElementException;
@@ -96,5 +96,15 @@ public enum Exceptions {
               profile
           ));
     };
+  }
+
+  public static RuntimeException rethrow(Throwable e) {
+    if (e.getCause() != null)
+      throw rethrow(e.getCause());
+    if (e instanceof RuntimeException)
+      throw (RuntimeException) e;
+    if (e instanceof Error)
+      throw (Error) e;
+    throw new RuntimeException(e);
   }
 }

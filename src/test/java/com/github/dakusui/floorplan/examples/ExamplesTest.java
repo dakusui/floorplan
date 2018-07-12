@@ -13,7 +13,7 @@ public class ExamplesTest {
         JUnitCore.runClasses(BookstoreExample.class),
         allOf(
             asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(8).$(),
+            asInteger("getRunCount").equalTo(10).$(),
             asInteger("getFailureCount").equalTo(0).$(),
             asInteger("getIgnoreCount").equalTo(0).$()
         )

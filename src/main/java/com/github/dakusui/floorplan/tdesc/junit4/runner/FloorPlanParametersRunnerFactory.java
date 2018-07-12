@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan.examples.bookstore;
+package com.github.dakusui.floorplan.tdesc.junit4.runner;
 
 import org.junit.runner.Runner;
 import org.junit.runners.model.InitializationError;
