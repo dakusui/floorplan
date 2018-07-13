@@ -43,7 +43,7 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTs
   }
 
   @Override
-  protected Fixture.Factory<UtFixture> createFixtureFactory() {
+  protected Fixture.Factory createFixtureFactory() {
     return UtFixture::new;
   }
 

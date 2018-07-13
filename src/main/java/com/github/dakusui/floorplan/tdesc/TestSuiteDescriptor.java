@@ -143,7 +143,7 @@ public interface TestSuiteDescriptor {
 
       protected abstract P buildFloorPlan();
 
-      protected abstract Fixture.Factory<F> createFixtureFactory();
+      protected abstract Fixture.Factory createFixtureFactory();
 
       protected abstract List<ComponentSpec<?>> allKnownComponentSpecs();
 

@@ -10,7 +10,7 @@ import org.junit.Test;
 import java.util.Map;
 import java.util.function.Function;
 
-@FloorPlanRunner.UseTestSuiteDescriptorFactor(SmokeTestDescFactory.class)
+@FloorPlanRunner.UseTestSuiteDescriptorFactory(SmokeTestDescFactory.class)
 @FloorPlanRunner.UseProfileFactory(BookstoreExample.ProfileFactory.class)
 public class AnotherBookstoreExample extends TestBase {
   public AnotherBookstoreExample(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {

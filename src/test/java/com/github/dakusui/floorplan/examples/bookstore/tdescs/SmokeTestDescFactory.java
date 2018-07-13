@@ -53,8 +53,8 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Books
   }
 
   @Override
-  protected Fixture.Factory<BookstoreFixture> createFixtureFactory() {
-    return new Fixture.Factory<BookstoreFixture>() {
+  protected Fixture.Factory createFixtureFactory() {
+    return new Fixture.Factory() {
       @Override
       public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
         return new BookstoreFixture(policy, fixtureConfigurator) {

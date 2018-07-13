@@ -7,12 +7,12 @@ import com.github.dakusui.floorplan.examples.bookstore.tdescs.SmokeTestDescFacto
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.tdesc.junit4.StandardTestBase;
 import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseProfileFactory;
-import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseTestSuiteDescriptorFactor;
+import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseTestSuiteDescriptorFactory;
 
 import java.util.Map;
 import java.util.function.Function;
 
-@UseTestSuiteDescriptorFactor(SmokeTestDescFactory.class)
+@UseTestSuiteDescriptorFactory(SmokeTestDescFactory.class)
 @UseProfileFactory(BookstoreExample.ProfileFactory.class)
 public class BookstoreExample extends StandardTestBase {
   public static class ProfileFactory implements Profile.Factory<BookstoreProfile> {
