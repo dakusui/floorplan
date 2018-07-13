@@ -88,7 +88,7 @@ public interface Policy {
     private       Profile                profile;
     @SuppressWarnings("unchecked")
     private       Fixture.Factory        fixtureFactory =
-        (policy, fixtureConfigurator) -> new Fixture.Base(policy, fixtureConfigurator) {
+        (policy, fixtureConfigurator) -> new Fixture.Impl(policy, fixtureConfigurator) {
         };
 
     public Builder() {

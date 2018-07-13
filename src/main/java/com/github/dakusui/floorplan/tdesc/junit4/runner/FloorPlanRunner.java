@@ -30,7 +30,7 @@ public class FloorPlanRunner extends Parameterized {
 
   @Retention(RUNTIME)
   @Inherited
-  public @interface UseTestSuiteDescriptorFactor {
+  public @interface UseTestSuiteDescriptorFactory {
     Class<? extends TestSuiteDescriptor.Factory> value();
   }
 
@@ -73,7 +73,7 @@ public class FloorPlanRunner extends Parameterized {
 
   private static TestSuiteDescriptor.Factory<?> createTestSuiteDescriptorFactory(Class<?> testClass) {
     try {
-      return requireNonNull(testClass.getAnnotation(UseTestSuiteDescriptorFactor.class)).value().newInstance();
+      return requireNonNull(testClass.getAnnotation(UseTestSuiteDescriptorFactory.class)).value().newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
       throw Exceptions.rethrow(e);
     }

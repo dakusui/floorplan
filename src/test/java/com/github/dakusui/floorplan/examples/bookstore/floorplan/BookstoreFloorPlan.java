@@ -62,8 +62,8 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
     }
 
     @Override
-    public Fixture.Factory<BookstoreFixture> fixtureFactory() {
-      return new Fixture.Factory<BookstoreFixture>() {
+    public Fixture.Factory fixtureFactory() {
+      return new Fixture.Factory() {
         @Override
         public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
           return new BookstoreFixture(policy, fixtureConfigurator) {
