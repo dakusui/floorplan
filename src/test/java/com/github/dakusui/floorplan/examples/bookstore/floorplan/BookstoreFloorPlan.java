@@ -1,14 +1,11 @@
 package com.github.dakusui.floorplan.examples.bookstore.floorplan;
 
-import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
 import com.github.dakusui.floorplan.examples.bookstore.components.PostgreSQL;
-import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.policy.Profile;
 
 import static java.util.Arrays.asList;
@@ -24,28 +21,11 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
     return super.canBeDeployedOn(profile) && profile instanceof BookstoreProfile;
   }
 
-  public abstract Fixture.Factory fixtureFactory();
-
   public static class NoProxy extends BookstoreFloorPlan<NoProxy> {
     NoProxy() {
       this.add(httpd).add(dbms).add(app)
           .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
           .wire(app, BookstoreApp.Attr.WEBSERVER, httpd);
-    }
-
-    @Override
-    public Fixture.Factory fixtureFactory() {
-      return new Fixture.Factory() {
-        @Override
-        public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
-          return new BookstoreFixture(policy, fixtureConfigurator) {
-            @Override
-            public String applicationEndpoint() {
-              return this.lookUp(app).valueOf(BookstoreApp.Attr.ENDPOINT);
-            }
-          };
-        }
-      };
     }
   }
 
@@ -59,21 +39,6 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
           .wire(app, BookstoreApp.Attr.DBSERVER, dbms)
           .wire(app, BookstoreApp.Attr.WEBSERVER, httpd)
           .wire(proxy, Nginx.Attr.UPSTREAM, app);
-    }
-
-    @Override
-    public Fixture.Factory fixtureFactory() {
-      return new Fixture.Factory() {
-        @Override
-        public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
-          return new BookstoreFixture(policy, fixtureConfigurator) {
-            @Override
-            public String applicationEndpoint() {
-              return this.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
-            }
-          };
-        }
-      };
     }
   }
 
@@ -92,21 +57,6 @@ public abstract class BookstoreFloorPlan<F extends BookstoreFloorPlan<F>> extend
           ).contains(
               BookstoreProfile.class.cast(profile).getCategory()
           );
-    }
-
-    @Override
-    public Fixture.Factory fixtureFactory() {
-      return new Fixture.Factory() {
-        @Override
-        public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
-          return new BookstoreFixture(policy, fixtureConfigurator) {
-            @Override
-            public String applicationEndpoint() {
-              return this.lookUp(proxy).valueOf(Nginx.Attr.ENDPOINT);
-            }
-          };
-        }
-      };
     }
   }
 }
