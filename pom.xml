@@ -4,7 +4,7 @@
 
     <groupId>com.github.dakusui</groupId>
     <artifactId>floorplan</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.0.4-SNAPSHOT</version>
     <description>A library to model a heterogeneous and distributed software system for testing</description>
     
     <name>floorplan</name>
