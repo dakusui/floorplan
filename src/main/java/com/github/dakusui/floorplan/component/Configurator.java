@@ -112,7 +112,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     @Override
     public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
       return new Component.Impl<>(this.ref, new LinkedHashMap<A, Object>() {{
-        Arrays.stream(spec.attributes()).forEach(
+        spec.attributes().forEach(
             (A attr) -> {
               Object u;
               put(attr,

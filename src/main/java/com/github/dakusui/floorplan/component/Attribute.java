@@ -1,11 +1,19 @@
 package com.github.dakusui.floorplan.component;
 
+import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
+import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
+import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.methodCall;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * This interface is expected to be implemented by an {@code Enum} class that
@@ -68,6 +76,42 @@ public interface Attribute {
    * @param <B> Type of the bean
    */
   <A extends Attribute, B extends Bean<A>> B bean();
+
+  static <A extends Attribute> A create(String attrName, Bean<A> bean) {
+    return ObjectSynthesizer.builder(bean.spec.attributeType())
+        .handle(methodCall("toString").with(args -> attrName))
+        .handle(methodCall("name").with(args -> attrName))
+        .fallbackTo(new Attribute() {
+          @SuppressWarnings("unchecked")
+          @Override
+          public <AA extends Attribute, B extends Bean<AA>> B bean() {
+            return (B) bean;
+          }
+        })
+        .synthesize();
+  }
+
+  @SuppressWarnings("unchecked")
+  static <A extends Attribute> List<A> attributes(Class<A> attrType) {
+    return Arrays.stream(attrType.getFields())
+        .filter(field -> Modifier.isStatic(field.getModifiers()))
+        .filter(field -> Modifier.isFinal(field.getModifiers()))
+        .filter(field -> Objects.equals(attrType, field.getType()))
+        .map(field -> {
+          try {
+            boolean wasAccessible = field.isAccessible();
+            field.setAccessible(true);
+            try {
+              return (A) field.get(null);
+            } finally {
+              field.setAccessible(wasAccessible);
+            }
+          } catch (IllegalAccessException e) {
+            throw Exceptions.rethrow(e);
+          }
+        })
+        .collect(toList());
+  }
 
   final class Bean<A extends Attribute> {
     /**

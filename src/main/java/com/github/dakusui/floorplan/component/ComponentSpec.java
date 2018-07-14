@@ -1,12 +1,8 @@
 package com.github.dakusui.floorplan.component;
 
-import com.github.dakusui.floorplan.utils.Utils;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.utils.Utils.*;
 import static java.util.Objects.requireNonNull;
@@ -16,8 +12,8 @@ public interface ComponentSpec<A extends Attribute> {
 
   Class<A> attributeType();
 
-  default A[] attributes() {
-    return attributeType().getEnumConstants();
+  default List<A> attributes() {
+    return Attribute.attributes(attributeType());
   }
 
   default Attribute.Bean.Builder<A> property(Class<?> type) {

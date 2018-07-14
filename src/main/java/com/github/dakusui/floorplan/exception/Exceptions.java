@@ -12,19 +12,6 @@ import static java.lang.String.format;
 
 public enum Exceptions {
   ;
-
-  public static RuntimeException throwImpossibleLineReached() {
-    throw throwImpossibleLineReached("This line is not expected to be executed");
-  }
-
-  public static RuntimeException throwImpossibleLineReached(String message) {
-    throw throwExceptionForImpossibleLine(message);
-  }
-
-  public static RuntimeException throwImpossibleLineReached(String message, Throwable t) {
-    throw throwExceptionForImpossibleLine(message, t);
-  }
-
   public static RuntimeException throwExceptionForIllegalValue(String message) {
     throw new IllegalArgumentException(message);
   }
@@ -35,18 +22,6 @@ public enum Exceptions {
 
   public static RuntimeException throwExceptionForNullValue(String message) {
     throw new NullPointerException(message);
-  }
-
-  private static RuntimeException throwExceptionForImpossibleLine(String message, Throwable t) {
-    throw new AssertionError(message, t);
-  }
-
-  private static RuntimeException throwExceptionForImpossibleLine(String message) {
-    throw new AssertionError(message);
-  }
-
-  private static RuntimeException throwExceptionForCaughtFailure(String message, Throwable t) {
-    throw new RuntimeException(message, t);
   }
 
   public static RuntimeException throwUnsupportedOperation(String message) {
