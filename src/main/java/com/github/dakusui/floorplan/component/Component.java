@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.util.HashMap;
 import java.util.List;

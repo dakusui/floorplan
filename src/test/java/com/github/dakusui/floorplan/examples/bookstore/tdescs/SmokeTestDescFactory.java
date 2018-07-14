@@ -79,13 +79,21 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Books
 
   @Override
   protected Action createActionForSetUpFirstTime(Context context, BookstoreFixture fixture) {
-    return Utils.createGroupedAction(
-        context,
-        true,
-        Component::install,
-        fixture,
-        floorPlan().dbms, floorPlan().httpd, floorPlan().app, floorPlan().proxy
-    );
+    return context.sequential(
+        Utils.createGroupedAction(
+            context,
+            true,
+            Component::uninstall,
+            fixture,
+            floorPlan().dbms, floorPlan().httpd, floorPlan().app, floorPlan().proxy
+        ),
+        Utils.createGroupedAction(
+            context,
+            true,
+            Component::install,
+            fixture,
+            floorPlan().dbms, floorPlan().httpd, floorPlan().app, floorPlan().proxy
+        ));
   }
 
   @Override

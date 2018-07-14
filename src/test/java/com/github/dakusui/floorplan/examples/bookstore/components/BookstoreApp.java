@@ -4,8 +4,8 @@ import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
 /**
  * A class to define a deployment specification of an internet bookstore
@@ -84,6 +84,11 @@ public class BookstoreApp {
                 );
               })
           )
+      )
+  ).addOperatorFactory(
+      Operator.Factory.of(
+          Operator.Type.UNINSTALL,
+          attrComponent -> $ -> $.named("Do something for uninstallation", $.nop())
       )
   ).build();
 }

@@ -72,5 +72,10 @@ public class Nginx {
               )
           )
       )
+  ).addOperatorFactory(
+      Operator.Factory.of(
+          Operator.Type.UNINSTALL,
+          attrComponent -> $ -> $.named("Do something for uninstallation", $.nop())
+      )
   ).build();
 }

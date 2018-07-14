@@ -4,9 +4,9 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.resolver.Resolvers.slotValue;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
 /**
  * This is just an example.
@@ -104,10 +104,10 @@ public class PostgreSQL {
           Operator.Type.UNINSTALL,
           component -> $ -> $.sequential(
               $.simple("remove basedir", () -> {
-                runShell("rm -fr %s", component.valueOf(Attr.BASEDIR));
+                runShell("rm -fr %s", component.<String>valueOf(Attr.BASEDIR));
               }),
               $.simple("remove datadir", () -> {
-                runShell("rm -fr %s", component.valueOf(Attr.DATADIR));
+                runShell("rm -fr %s", component.<String>valueOf(Attr.DATADIR));
               }))
       )
   ).build();

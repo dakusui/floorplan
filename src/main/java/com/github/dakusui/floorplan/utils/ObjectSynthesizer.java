@@ -34,7 +34,7 @@ public abstract class ObjectSynthesizer<T> {
   }
 
   public static <T> ObjectSynthesizer.Default.Builder<T> builder(Class<T> anInterface) {
-    return new Default.Builder<T>(anInterface);
+    return new Default.Builder<>(anInterface);
   }
 
   abstract protected Optional<? extends Function<Object[], Object>> lookUpMethodCallHandler(Method method);

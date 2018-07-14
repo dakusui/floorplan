@@ -30,7 +30,7 @@ public class Connector {
     return false;
   }
 
-  public static Connector connector(Ref from, Attribute fromAttr) {
+  static Connector connector(Ref from, Attribute fromAttr) {
     return new Connector(from, fromAttr);
   }
 }
