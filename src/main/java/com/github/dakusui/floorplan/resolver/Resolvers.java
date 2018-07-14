@@ -6,7 +6,6 @@ import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.utils.Utils;
 
 import java.util.List;
-import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.typeMismatch;
 import static com.github.dakusui.floorplan.utils.Checks.require;
@@ -114,11 +113,6 @@ public enum Resolvers {
   }
 
   public static <A extends Attribute, T, R>
-  Resolver<A, R> transform(Resolver<A, T> resolver, Function<T, R> mapper) {
-    return transform(resolver, Mapper.create(mapper));
-  }
-
-  public static <A extends Attribute, T, R>
   Resolver<A, List<R>> transformList(Resolver<A, List<T>> resolver, Mapper<A, T, R> mapper) {
     return Resolver.of(
         a -> c -> p ->
@@ -129,11 +123,6 @@ public enum Resolvers {
             mapper
         )
     );
-  }
-
-  public static <A extends Attribute, T, R>
-  Resolver<A, List<R>> transformList(Resolver<A, List<T>> resolver, Function<T, R> mapper) {
-    return transformList(resolver, Mapper.create(mapper));
   }
 
   public static <A extends Attribute, E>

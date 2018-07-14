@@ -1,11 +1,11 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.ut.tdesc.UtTsDescFloorPlan;
+import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.resolver.Resolvers;
+import com.github.dakusui.floorplan.ut.tdesc.UtTsDescFloorPlan;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -13,8 +13,9 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.buildPolicy;
+import static com.github.dakusui.floorplan.resolver.Mappers.mapper;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.buildPolicy;
 
 @RunWith(Enclosed.class)
 public class VariousResolverTest {
@@ -22,7 +23,7 @@ public class VariousResolverTest {
     static class Cut {
       enum Attr implements Attribute {
         BASE(SPEC.property(String.class).defaultsTo(immediate("hello")).$()),
-        TRANSFORM(SPEC.property(Integer.class).defaultsTo(transform(referenceTo(BASE), String::length)).$());
+        TRANSFORM(SPEC.property(Integer.class).defaultsTo(transform(referenceTo(BASE), mapper(String::length))).$());
 
         private final Bean<Attr> bean;
 
@@ -57,7 +58,7 @@ public class VariousResolverTest {
       enum Attr implements Attribute {
         @SuppressWarnings("unchecked")
         BASE(SPEC.property(List.class).defaultsTo(listOf(String.class, immediate("hello"), immediate("world!"))).$()),
-        TRANSFORM_LIST(SPEC.property(List.class).defaultsTo(Resolvers.transformList(referenceTo(BASE), String::length)).$());
+        TRANSFORM_LIST(SPEC.property(List.class).defaultsTo(Resolvers.transformList(referenceTo(BASE), mapper(String::length))).$());
 
         private final Bean<Attr> bean;
 

@@ -1,17 +1,20 @@
 package com.github.dakusui.floorplan.policy;
 
-import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
+import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
 import static com.github.dakusui.floorplan.utils.Checks.*;
@@ -137,14 +140,18 @@ public interface Policy {
       return floorPlan.allWires();
     }
 
+    @SuppressWarnings("unchecked")
     private static List<ResolverEntry> createResolversForComponentSpec(ComponentSpec<?> spec) {
       return new LinkedList<ResolverEntry>() {{
-        Arrays.stream(
-            spec.attributes()
+        spec.attributes().stream(
         ).map(
             attribute -> new ResolverEntry(
-                (ref, a) -> Objects.equals(attribute.spec(), ref.spec()) && Objects.equals(attribute, a),
-                attribute.defaultValueResolver()
+                //TODO
+                //                (ref, a) -> Objects.equals(attribute.spec(), ref.spec()) && Objects.equals(attribute, a),
+                (ref, a) ->
+                    attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()) &&
+                    Objects.equals(attribute, a),
+                (Resolver<Attribute, ?>) attribute.defaultValueResolver()
             )
         ).forEach(
             this::add

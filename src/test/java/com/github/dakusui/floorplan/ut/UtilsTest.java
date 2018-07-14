@@ -3,14 +3,11 @@ package com.github.dakusui.floorplan.ut;
 import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.utils.Utils.isInstanceOf;
-import static com.github.dakusui.floorplan.utils.Utils.singletonCollector;
-import static com.github.dakusui.floorplan.utils.Utils.toPrintable;
+import static com.github.dakusui.floorplan.utils.Utils.*;
 
 public class UtilsTest {
   @Test
@@ -77,5 +74,15 @@ public class UtilsTest {
             asString("toString").equalTo("or(alwaysFalse,and(assignableTo[String],alwaysTrue))").$(),
             asBoolean("test", "aStringObject").isTrue().$()
         ));
+  }
+
+  public static class ClassWithPrivateConstructor {
+    private ClassWithPrivateConstructor() {
+    }
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void givenPrivateConstructor$whenCreateWithNoParameterConstructor$thenFail() {
+    Utils.createWithNoParameterConstructor(ClassWithPrivateConstructor.class);
   }
 }

@@ -1,14 +1,16 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
-import com.github.dakusui.floorplan.component.*;
-import com.github.dakusui.floorplan.resolver.Resolvers;
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Component;
+import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Operator;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
+import static com.github.dakusui.floorplan.resolver.Mappers.mapper;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
 public class Nginx {
   public enum Attr implements Attribute {
@@ -25,7 +27,7 @@ public class Nginx {
             referenceTo(PORTNUMBER),
             referenceTo(BOOKSTORE_APPNAME)
         ),
-        (List<Object> args) -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2))
+        mapper((List<Object> args) -> String.format("https://%s:%s/%s", args.get(0), args.get(1), args.get(2)))
     )).$());
     private final Bean<Attr> bean;
 

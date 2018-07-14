@@ -5,14 +5,18 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
 import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import static com.github.dakusui.floorplan.utils.Checks.require;
+import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 public class Utils {
@@ -36,9 +40,7 @@ public class Utils {
           throw new IllegalStateException();
         },
         list -> {
-          if (list.size() > 1) {
-            throw new IllegalStateException();
-          }
+          require(list, l -> l.size() <= 1, l -> IllegalArgumentException::new);
           return list.isEmpty() ?
               Optional.empty() :
               Optional.of(list.get(0));
@@ -48,7 +50,7 @@ public class Utils {
 
   @SuppressWarnings("unchecked")
   public static <A extends Attribute, T> T resolve(A attr, Configurator<A> configurator, Policy policy) {
-    return (T) configurator.resolverFor(attr, policy).apply(attr, configurator, policy);
+    return (T) Function.class.cast(Function.class.cast(configurator.resolverFor(attr, policy).<A>apply(attr)).apply(configurator)).apply(policy);
   }
 
   public static Action createGroupedAction(
@@ -144,11 +146,34 @@ public class Utils {
     );
   }
 
-  @SuppressWarnings("PointlessBooleanExpression")
+  @SuppressWarnings({ "PointlessBooleanExpression", "unchecked" })
   public static Predicate<Object> forAll(Predicate<Object> pred) {
     return Utils.toPrintable(
         () -> String.format("allMatch[%s]", pred),
         (Object v) -> List.class.cast(v).stream().allMatch(pred) == true
     );
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A> A getStaticFieldValue(Field field) {
+    try {
+      boolean wasAccessible = field.isAccessible();
+      field.setAccessible(true);
+      try {
+        return (A) field.get(null);
+      } finally {
+        field.setAccessible(wasAccessible);
+      }
+    } catch (IllegalAccessException e) {
+      throw Exceptions.rethrow(e);
+    }
+  }
+
+  public static <T> T createWithNoParameterConstructor(Class<T> tClass) {
+    try {
+      return requireNonNull(tClass).newInstance();
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw Exceptions.rethrow(e);
+    }
   }
 }

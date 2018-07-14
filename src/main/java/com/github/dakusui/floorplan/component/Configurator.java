@@ -5,7 +5,10 @@ import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
@@ -25,7 +28,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param attr An attribute for which
    * @param <T>  Type of a value of an attribute {@code attr}.
    */
-  <T> Optional<Resolver<A, T>> resolverFor(A attr);
+  <T> Optional<Resolver<? super A, T>> resolverFor(A attr);
 
   /**
    * Returns a resolver for a specified attribute {@code attr}. If no resolver is
@@ -36,7 +39,13 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param policy A policy object from which a resolver is searched.
    * @param <T>    A type of attribute value.
    */
-  default <T> Resolver<A, T> resolverFor(A attr, Policy policy) {
+  default <T> Resolver<? super A, T> resolverFor(A attr, Policy policy) {
+    require(
+        attr,
+        (A a) -> a.spec().getClass().isAssignableFrom(this.spec().getClass()),
+        n -> Exceptions.inconsistentSpec(() ->
+            String.format("An attribute '%s' is not compatible with '%s'", n.name(), this.spec())
+        ));
     return this.<T>resolverFor(attr).orElseGet(() -> policy.fallbackResolverFor(this.ref(), attr));
   }
 
@@ -88,7 +97,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Optional<Resolver<A, T>> resolverFor(A attr) {
+    public <T> Optional<Resolver<? super A, T>> resolverFor(A attr) {
       return resolvers.containsKey(attr) ?
           Optional.of((Resolver<A, T>) resolvers.get(attr)) :
           Optional.empty();
@@ -112,7 +121,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     @Override
     public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
       return new Component.Impl<>(this.ref, new LinkedHashMap<A, Object>() {{
-        Arrays.stream(spec.attributes()).forEach(
+        spec.attributes().forEach(
             (A attr) -> {
               Object u;
               put(attr,
