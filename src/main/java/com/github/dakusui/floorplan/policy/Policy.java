@@ -140,13 +140,18 @@ public interface Policy {
       return floorPlan.allWires();
     }
 
+    @SuppressWarnings("unchecked")
     private static List<ResolverEntry> createResolversForComponentSpec(ComponentSpec<?> spec) {
       return new LinkedList<ResolverEntry>() {{
         spec.attributes().stream(
         ).map(
             attribute -> new ResolverEntry(
-                (ref, a) -> Objects.equals(attribute.spec(), ref.spec()) && Objects.equals(attribute, a),
-                attribute.defaultValueResolver()
+                //TODO
+                //                (ref, a) -> Objects.equals(attribute.spec(), ref.spec()) && Objects.equals(attribute, a),
+                (ref, a) ->
+                    attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()) &&
+                    Objects.equals(attribute, a),
+                (Resolver<Attribute, ?>) attribute.defaultValueResolver()
             )
         ).forEach(
             this::add

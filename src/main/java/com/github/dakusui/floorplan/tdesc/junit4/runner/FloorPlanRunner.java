@@ -1,8 +1,8 @@
 package com.github.dakusui.floorplan.tdesc.junit4.runner;
 
-import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
+import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized;
@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -72,19 +71,11 @@ public class FloorPlanRunner extends Parameterized {
   }
 
   private static TestSuiteDescriptor.Factory<?> createTestSuiteDescriptorFactory(Class<?> testClass) {
-    try {
-      return requireNonNull(testClass.getAnnotation(UseTestSuiteDescriptorFactory.class)).value().newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw Exceptions.rethrow(e);
-    }
+    return Utils.createWithNoParameterConstructor(testClass.getAnnotation(UseTestSuiteDescriptorFactory.class).value());
   }
 
   private static Profile.Factory<?> createProfileFactory(Class<?> testClass) {
-    try {
-      return requireNonNull(testClass.getAnnotation(UseProfileFactory.class).value()).newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw Exceptions.rethrow(e);
-    }
+    return Utils.createWithNoParameterConstructor(testClass.getAnnotation(UseProfileFactory.class).value());
   }
 
   @Override

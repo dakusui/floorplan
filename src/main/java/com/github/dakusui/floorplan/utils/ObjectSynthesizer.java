@@ -8,8 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.methodCall;
-
 /**
  * A factory class to synthesize an implementation of a given interface (semi-)automatically.
  *
@@ -18,11 +16,11 @@ import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.metho
 public abstract class ObjectSynthesizer<T> {
   private final Class<T> anInterface;
 
-  protected ObjectSynthesizer(Class<T> anInterface) {
+  ObjectSynthesizer(Class<T> anInterface) {
     this.anInterface = Objects.requireNonNull(anInterface);
   }
 
-  public T synthesize() {
+  private T synthesize() {
     //noinspection unchecked
     return (T) Proxy.newProxyInstance(
         anInterface.getClassLoader(),
@@ -31,7 +29,7 @@ public abstract class ObjectSynthesizer<T> {
     );
   }
 
-  protected Object handleMethodCall(Method method, Object[] args) {
+  private Object handleMethodCall(Method method, Object[] args) {
     return lookUpMethodCallHandler(method).orElseThrow(UnsupportedOperationException::new).apply(args);
   }
 
@@ -46,7 +44,7 @@ public abstract class ObjectSynthesizer<T> {
     private final List<? extends Handler> handlers;
     private final Object                  fallbackObject;
 
-    protected Default(Class<T> anInterface, List<? extends Handler> handlers, Object fallbackObject) {
+    Default(Class<T> anInterface, List<? extends Handler> handlers, Object fallbackObject) {
       super(anInterface);
       this.handlers = handlers;
       this.fallbackObject = fallbackObject;
@@ -66,7 +64,13 @@ public abstract class ObjectSynthesizer<T> {
 
     private Object invokeMethod(Object object, Method method, Object[] args) {
       try {
-        return method.invoke(object, args);
+        boolean wasAccessible = method.isAccessible();
+        try {
+          method.setAccessible(true);
+          return method.invoke(object, args);
+        } finally {
+          method.setAccessible(wasAccessible);
+        }
       } catch (IllegalAccessException | InvocationTargetException e) {
         throw new RuntimeException(e);
       }
@@ -87,14 +91,14 @@ public abstract class ObjectSynthesizer<T> {
       });
     }
 
-    public static Handler.Builder methodCall(Predicate<Method> predicate) {
+    static Handler.Builder methodCall(Predicate<Method> predicate) {
       return new Handler.Builder(predicate);
     }
 
     public static class Builder<T> {
-      private final Class<T> anInterface;
-      private       Object   fallbackObject;
-      private List<Handler> handlers = new LinkedList<>();
+      private final Class<T>      anInterface;
+      private       Object        fallbackObject;
+      private       List<Handler> handlers = new LinkedList<>();
 
       public Builder(Class<T> anInterface) {
         this.anInterface = anInterface;
@@ -118,22 +122,6 @@ public abstract class ObjectSynthesizer<T> {
         return build().synthesize();
       }
     }
-  }
-
-  interface A {
-    String aMethod();
-  }
-
-  interface B {
-    String bMethod();
-  }
-
-  interface C {
-    String cMethod();
-  }
-
-  interface X extends A, B, C {
-    String xMethod();
   }
 
   interface Handler extends Function<Object[], Object>, Predicate<Method> {
@@ -164,40 +152,5 @@ public abstract class ObjectSynthesizer<T> {
         };
       }
     }
-  }
-
-
-  public static void main(String... _args) {
-    Object fallbackObject = new X() {
-      @Override
-      public String xMethod() {
-        return "xMethod";
-      }
-
-      @Override
-      public String cMethod() {
-        return "cMethod";
-      }
-
-      @Override
-      public String bMethod() {
-        return "bMethod";
-      }
-
-      @Override
-      public String aMethod() {
-        return "aMethod";
-      }
-    };
-    X x = ObjectSynthesizer.builder(X.class)
-        .handle(methodCall("aMethod").with(args -> "a is called"))
-        .handle(methodCall("bMethod").with(args -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .synthesize();
-    System.out.println(x.aMethod());
-    System.out.println(x.bMethod());
-    System.out.println(x.toString());
-    System.out.println(x.cMethod());
-    System.out.println(x.xMethod());
   }
 }

@@ -36,9 +36,13 @@ public enum Checks {
   }
 
   public static <T, E extends RuntimeException> T require(T value, Predicate<T> condition, Supplier<E> exceptionThrower) {
+    return require(value, condition, d -> exceptionThrower);
+  }
+
+  public static <T, E extends RuntimeException> T require(T value, Predicate<T> condition, Function<T, Supplier<E>> exceptionThrower) {
     if (condition.test(value))
       return value;
-    throw exceptionThrower.get();
+    throw exceptionThrower.apply(value).get();
   }
 
   public static <T> T requireNonNull(T value) {

@@ -12,6 +12,7 @@ import static java.lang.String.format;
 
 public enum Exceptions {
   ;
+
   public static RuntimeException throwExceptionForIllegalValue(String message) {
     throw new IllegalArgumentException(message);
   }
@@ -70,6 +71,12 @@ public enum Exceptions {
               floorPlan,
               profile
           ));
+    };
+  }
+
+  public static Supplier<RuntimeException> inconsistentSpec(Supplier<String> messageSupplier) {
+    return () -> {
+      throw new InconsistentSpec(messageSupplier.get());
     };
   }
 
