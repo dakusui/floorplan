@@ -13,8 +13,9 @@ public final class Ref {
     this.id = requireNonNull(id);
   }
 
-  public ComponentSpec<?> spec() {
-    return this.spec;
+  @SuppressWarnings("unchecked")
+  public <A extends Attribute> ComponentSpec<? extends A> spec() {
+    return (ComponentSpec<A>) this.spec;
   }
 
   public String id() {

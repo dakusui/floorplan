@@ -17,7 +17,7 @@ import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   Configurator<A> configure(A attr, Resolver<A, ?> resolver);
 
-  Configurator<A> addOperator(Operator<A> operator);
+  Configurator<A> addOperator(Operator<? extends A> operator);
 
   Component<A> build(Policy policy, Map<Ref, Component<?>> pool);
 
@@ -112,9 +112,10 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Configurator<A> addOperator(Operator<A> operator) {
-      this.operators.put(requireNonNull(operator.type()), requireNonNull(operator));
+    public Configurator<A> addOperator(Operator<? extends A> operator) {
+      this.operators.put(requireNonNull(operator.type()), Operator.class.cast(requireNonNull(operator)));
       return this;
     }
 

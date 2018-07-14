@@ -2,8 +2,10 @@ package com.github.dakusui.floorplan.examples.bookstore.tdescs;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
@@ -57,6 +59,18 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Books
     return new Fixture.Factory() {
       @Override
       public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
+        fixtureConfigurator.lookUp(floorPlan().proxy)
+            .addOperator(
+                Operator.Factory.of(
+                    Operator.Type.NUKE,
+                    c -> $ -> $.named("configuredStart", $.nop())
+                ).apply((ComponentSpec<Attribute>) floorPlan().proxy.spec()))
+            .addOperator(
+                Operator.Factory.of(
+                    Operator.Type.NUKE,
+                    c -> $ -> $.named("configuredStart", $.nop())
+                ).apply((ComponentSpec<Attribute>) floorPlan().proxy.spec()))
+            ;
         return new BookstoreFixture(policy, fixtureConfigurator) {
           @Override
           public String applicationEndpoint() {

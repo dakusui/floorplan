@@ -86,7 +86,7 @@ public interface Attribute {
    * object.
    * <p>
    * Being "more specialized" means defined in a subclass.
-   *
+   * <p>
    * If {@code this} and {@code another} have different names, an exception will
    * be thrown.
    *
@@ -173,24 +173,26 @@ public interface Attribute {
           .collect(Collector.of(
               LinkedHashMap::new,
               (map, attr) -> {
-                if (map.containsKey(attr.name())) {
+                if (map.containsKey(attr.name()))
                   map.put(
                       attr.name(),
                       attr.moreSpecialized(map.get(attr.name())).orElseThrow(
                           inconsistentSpec(inconsistentSpecMessageSupplier(map.get(attr.name()), attr)))
                   );
-                } else
+                else
                   map.put(attr.name(), attr);
               },
               (Map<String, A> mapA, Map<String, A> mapB) -> new LinkedHashMap<String, A>() {{
                 putAll(mapA);
                 mapB.forEach((key, value) -> {
-                  if (!containsKey(key))
+                  if (containsKey(key))
                     put(key,
                         value.moreSpecialized(get(key))
                             .orElseThrow(inconsistentSpec(
                                 inconsistentSpecMessageSupplier(get(key), value)))
                     );
+                  else
+                    put(key, value);
                 });
               }})).values());
     }};
