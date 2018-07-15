@@ -61,7 +61,7 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Co
 
             @Override
             public String toString() {
-              return "";//String.format("%s %s", type, spec);
+              return String.format("operator(%s %s)", type, aComponentSpec);
             }
           };
         }
@@ -73,14 +73,14 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Co
       };
     }
 
-    static <A extends Attribute> Factory<A> nop(Type type) {
+    static Factory nop(Type type) {
       return of(
           type,
           component -> Context::nop
       );
     }
 
-    static <A extends Attribute> Factory<A> unsupported(Type type) {
+    static Factory unsupported(Type type) {
       return of(
           type,
           component -> context -> {

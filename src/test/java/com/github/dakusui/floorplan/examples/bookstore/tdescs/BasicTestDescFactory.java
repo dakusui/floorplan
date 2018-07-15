@@ -23,13 +23,13 @@ public abstract class BasicTestDescFactory extends TestSuiteDescriptor.Factory.B
 
 
   @Override
-  protected String testCaseNameFor(int i) {
-    return String.format("case[%02d]", i);
+  protected String testCaseNameFor(int testCaseId) {
+    return String.format("case[%02d]", testCaseId);
   }
 
   @Override
-  protected String testOracleNameFor(int j) {
-    return String.format("oracle[%02d]", j);
+  protected String testOracleNameFor(int testOracleId) {
+    return String.format("oracle[%02d]", testOracleId);
   }
 
   @Override

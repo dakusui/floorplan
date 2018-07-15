@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.resolver;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.resolver.Resolver;
 
 import java.util.function.BiPredicate;
 

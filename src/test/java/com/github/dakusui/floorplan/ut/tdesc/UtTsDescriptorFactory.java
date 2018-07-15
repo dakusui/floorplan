@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
@@ -20,13 +21,13 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected String testCaseNameFor(int i) {
-    return String.format("UtTsDescCase[%02d]", i);
+  protected String testCaseNameFor(int testCaseId) {
+    return String.format("UtTsDescCase[%02d]", testCaseId);
   }
 
   @Override
-  protected String testOracleNameFor(int j) {
-    return String.format("UtTsDescOracle[%02d]", j);
+  protected String testOracleNameFor(int testOracleId) {
+    return String.format("UtTsDescOracle[%02d]", testOracleId);
   }
 
   @Override
@@ -40,8 +41,8 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected Fixture.Factory createFixtureFactory() {
-    return UtFixture::new;
+  protected FixtureConfigurator configureFixture(FixtureConfigurator fixtureConfigurator) {
+    return fixtureConfigurator;
   }
 
   @Override
@@ -50,7 +51,7 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected Action createActionForSetUp(int i, Context context, Fixture fixture) {
+  protected Action createActionForSetUp(int testCaseId, Context context, Fixture fixture) {
     return context.nop();
   }
 
@@ -60,12 +61,12 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected Action createActionForTest(int i, int j, Context context, Fixture fixture) {
+  protected Action createActionForTest(int testCaseId, int testOracleId, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTearDown(int i, Context context, Fixture fixture) {
+  protected Action createActionForTearDown(int testCaseId, Context context, Fixture fixture) {
     return context.nop();
   }
 

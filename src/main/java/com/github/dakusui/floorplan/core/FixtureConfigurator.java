@@ -1,6 +1,9 @@
 package com.github.dakusui.floorplan.core;
 
-import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Configurator;
+import com.github.dakusui.floorplan.component.Operator;
+import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
@@ -30,8 +33,8 @@ public interface FixtureConfigurator {
   }
 
   @SuppressWarnings("unchecked")
-  default <A extends Attribute> FixtureConfigurator addOperatorFactory(Ref ref, Operator.Factory<A> operator) {
-    this.<A>lookUp(ref).addOperator(operator.apply((ComponentSpec<A>) ref.spec()));
+  default <A extends Attribute> FixtureConfigurator addOperatorFactory(Ref ref, Operator.Factory<A> operatorFactory) {
+    this.<A>lookUp(ref).addOperatorFactory(operatorFactory);
     return this;
   }
 

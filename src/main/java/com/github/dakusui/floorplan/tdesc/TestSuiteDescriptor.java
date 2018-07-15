@@ -5,6 +5,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.policy.Profile;
@@ -20,17 +21,17 @@ public interface TestSuiteDescriptor {
 
   int numTestOracles();
 
-  String getTestCaseNameFor(int i);
+  String getTestCaseNameFor(int testCaseId);
 
-  String getTestOracleNameFor(int j);
+  String getTestOracleNameFor(int testOracleId);
 
   Named setUpFirstTime(Context context);
 
-  Named setUp(Context context, int i);
+  Named setUp(Context context, int testCaseId);
 
-  Named test(Context context, int i, int j);
+  Named test(Context context, int testCaseId, int testOracleId);
 
-  Named tearDown(Context context, int i);
+  Named tearDown(Context context, int testCaseId);
 
   Named tearDownLastTime(Context context);
 
@@ -60,18 +61,18 @@ public interface TestSuiteDescriptor {
           }
 
           @Override
-          public Named setUp(Context context, int i) {
+          public Named setUp(Context context, int testCaseId) {
             return (Named) context.named(
-                String.format("BEFORE:%s", getTestCaseNameFor(i)),
-                createActionForSetUp(i, context, fixture)
+                String.format("BEFORE:%s", getTestCaseNameFor(testCaseId)),
+                createActionForSetUp(testCaseId, context, fixture)
             );
           }
 
           @Override
-          public Named test(Context context, int i, int j) {
+          public Named test(Context context, int testCaseId, int testOracleId) {
             return (Named) context.named(
-                String.format("TEST:%s.%s", getTestOracleNameFor(j), getTestCaseNameFor(i)),
-                createActionForTest(i, j, context, fixture)
+                String.format("TEST:%s.%s", getTestOracleNameFor(testOracleId), getTestCaseNameFor(testCaseId)),
+                createActionForTest(testCaseId, testOracleId, context, fixture)
             );
           }
 
@@ -86,13 +87,13 @@ public interface TestSuiteDescriptor {
           }
 
           @Override
-          public String getTestCaseNameFor(int i) {
-            return testCaseNameFor(i);
+          public String getTestCaseNameFor(int testCaseId) {
+            return testCaseNameFor(testCaseId);
           }
 
           @Override
-          public String getTestOracleNameFor(int j) {
-            return testOracleNameFor(j);
+          public String getTestOracleNameFor(int testOracleId) {
+            return testOracleNameFor(testOracleId);
           }
 
           @Override
@@ -101,10 +102,10 @@ public interface TestSuiteDescriptor {
           }
 
           @Override
-          public Named tearDown(Context context, int i) {
+          public Named tearDown(Context context, int testCaseId) {
             return (Named) context.named(
-                String.format("AFTER:%s", getTestCaseNameFor(i)),
-                createActionForTearDown(i, context, fixture)
+                String.format("AFTER:%s", getTestCaseNameFor(testCaseId)),
+                createActionForTearDown(testCaseId, context, fixture)
             );
           }
 
@@ -122,31 +123,35 @@ public interface TestSuiteDescriptor {
         };
       }
 
+      private Fixture.Factory createFixtureFactory() {
+        return (policy, fixtureConfigurator) -> new Fixture.Impl(policy, configureFixture(fixtureConfigurator));
+      }
+
       private FloorPlan createFloorPlan() {
         return configureFloorPlan(new FloorPlan.Impl());
       }
 
       protected abstract String name();
 
-      protected abstract String testCaseNameFor(int i);
+      protected abstract String testCaseNameFor(int testCaseId);
 
-      protected abstract String testOracleNameFor(int j);
+      protected abstract String testOracleNameFor(int testOracleId);
 
       protected abstract int numTests();
 
       protected abstract int numOracles();
 
-      protected abstract Fixture.Factory createFixtureFactory();
+      protected abstract FixtureConfigurator configureFixture(FixtureConfigurator fixtureConfigurator);
 
       protected abstract List<ComponentSpec<?>> allKnownComponentSpecs();
 
-      protected abstract Action createActionForSetUp(int i, Context context, Fixture fixture);
+      protected abstract Action createActionForSetUp(int testCaseId, Context context, Fixture fixture);
 
       protected abstract Action createActionForSetUpFirstTime(Context context, Fixture fixture);
 
-      protected abstract Action createActionForTest(int i, int j, Context context, Fixture fixture);
+      protected abstract Action createActionForTest(int testCaseId, int testOracleId, Context context, Fixture fixture);
 
-      protected abstract Action createActionForTearDown(int i, Context context, Fixture fixture);
+      protected abstract Action createActionForTearDown(int testCaseId, Context context, Fixture fixture);
 
       protected abstract Action createActionForTearDownLastTime(Context context, Fixture fixture);
 
