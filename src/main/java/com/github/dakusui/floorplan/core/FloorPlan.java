@@ -10,6 +10,7 @@ import com.github.dakusui.floorplan.resolver.ResolverEntry;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.component.Ref.ref;
 import static com.github.dakusui.floorplan.core.Connector.connector;
@@ -17,15 +18,17 @@ import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public interface FloorPlan<F extends FloorPlan<F>> {
-  <A extends Attribute> F add(ComponentSpec<A> spec, String name);
+public interface FloorPlan {
+  <A extends Attribute> FloorPlan add(ComponentSpec<A> spec, String name);
 
-  F add(Ref... refs);
+  FloorPlan add(Ref... refs);
 
-  F wire(Ref from,
+  FloorPlan wire(Ref from,
       Attribute as,
       Ref... tos
   );
+
+  FloorPlan requires(Predicate<Profile> requirement);
 
   Set<Ref> allReferences();
 
@@ -35,11 +38,15 @@ public interface FloorPlan<F extends FloorPlan<F>> {
 
   boolean canBeDeployedOn(Profile profile);
 
-  abstract class Base<F extends FloorPlan<F>> implements FloorPlan<F> {
+  static FloorPlan create() {
+    return new Impl();
+  }
+  final class Impl implements FloorPlan {
     private final Set<Ref>              refs  = new LinkedHashSet<>();
     private final Map<Connector, Ref[]> wires = new LinkedHashMap<>();
+    private Predicate<Profile> requirements;
 
-    public Base() {
+    public Impl() {
     }
 
     /**
@@ -51,18 +58,18 @@ public interface FloorPlan<F extends FloorPlan<F>> {
      * @return this object.
      */
     @SuppressWarnings("unchecked")
-    public <A extends Attribute> F add(ComponentSpec<A> spec, String name) {
+    public <A extends Attribute> FloorPlan add(ComponentSpec<A> spec, String name) {
       return this.add(ref(spec, name));
     }
 
     @SuppressWarnings("unchecked")
-    public F add(Ref... refs) {
+    public FloorPlan add(Ref... refs) {
       this.refs.addAll(asList(refs));
-      return (F) this;
+      return this;
     }
 
     @SuppressWarnings("unchecked")
-    public F wire(
+    public FloorPlan wire(
         Ref from,
         Attribute as,
         Ref... tos
@@ -93,7 +100,16 @@ public interface FloorPlan<F extends FloorPlan<F>> {
           connector(from, as),
           tos
       );
-      return (F) this;
+      return this;
+    }
+
+    @Override
+    public FloorPlan requires(Predicate<Profile> requirement) {
+      requireNonNull(requirement);
+      this.requirements = this.requirements == null ?
+          requirement :
+          this.requirements.and(requirement);
+      return this;
     }
 
     public Set<Ref> allReferences() {

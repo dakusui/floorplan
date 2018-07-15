@@ -4,14 +4,16 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
 import java.util.List;
 
+import static com.github.dakusui.floorplan.component.Ref.ref;
 import static java.util.Collections.singletonList;
 
-public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTsDescFloorPlan, UtFixture>
-    implements TestSuiteDescriptor.Factory<UtTsDescFloorPlan> {
+public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtFixture>
+    implements TestSuiteDescriptor.Factory {
   @Override
   protected String name() {
     return "UtTsDesc";
@@ -35,11 +37,6 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTs
   @Override
   protected int numOracles() {
     return 1;
-  }
-
-  @Override
-  protected UtTsDescFloorPlan buildFloorPlan() {
-    return new UtTsDescFloorPlan();
   }
 
   @Override
@@ -75,5 +72,10 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTs
   @Override
   protected Action createActionForTearDownLastTime(Context context, UtFixture fixture) {
     return context.nop();
+  }
+
+  @Override
+  protected FloorPlan configureFloorPlan(FloorPlan floorPlan) {
+    return floorPlan.add(ref(UtComponent.SPEC, "1"));
   }
 }

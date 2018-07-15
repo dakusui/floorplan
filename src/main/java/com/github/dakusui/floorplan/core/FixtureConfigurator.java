@@ -1,10 +1,13 @@
 package com.github.dakusui.floorplan.core;
 
 import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
@@ -59,7 +62,7 @@ public interface FixtureConfigurator {
           ).collect(
               singletonCollector()
           ).orElseThrow(
-              NoSuchElementException::new
+              Exceptions.noSuchElement("Configurator for '%s' was not found.", ref)
           ), ret -> Objects.equals(ret.spec().attributeType(), ref.spec().attributeType())
       );
     }

@@ -7,23 +7,24 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
 import com.github.dakusui.floorplan.examples.bookstore.components.PostgreSQL;
-import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture;
-import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFloorPlan;
-import com.github.dakusui.floorplan.policy.Policy;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.*;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.Utils;
 
 import java.util.List;
 
+import static com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.*;
+import static com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.Basic.PROXY;
 import static java.util.Arrays.asList;
 
-public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<BookstoreFloorPlan.ForSmoke, BookstoreFixture> {
+public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Basic> {
   @Override
   protected String name() {
     return "example";
@@ -49,35 +50,23 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Books
     return 2;
   }
 
-  @Override
-  protected BookstoreFloorPlan.ForSmoke buildFloorPlan() {
-    return new BookstoreFloorPlan.ForSmoke();
-  }
-
+  @SuppressWarnings("unchecked")
   @Override
   protected Fixture.Factory createFixtureFactory() {
-    return new Fixture.Factory() {
-      @Override
-      public BookstoreFixture create(Policy policy, FixtureConfigurator fixtureConfigurator) {
-        fixtureConfigurator.lookUp(floorPlan().proxy)
-            .addOperator(
-                Operator.Factory.of(
-                    Operator.Type.NUKE,
-                    c -> $ -> $.named("configuredStart", $.nop())
-                ).apply((ComponentSpec<Attribute>) floorPlan().proxy.spec()))
-            .addOperator(
-                Operator.Factory.of(
-                    Operator.Type.NUKE,
-                    c -> $ -> $.named("configuredStart", $.nop())
-                ).apply((ComponentSpec<Attribute>) floorPlan().proxy.spec()))
-            ;
-        return new BookstoreFixture(policy, fixtureConfigurator) {
-          @Override
-          public String applicationEndpoint() {
-            return this.lookUp(floorPlan().proxy).valueOf(Nginx.Attr.ENDPOINT);
-          }
-        };
-      }
+    return (policy, fixtureConfigurator) -> {
+      fixtureConfigurator.lookUp(PROXY)
+          .addOperator(
+              Operator.Factory.of(
+                  Operator.Type.START,
+                  c -> $ -> $.named("configuredStart", $.nop())
+              ).apply((ComponentSpec<Attribute>) PROXY.spec()))
+          .addOperator(
+              Operator.Factory.of(
+                  Operator.Type.NUKE,
+                  c -> $ -> $.named("configuredNuke", $.nop())
+              ).apply((ComponentSpec<Attribute>) PROXY.spec()))
+      ;
+      return new Basic(policy, fixtureConfigurator);
     };
   }
 
@@ -87,44 +76,53 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Books
   }
 
   @Override
-  protected Action createActionForSetUp(int i, Context context, BookstoreFixture fixture) {
+  protected Action createActionForSetUp(int i, Context context, Basic fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Context context, BookstoreFixture fixture) {
+  protected Action createActionForSetUpFirstTime(Context context, Basic fixture) {
     return context.sequential(
         Utils.createGroupedAction(
             context,
             true,
             Component::uninstall,
             fixture,
-            floorPlan().dbms, floorPlan().httpd, floorPlan().app, floorPlan().proxy
+            HTTPD, DBMS, APP, PROXY
         ),
         Utils.createGroupedAction(
             context,
             true,
             Component::install,
             fixture,
-            floorPlan().dbms, floorPlan().httpd, floorPlan().app, floorPlan().proxy
+            HTTPD, DBMS, APP, PROXY
         ));
   }
 
   @Override
-  protected Action createActionForTest(int i, int j, Context $, BookstoreFixture fixture) {
+  protected Action createActionForTest(int i, int j, Context $, Basic fixture) {
     return $.simple("Issue a request to end point",
         () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", fixture.applicationEndpoint())
     );
   }
 
   @Override
-  protected Action createActionForTearDown(int i, Context $, BookstoreFixture fixture) {
+  protected Action createActionForTearDown(int i, Context $, Basic fixture) {
     return $.named("Collect log files", $.nop());
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Context $, BookstoreFixture fixture) {
+  protected Action createActionForTearDownLastTime(Context $, Basic fixture) {
     return $.nop();
+  }
+
+  @Override
+  protected FloorPlan configureFloorPlan(FloorPlan floorPlan) {
+    return floorPlan.add(Basic.APP, Basic.HTTPD, Basic.DBMS, Basic.PROXY)
+        .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
+        .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
+        .wire(PROXY, Nginx.Attr.UPSTREAM, HTTPD)
+        .requires(p -> p instanceof BookstoreProfile);
   }
 }
 

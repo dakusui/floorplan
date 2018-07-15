@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.policy.Policy;
 
-public class UtFixture extends Fixture.Impl {
+public class UtFixture extends Fixture.Base {
   public UtFixture(Policy policy, FixtureConfigurator fixtureConfigurator) {
     super(policy, fixtureConfigurator);
   }

@@ -70,7 +70,7 @@ public class FloorPlanRunner extends Parameterized {
     return createTestSuiteDescriptorFactory(testClass).create(createProfileFactory(testClass).create());
   }
 
-  private static TestSuiteDescriptor.Factory<?> createTestSuiteDescriptorFactory(Class<?> testClass) {
+  private static TestSuiteDescriptor.Factory createTestSuiteDescriptorFactory(Class<?> testClass) {
     return Utils.createWithNoParameterConstructor(testClass.getAnnotation(UseTestSuiteDescriptorFactory.class).value());
   }
 

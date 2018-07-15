@@ -1,10 +1,9 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.ut.tdesc.UtTsDescFloorPlan;
+import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
 
@@ -43,7 +42,7 @@ public class ListOfResolverTest {
   @Test
   public void test() {
     Ref cut = Ref.ref(Cut.SPEC, "1");
-    Fixture fixture = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
+    Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
     System.out.println("" + fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR));
 

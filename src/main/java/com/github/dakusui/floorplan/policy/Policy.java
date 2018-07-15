@@ -39,7 +39,7 @@ public interface Policy {
     private final FixtureConfigurator fixtureConfigurator;
     private final Profile             profile;
 
-    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan<?> floorPlan, Profile profile, Fixture.Factory fixtureFactory) {
+    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan floorPlan, Profile profile, Fixture.Factory fixtureFactory) {
       requireArgument(
           floorPlan,
           f -> f.allReferences().stream().allMatch((Ref ref) -> specs.contains(ref.spec())),
@@ -91,13 +91,13 @@ public interface Policy {
     private       Profile                profile;
     @SuppressWarnings("unchecked")
     private       Fixture.Factory        fixtureFactory =
-        (policy, fixtureConfigurator) -> new Fixture.Impl(policy, fixtureConfigurator) {
+        (policy, fixtureConfigurator) -> new Fixture.Base(policy, fixtureConfigurator) {
         };
 
     public Builder() {
     }
 
-    public Builder setFloorPlan(FloorPlan<?> floorPlan) {
+    public Builder setFloorPlan(FloorPlan floorPlan) {
       requireState(this, v -> v.floorPlan == null);
       this.resolvers.addAll(createResolversForFloorPlan(requireNonNull(floorPlan)));
       this.floorPlan = requireNonNull(floorPlan);
@@ -136,7 +136,7 @@ public interface Policy {
           requireNonNull(this.fixtureFactory));
     }
 
-    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan<?> floorPlan) {
+    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan floorPlan) {
       return floorPlan.allWires();
     }
 
@@ -146,11 +146,9 @@ public interface Policy {
         spec.attributes().stream(
         ).map(
             attribute -> new ResolverEntry(
-                //TODO
-                //                (ref, a) -> Objects.equals(attribute.spec(), ref.spec()) && Objects.equals(attribute, a),
                 (ref, a) ->
                     attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()) &&
-                    Objects.equals(attribute, a),
+                        Objects.equals(attribute, a),
                 (Resolver<Attribute, ?>) attribute.defaultValueResolver()
             )
         ).forEach(

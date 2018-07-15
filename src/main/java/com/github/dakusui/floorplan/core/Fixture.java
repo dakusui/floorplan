@@ -19,11 +19,11 @@ public interface Fixture {
     Fixture create(Policy policy, FixtureConfigurator fixtureConfigurator);
   }
 
-  class Impl implements Fixture {
+  abstract class Base implements Fixture {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<Ref, Component<?>> components;
 
-    protected Impl(Policy policy, FixtureConfigurator fixtureConfigurator) {
+    protected Base(Policy policy, FixtureConfigurator fixtureConfigurator) {
       this.components = new LinkedHashMap<Ref, Component<?>>() {{
         fixtureConfigurator.allReferences().stream().map(
             ref -> (Configurator<?>) fixtureConfigurator.lookUp(ref)

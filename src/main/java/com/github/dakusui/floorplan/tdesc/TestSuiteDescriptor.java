@@ -34,13 +34,13 @@ public interface TestSuiteDescriptor {
 
   Named tearDownLastTime(Context context);
 
-  interface Factory<P extends FloorPlan> {
+  interface Factory {
     TestSuiteDescriptor create(Profile profile);
 
-    P floorPlan();
+    FloorPlan floorPlan();
 
-    abstract class Base<P extends FloorPlan, F extends Fixture> implements Factory<P> {
-      private final P floorPlan = buildFloorPlan();
+    abstract class Base<F extends Fixture> implements Factory {
+      private final FloorPlan floorPlan = this.floorPlan();
 
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
@@ -48,7 +48,7 @@ public interface TestSuiteDescriptor {
             allKnownComponentSpecs(),
             new Policy.Builder()
         ).setFloorPlan(
-            floorPlan
+            createFloorPlan()
         ).setProfile(
             requireNonNull(profile)
         ).setFixtureFactory(
@@ -126,8 +126,12 @@ public interface TestSuiteDescriptor {
         };
       }
 
+      private FloorPlan createFloorPlan() {
+        return configureFloorPlan(new FloorPlan.Impl());
+      }
+
       @Override
-      public P floorPlan() {
+      public FloorPlan floorPlan() {
         return this.floorPlan;
       }
 
@@ -140,8 +144,6 @@ public interface TestSuiteDescriptor {
       protected abstract int numTests();
 
       protected abstract int numOracles();
-
-      protected abstract P buildFloorPlan();
 
       protected abstract Fixture.Factory createFixtureFactory();
 
@@ -156,6 +158,8 @@ public interface TestSuiteDescriptor {
       protected abstract Action createActionForTearDown(int i, Context context, F fixture);
 
       protected abstract Action createActionForTearDownLastTime(Context context, F fixture);
+
+      protected abstract FloorPlan configureFloorPlan(FloorPlan floorPlan);
 
       private Policy.Builder addComponentSpecsTo(List<ComponentSpec<?>> specs, Policy.Builder policyBuilder) {
         specs.forEach(policyBuilder::addComponentSpec);

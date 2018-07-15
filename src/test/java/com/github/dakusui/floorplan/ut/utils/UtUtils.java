@@ -1,12 +1,9 @@
 package com.github.dakusui.floorplan.ut.utils;
 
-import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public enum UtUtils {
   ;
@@ -30,6 +27,10 @@ public enum UtUtils {
       builder = builder.addComponentSpec(each);
     }
     return builder.setFloorPlan(floorPlan).setProfile(new SimpleProfile()).build();
+  }
+
+  public static FloorPlan createUtFloorPlan() {
+    return FloorPlan.create();// .add(ref(UtComponent.SPEC, "1"))
   }
 
 }
