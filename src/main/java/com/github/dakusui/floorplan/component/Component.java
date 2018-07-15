@@ -91,7 +91,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     public ActionFactory actionFactoryFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),
-          o -> (Operator<A>) Operator.Factory.unsupported(op).apply((ComponentSpec<Attribute>) spec())
+          o -> (Operator<A>) Operator.Factory.unsupported(op).apply(spec())
       ).apply(
           this
       );
