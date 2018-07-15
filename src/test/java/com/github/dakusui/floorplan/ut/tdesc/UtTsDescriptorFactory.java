@@ -4,27 +4,30 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
 import java.util.List;
 
+import static com.github.dakusui.floorplan.component.Ref.ref;
 import static java.util.Collections.singletonList;
 
-public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTsDescFloorPlan, UtFixture>
-    implements TestSuiteDescriptor.Factory<UtTsDescFloorPlan> {
+public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
+    implements TestSuiteDescriptor.Factory {
   @Override
   protected String name() {
     return "UtTsDesc";
   }
 
   @Override
-  protected String testCaseNameFor(int i) {
-    return String.format("UtTsDescCase[%02d]", i);
+  protected String testCaseNameFor(int testCaseId) {
+    return String.format("UtTsDescCase[%02d]", testCaseId);
   }
 
   @Override
-  protected String testOracleNameFor(int j) {
-    return String.format("UtTsDescOracle[%02d]", j);
+  protected String testOracleNameFor(int testOracleId) {
+    return String.format("UtTsDescOracle[%02d]", testOracleId);
   }
 
   @Override
@@ -38,13 +41,8 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTs
   }
 
   @Override
-  protected UtTsDescFloorPlan buildFloorPlan() {
-    return new UtTsDescFloorPlan();
-  }
-
-  @Override
-  protected Fixture.Factory createFixtureFactory() {
-    return UtFixture::new;
+  protected FixtureConfigurator configureFixture(FixtureConfigurator fixtureConfigurator) {
+    return fixtureConfigurator;
   }
 
   @Override
@@ -53,27 +51,32 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtTs
   }
 
   @Override
-  protected Action createActionForSetUp(int i, Context context, UtFixture fixture) {
+  protected Action createActionForSetUp(int testCaseId, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Context context, UtFixture fixture) {
+  protected Action createActionForSetUpFirstTime(Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTest(int i, int j, Context context, UtFixture fixture) {
+  protected Action createActionForTest(int testCaseId, int testOracleId, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTearDown(int i, Context context, UtFixture fixture) {
+  protected Action createActionForTearDown(int testCaseId, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Context context, UtFixture fixture) {
+  protected Action createActionForTearDownLastTime(Context context, Fixture fixture) {
     return context.nop();
+  }
+
+  @Override
+  protected FloorPlan configureFloorPlan(FloorPlan floorPlan) {
+    return floorPlan.add(ref(UtComponent.SPEC, "1"));
   }
 }

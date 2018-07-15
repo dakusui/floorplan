@@ -87,8 +87,8 @@ public interface ComponentSpec<A extends Attribute> {
   }
 
   class Builder<A extends Attribute> {
-    private final Class<A>                                attributeType;
-    private final String                                  specName;
+    private final Class<A>                             attributeType;
+    private final String                               specName;
     private       Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
     public Builder(String specName, Class<A> attributeType) {
@@ -101,8 +101,8 @@ public interface ComponentSpec<A extends Attribute> {
       this(requireNonNull(requireNonNull(attributeType).getEnclosingClass()).getSimpleName(), attributeType);
     }
 
-    public Builder<A> addOperatorFactory(Operator.Factory<A> operator) {
-      this.operatorFactories.put(requireNonNull(operator.type()), requireNonNull(operator));
+    public Builder<A> addOperatorFactory(Operator.Factory<A> operatorFactory) {
+      this.operatorFactories.put(requireNonNull(operatorFactory.type()), requireNonNull(operatorFactory));
       return this;
     }
 

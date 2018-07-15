@@ -4,8 +4,10 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.exception.InconsistentSpec;
-import com.github.dakusui.floorplan.ut.tdesc.UtTsDescFloorPlan;
+import com.github.dakusui.floorplan.resolver.Resolver;
+import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
@@ -65,7 +67,7 @@ public class InheritanceTest {
   @Test
   public void testL1$whenBuilt() {
     Ref cut = Ref.ref(L1.SPEC, "1");
-    Fixture fixture = buildPolicy(new UtTsDescFloorPlan().add(cut), L1.SPEC).fixtureConfigurator().build();
+    Fixture fixture = buildPolicy(UtUtils.createUtFloorPlan().add(cut), L1.SPEC).fixtureConfigurator().build();
 
     assertThat(
         fixture.lookUp(cut).valueOf(L1.Attr.NAME),
@@ -76,7 +78,7 @@ public class InheritanceTest {
   @Test
   public void testL2$whenBuilt() {
     Ref cut = Ref.ref(L2.SPEC, "1");
-    Fixture fixture = buildPolicy(new UtTsDescFloorPlan().add(cut), L1.SPEC, L2.SPEC).fixtureConfigurator().build();
+    Fixture fixture = buildPolicy(UtUtils.createUtFloorPlan().add(cut), L1.SPEC, L2.SPEC).fixtureConfigurator().build();
 
     assertThat(
         fixture.lookUp(cut),
@@ -91,7 +93,7 @@ public class InheritanceTest {
   @Test
   public void testL3$whenBuilt() {
     Ref cut = Ref.ref(L3.SPEC, "1");
-    Fixture fixture = buildPolicy(new UtTsDescFloorPlan().add(cut), L1.SPEC, L2.SPEC, L3.SPEC).fixtureConfigurator().build();
+    Fixture fixture = buildPolicy(UtUtils.createUtFloorPlan().add(cut), L1.SPEC, L2.SPEC, L3.SPEC).fixtureConfigurator().build();
 
     assertThat(
         fixture.lookUp(cut),
@@ -103,10 +105,34 @@ public class InheritanceTest {
     );
   }
 
+  @Test
+  public void testL3$whenConfiguredAndBuilt() {
+    Ref cut = Ref.ref(L3.SPEC, "1");
+    FixtureConfigurator fixtureConfigurator = buildPolicy(
+        UtUtils.createUtFloorPlan().add(cut),
+        L1.SPEC, L2.SPEC, L3.SPEC
+    ).fixtureConfigurator();
+    fixtureConfigurator.lookUp(cut)
+        .configure(L3.Attr.NAME, Resolver.of(a -> c -> p -> "configured-1"))
+        .configure(L3.Attr.NAME2, Resolver.of(a -> c -> p -> "configured-2"))
+        .configure(L3.Attr.NAME3, Resolver.of(a -> c -> p -> "configured-3"));
+    Fixture fixture = fixtureConfigurator.build();
+
+    assertThat(
+        fixture.lookUp(cut),
+        allOf(
+            asString("valueOf", L3.Attr.NAME).equalTo("configured-1").$(),
+            asString("valueOf", L3.Attr.NAME2).equalTo("configured-2").$(),
+            asString("valueOf", L3.Attr.NAME3).equalTo("configured-3").$()
+        )
+    );
+  }
+
+
   @Test(expected = InconsistentSpec.class)
   public void testL3$whenBuilt$thenError() {
     Ref cut = Ref.ref(LE.SPEC, "1");
-    buildPolicy(new UtTsDescFloorPlan().add(cut), L1.SPEC, L2.SPEC, L3.SPEC, LE.SPEC).fixtureConfigurator().build();
+    buildPolicy(UtUtils.createUtFloorPlan().add(cut), L1.SPEC, L2.SPEC, L3.SPEC, LE.SPEC).fixtureConfigurator().build();
   }
 
   public static class L1 {
@@ -150,6 +176,7 @@ public class InheritanceTest {
 
   public static class LE {
     public interface Attr extends L2.Attr {
+      @SuppressWarnings("unused")
       Attr NAME3 = Attribute.create(
           "NAMEE",
           Attr.class,

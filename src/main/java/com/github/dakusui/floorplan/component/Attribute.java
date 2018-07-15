@@ -7,11 +7,13 @@ import com.github.dakusui.floorplan.utils.Utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.inconsistentSpec;
 import static com.github.dakusui.floorplan.utils.Checks.require;
+import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -20,6 +22,14 @@ import static java.util.Objects.requireNonNull;
  * the component.
  */
 public interface Attribute {
+  /**
+   * Returns a name of this attribute. Implementation can be given usually by {@code Enum}'s
+   * {@code name()} method. In case an {@code Attribute} is implemented by extending
+   * existing one, in other words instances of it are created by {@code Attribute#create(...)}
+   * methods, they will return values given to the methods as {@code name} argument.
+   *
+   * @return A name of this attribute.
+   */
   default String name() {
     throw new UnsupportedOperationException();
   }
@@ -62,12 +72,32 @@ public interface Attribute {
     return (ComponentSpec<A>) bean().spec;
   }
 
+  /**
+   * Returns a description of a constraint held by this object.
+   *
+   * @return A description of a constraint.
+   */
   default String describeConstraint() {
     return bean().constraint.toString();
   }
 
+  /**
+   * Returns more specialized one from {@code this} object and given {@code another}
+   * object.
+   * <p>
+   * Being "more specialized" means defined in a subclass.
+   * <p>
+   * If {@code this} and {@code another} have different names, an exception will
+   * be thrown.
+   *
+   * @param another Another object to be compared with this object.
+   * @param <A>     Type of this attribute.
+   * @return More specialized one from this and another.
+   */
+  @SuppressWarnings("unchecked")
   default <A extends Attribute> Optional<A> moreSpecialized(A another) {
     requireNonNull(another);
+    requireArgument(this.name(), n -> Objects.equals(n, another.name()));
     if (this.spec().attributeType().isAssignableFrom(another.spec().attributeType()))
       return Optional.of(another);
     if (another.spec().attributeType().isAssignableFrom(this.spec().attributeType()))
@@ -94,11 +124,12 @@ public interface Attribute {
    * it belongs. Such as an attribute defined in an interface, not in an {@code Enum},
    * and references to another defined in a super-interface.
    *
-   * @param attrName
-   * @param attrType
-   * @param bean
-   * @param <A>
-   * @return
+   * @param attrName A name of the attribute to be created
+   * @param attrType A type of the attribute to be created. Not to be confused with
+   *                 type of the value of the attribute.
+   * @param bean     An object that holds contents of the attribute to be created.
+   * @param <A>      A type of attribute, represented by {@code attrType}.
+   * @return Created attribute.
    */
   static <A extends Attribute> A create(String attrName, Class<A> attrType, Bean<?> bean) {
     return ObjectSynthesizer.builder(attrType)
@@ -142,24 +173,26 @@ public interface Attribute {
           .collect(Collector.of(
               LinkedHashMap::new,
               (map, attr) -> {
-                if (map.containsKey(attr.name())) {
+                if (map.containsKey(attr.name()))
                   map.put(
                       attr.name(),
                       attr.moreSpecialized(map.get(attr.name())).orElseThrow(
                           inconsistentSpec(inconsistentSpecMessageSupplier(map.get(attr.name()), attr)))
                   );
-                } else
+                else
                   map.put(attr.name(), attr);
               },
               (Map<String, A> mapA, Map<String, A> mapB) -> new LinkedHashMap<String, A>() {{
                 putAll(mapA);
                 mapB.forEach((key, value) -> {
-                  if (!containsKey(key))
+                  if (containsKey(key))
                     put(key,
                         value.moreSpecialized(get(key))
                             .orElseThrow(inconsistentSpec(
                                 inconsistentSpecMessageSupplier(get(key), value)))
                     );
+                  else
+                    put(key, value);
                 });
               }})).values());
     }};
@@ -211,7 +244,7 @@ public interface Attribute {
       private final ComponentSpec<A>       spec;
       private       Class<?>               valueType;
       private       Resolver<? super A, ?> defaultValueResolver = null;
-      private       Predicate<Object>      constraint           = null;
+      private       Predicate<Object>      constraint;
 
       /**
        * @param spec A spec of a component to which the attribute belongs

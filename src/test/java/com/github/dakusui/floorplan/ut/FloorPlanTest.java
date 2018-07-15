@@ -2,14 +2,15 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.floorplan.component.Component;
+import com.github.dakusui.floorplan.component.Operator;
+import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.component.*;
-import com.github.dakusui.floorplan.ut.components.ReferenceComponent;
-import com.github.dakusui.floorplan.ut.components.SimpleComponent;
-import com.github.dakusui.floorplan.ut.tdesc.UtTsDescFloorPlan;
 import com.github.dakusui.floorplan.exception.MissingValueException;
 import com.github.dakusui.floorplan.exception.TypeMismatch;
 import com.github.dakusui.floorplan.policy.Policy;
+import com.github.dakusui.floorplan.ut.components.ReferenceComponent;
+import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
 
@@ -23,7 +24,7 @@ public class FloorPlanTest {
   @Test
   public void givenSimpleAttribute$whenConfiguredWithImmediate$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-    Policy policy = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC);
+    Policy policy = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC);
 
     Fixture fixture = policy.fixtureConfigurator(
     ).configure(
@@ -48,7 +49,7 @@ public class FloorPlanTest {
   @Test
   public void givenSimpleAttribute$whenConfiguredWithProfileAttribute$thenResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-    Policy policy = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC);
+    Policy policy = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC);
 
     Fixture fixture = policy.fixtureConfigurator(
     ).configure(
@@ -73,7 +74,7 @@ public class FloorPlanTest {
   @Test
   public void givenSimpleAttribute$whenConfiguredWithSlotAttribute$thenResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-    Policy policy = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC);
+    Policy policy = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC);
 
     Fixture fixture = policy.fixtureConfigurator(
     ).configure(
@@ -98,7 +99,7 @@ public class FloorPlanTest {
   @Test
   public void givenSimpleComponent$whenConfigureInstaller$thenIntendedOperatorIsUsed() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-    Policy policy = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC);
+    Policy policy = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC);
 
     List<String> out = new LinkedList<>();
     Fixture fixture = policy.fixtureConfigurator(
@@ -131,7 +132,7 @@ public class FloorPlanTest {
   @Test(expected = UnsupportedOperationException.class)
   public void givenSimpleComponent$whenInstallerIsNotConfigured$thenExceptionThrown() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-    Policy policy = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC);
+    Policy policy = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC);
 
     Fixture fixture = policy.fixtureConfigurator(
     ).configure(
@@ -152,7 +153,7 @@ public class FloorPlanTest {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
     Policy policy = UtUtils.buildPolicy(
-        new UtTsDescFloorPlan().add(simple1).add(ref1.spec(), ref1.id()),
+        UtUtils.createUtFloorPlan().add(simple1).add(ref1.spec(), ref1.id()),
         SimpleComponent.SPEC,
         ReferenceComponent.SPEC
     );
@@ -188,8 +189,7 @@ public class FloorPlanTest {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
     Policy policy = UtUtils.buildPolicy(
-        new UtTsDescFloorPlan(
-        ).add(
+        UtUtils.createUtFloorPlan().add(
             simple1
         ).add(
             ref1
@@ -226,7 +226,7 @@ public class FloorPlanTest {
   public void unknownSpec() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1)/*, SimpleComponent.SPEC*/);
+      UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1)/*, SimpleComponent.SPEC*/);
     } catch (IllegalArgumentException e) {
       assertThat(
           e,
@@ -243,7 +243,10 @@ public class FloorPlanTest {
   public void missingValue() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator().build();
+      UtUtils.buildPolicy(
+          UtUtils.createUtFloorPlan().add(simple1),
+          SimpleComponent.SPEC
+      ).fixtureConfigurator().build();
     } catch (MissingValueException e) {
       assertThat(
           e,
@@ -262,7 +265,7 @@ public class FloorPlanTest {
   public void typeMismatch() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      Fixture fixture = UtUtils.buildPolicy(new UtTsDescFloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
+      Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
           .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, immediate(123))
           .build();
       System.out.println(String.format("value='%s'", fixture.lookUp(simple1).valueOf(SimpleComponent.Attr.INSTANCE_NAME)));

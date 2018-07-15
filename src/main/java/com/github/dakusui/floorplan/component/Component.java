@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +91,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     public ActionFactory actionFactoryFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),
-          o -> (Operator<A>) Operator.Factory.unsupported(op).apply((ComponentSpec<Attribute>) spec())
+          o -> (Operator<A>) Operator.Factory.unsupported(op).apply(spec())
       ).apply(
           this
       );

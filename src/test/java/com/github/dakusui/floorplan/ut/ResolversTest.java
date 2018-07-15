@@ -2,13 +2,12 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Configurator;
-import com.github.dakusui.floorplan.ut.components.SimpleComponent;
+import com.github.dakusui.floorplan.resolver.Mapper;
 import com.github.dakusui.floorplan.resolver.Resolvers;
+import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import org.junit.Test;
 
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.component.Ref.ref;
 
 public class ResolversTest {
@@ -51,11 +50,46 @@ public class ResolversTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void givenInstanceIdResolver$whenApplied$thenCorrectMessageReturned() {
+  public void givenInstanceIdResolver$whenApplied$thenCorrectResultReturned() {
     assertThat(
         Resolvers.instanceId().apply(null).<Attribute>apply(Configurator.class.cast(SimpleComponent.SPEC.configurator("2"))).apply(null),
         asString().equalTo("2").$()
     );
   }
 
+  @Test
+  public void givenSlotValueResolver$whenToString$thenCorrectMessageReturned() {
+    assertThat(
+        Resolvers.slotValue("key").toString(),
+        asString().equalTo("slotValueOf(key)").$()
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void givenListOfValuesResolver$whenToString$thenCorrectMessageReturned() {
+    assertThat(
+        Resolvers.listOf(String.class, Resolvers.immediate("key")).toString(),
+        asString().equalTo("listOf(String, immediate(key))").$()
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void givenTransformResolver$whenToString$thenCorrectMessageReturned() {
+    assertThat(
+        Resolvers.transform(Resolvers.immediate("key"), Mapper.create(t -> String.format("<%s>", t))).toString(),
+        asString().equalTo("transform(immediate(key), Mapper(noname))").$()
+    );
+  }
+
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void givenNothingResolver$whenToString$thenCorrectMessageReturned() {
+    assertThat(
+        Resolvers.nothing().toString(),
+        asString().equalTo("nothing").$()
+    );
+  }
 }

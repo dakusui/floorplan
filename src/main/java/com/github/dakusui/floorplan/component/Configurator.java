@@ -5,19 +5,18 @@ import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static java.util.stream.Collectors.toMap;
 
 public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   Configurator<A> configure(A attr, Resolver<A, ?> resolver);
 
-  Configurator<A> addOperator(Operator<A> operator);
+  Configurator<A> addOperatorFactory(Operator.Factory<A> operator);
 
   Component<A> build(Policy policy, Map<Ref, Component<?>> pool);
 
@@ -50,39 +49,16 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   }
 
   class Impl<A extends Attribute> implements Configurator<A> {
-    private final ComponentSpec<A>                spec;
-    private final Map<A, Resolver<A, ?>>          resolvers = new LinkedHashMap<>();
-    private final Ref                             ref;
-    private final Map<Operator.Type, Operator<A>> operators;
+    private final ComponentSpec<A>                        spec;
+    private final Map<A, Resolver<A, ?>>                  resolvers = new LinkedHashMap<>();
+    private final Ref                                     ref;
+    private final Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
     Impl(ComponentSpec<A> spec, String id) {
       this.spec = spec;
       this.ref = Ref.ref(this.spec, id);
-      this.operators = new HashMap<Operator.Type, Operator<A>>() {{
-        spec.operatorFactories().entrySet().stream().map(new Function<Entry<Operator.Type, Operator.Factory<A>>, Entry<Operator.Type, Operator<A>>>() {
-          @Override
-          public Entry<Operator.Type, Operator<A>> apply(Entry<Operator.Type, Operator.Factory<A>> entry) {
-            return new Entry<Operator.Type, Operator<A>>() {
-              Operator<A> value = entry.getValue().apply(spec);
+      this.operatorFactories = this.spec.operatorFactories();
 
-              @Override
-              public Operator.Type getKey() {
-                return entry.getKey();
-              }
-
-              @Override
-              public Operator<A> getValue() {
-                return value;
-              }
-
-              @Override
-              public Operator<A> setValue(Operator<A> value) {
-                return this.value = value;
-              }
-            };
-          }
-        }).forEach(entry -> put(entry.getKey(), entry.getValue()));
-      }};
     }
 
     @Override
@@ -112,30 +88,57 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Configurator<A> addOperator(Operator<A> operator) {
-      this.operators.put(requireNonNull(operator.type()), requireNonNull(operator));
+    public Configurator<A> addOperatorFactory(Operator.Factory<A> operatorFactory) {
+      this.operatorFactories.put(requireNonNull(operatorFactory.type()), requireNonNull(operatorFactory));
       return this;
     }
 
     @Override
     public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
-      return new Component.Impl<>(this.ref, new LinkedHashMap<A, Object>() {{
-        spec.attributes().forEach(
-            (A attr) -> {
-              Object u;
-              put(attr,
-                  require(
-                      u = Utils.resolve(attr, Impl.this, policy),
-                      attr::test,
-                      Exceptions.typeMismatch(attr, u)
-                  ));
-            });
-      }},
-          operators,
+      return new Component.Impl<>(
+          this.ref,
+          new LinkedHashMap<A, Object>() {{
+            spec.attributes().forEach(
+                (A attr) -> {
+                  Object u;
+                  put(attr,
+                      require(
+                          u = Utils.resolve(attr, Impl.this, policy),
+                          attr::test,
+                          Exceptions.typeMismatch(attr, u)
+                      ));
+                });
+          }},
+          operatorFactories.entrySet().stream().map(this::convertEntry
+          ).collect(toMap(Map.Entry::getKey, Map.Entry::getValue)),
           pool
       );
     }
+
+    Map.Entry<Operator.Type, Operator<A>> convertEntry(Map.Entry<Operator.Type, Operator.Factory<A>> inEntry) {
+      return new Map.Entry<Operator.Type, Operator<A>>() {
+        Operator<A> value = inEntry.getValue().apply(spec());
+
+        @Override
+        public Operator.Type getKey() {
+          return inEntry.getKey();
+        }
+
+        @Override
+        public Operator<A> getValue() {
+          return value;
+        }
+
+        @Override
+        public Operator<A> setValue(Operator<A> value) {
+          this.value = value;
+          return value;
+        }
+      };
+    }
+
 
     @Override
     public String toString() {

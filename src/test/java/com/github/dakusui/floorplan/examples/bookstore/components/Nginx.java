@@ -19,6 +19,11 @@ public class Nginx {
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
     BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
     UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).defaultsTo(nothing()).$()),
+    @SuppressWarnings("unchecked") AUTHORS(SPEC.listPropertyOf(String.class).defaultsTo(listOf(
+        String.class,
+        immediate("mrx"),
+        immediate("mry"))
+    ).$()),
     @SuppressWarnings("unchecked")
     ENDPOINT(SPEC.property(String.class).defaultsTo(transform(
         listOf(
@@ -71,6 +76,11 @@ public class Nginx {
                   )
               )
           )
+      )
+  ).addOperatorFactory(
+      Operator.Factory.of(
+          Operator.Type.UNINSTALL,
+          attrComponent -> $ -> $.named("Do something for uninstallation", $.nop())
       )
   ).build();
 }
