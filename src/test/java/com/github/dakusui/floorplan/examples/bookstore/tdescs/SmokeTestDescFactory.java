@@ -8,36 +8,19 @@ import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
-import com.github.dakusui.floorplan.examples.bookstore.components.PostgreSQL;
-import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.*;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.Basic;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
-import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import java.util.List;
+import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
-import static com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.*;
-import static com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreFixture.Basic.PROXY;
-import static java.util.Arrays.asList;
-
-public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Basic> {
+public class SmokeTestDescFactory extends BasicTestDescFactory {
   @Override
   protected String name() {
-    return "example";
-  }
-
-  @Override
-  protected String testCaseNameFor(int i) {
-    return String.format("case[%02d]", i);
-  }
-
-  @Override
-  protected String testOracleNameFor(int j) {
-    return String.format("oracle[%02d]", j);
+    return "Smoke";
   }
 
   @Override
@@ -71,17 +54,12 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Basic
   }
 
   @Override
-  protected List<ComponentSpec<?>> allKnownComponentSpecs() {
-    return asList(Apache.SPEC, PostgreSQL.SPEC, BookstoreApp.SPEC, Nginx.SPEC);
-  }
-
-  @Override
-  protected Action createActionForSetUp(int i, Context context, Basic fixture) {
+  protected Action createActionForSetUp(int i, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Context context, Basic fixture) {
+  protected Action createActionForSetUpFirstTime(Context context, Fixture fixture) {
     return context.sequential(
         Utils.createGroupedAction(
             context,
@@ -100,30 +78,36 @@ public class SmokeTestDescFactory extends TestSuiteDescriptor.Factory.Base<Basic
   }
 
   @Override
-  protected Action createActionForTest(int i, int j, Context $, Basic fixture) {
+  protected Action createActionForTest(int i, int j, Context $, Fixture fixture) {
     return $.simple("Issue a request to end point",
-        () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", fixture.applicationEndpoint())
+        () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", applicationEndpoint(fixture))
     );
   }
 
   @Override
-  protected Action createActionForTearDown(int i, Context $, Basic fixture) {
+  protected Action createActionForTearDown(int i, Context $, Fixture fixture) {
     return $.named("Collect log files", $.nop());
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Context $, Basic fixture) {
+  protected Action createActionForTearDownLastTime(Context $, Fixture fixture) {
     return $.nop();
   }
 
   @Override
   protected FloorPlan configureFloorPlan(FloorPlan floorPlan) {
-    return floorPlan.add(Basic.APP, Basic.HTTPD, Basic.DBMS, Basic.PROXY)
+    return floorPlan.add(APP, HTTPD, DBMS, PROXY)
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
-        .wire(PROXY, Nginx.Attr.UPSTREAM, HTTPD)
+        .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
         .requires(p -> p instanceof BookstoreProfile);
   }
+
+  @Override
+  public String applicationEndpoint(Fixture fixture) {
+    return requireNonNull(fixture).lookUp(PROXY).valueOf(Nginx.Attr.ENDPOINT);
+  }
 }
+
 
 

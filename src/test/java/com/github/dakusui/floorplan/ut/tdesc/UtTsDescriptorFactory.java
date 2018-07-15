@@ -12,7 +12,7 @@ import java.util.List;
 import static com.github.dakusui.floorplan.component.Ref.ref;
 import static java.util.Collections.singletonList;
 
-public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtFixture>
+public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
     implements TestSuiteDescriptor.Factory {
   @Override
   protected String name() {
@@ -50,27 +50,27 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base<UtFi
   }
 
   @Override
-  protected Action createActionForSetUp(int i, Context context, UtFixture fixture) {
+  protected Action createActionForSetUp(int i, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Context context, UtFixture fixture) {
+  protected Action createActionForSetUpFirstTime(Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTest(int i, int j, Context context, UtFixture fixture) {
+  protected Action createActionForTest(int i, int j, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTearDown(int i, Context context, UtFixture fixture) {
+  protected Action createActionForTearDown(int i, Context context, Fixture fixture) {
     return context.nop();
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Context context, UtFixture fixture) {
+  protected Action createActionForTearDownLastTime(Context context, Fixture fixture) {
     return context.nop();
   }
 

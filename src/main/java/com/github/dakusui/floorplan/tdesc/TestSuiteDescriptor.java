@@ -37,14 +37,10 @@ public interface TestSuiteDescriptor {
   interface Factory {
     TestSuiteDescriptor create(Profile profile);
 
-    FloorPlan floorPlan();
-
-    abstract class Base<F extends Fixture> implements Factory {
-      private final FloorPlan floorPlan = this.floorPlan();
-
+    abstract class Base implements Factory {
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
-        F fixture = (F) addComponentSpecsTo(
+        Fixture fixture = addComponentSpecsTo(
             allKnownComponentSpecs(),
             new Policy.Builder()
         ).setFloorPlan(
@@ -130,11 +126,6 @@ public interface TestSuiteDescriptor {
         return configureFloorPlan(new FloorPlan.Impl());
       }
 
-      @Override
-      public FloorPlan floorPlan() {
-        return this.floorPlan;
-      }
-
       protected abstract String name();
 
       protected abstract String testCaseNameFor(int i);
@@ -149,15 +140,15 @@ public interface TestSuiteDescriptor {
 
       protected abstract List<ComponentSpec<?>> allKnownComponentSpecs();
 
-      protected abstract Action createActionForSetUp(int i, Context context, F fixture);
+      protected abstract Action createActionForSetUp(int i, Context context, Fixture fixture);
 
-      protected abstract Action createActionForSetUpFirstTime(Context context, F fixture);
+      protected abstract Action createActionForSetUpFirstTime(Context context, Fixture fixture);
 
-      protected abstract Action createActionForTest(int i, int j, Context context, F fixture);
+      protected abstract Action createActionForTest(int i, int j, Context context, Fixture fixture);
 
-      protected abstract Action createActionForTearDown(int i, Context context, F fixture);
+      protected abstract Action createActionForTearDown(int i, Context context, Fixture fixture);
 
-      protected abstract Action createActionForTearDownLastTime(Context context, F fixture);
+      protected abstract Action createActionForTearDownLastTime(Context context, Fixture fixture);
 
       protected abstract FloorPlan configureFloorPlan(FloorPlan floorPlan);
 
