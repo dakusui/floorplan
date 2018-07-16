@@ -131,7 +131,7 @@
                 <version>1.2.0</version>
                 <configuration>
                     <targetClasses>
-                        <param>com.github.dakusui.floorplan.*Test</param>
+                        <param>com.github.dakusui.floorplan.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>
