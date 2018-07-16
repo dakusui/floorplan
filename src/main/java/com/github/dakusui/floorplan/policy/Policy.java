@@ -124,7 +124,7 @@ public interface Policy {
     public Policy build() {
       require(
           requireNonNull(this.profile),
-          p -> requireNonNull(this.floorPlan).canBeDeployedOn(p),
+          p -> requireNonNull(this.floorPlan).isCompatibleWith(p),
           Exceptions.incompatibleProfile(floorPlan, profile)
       );
       return new Impl(new LinkedList<ResolverEntry>(resolvers) {{

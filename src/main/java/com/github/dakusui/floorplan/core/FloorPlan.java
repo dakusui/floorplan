@@ -28,7 +28,13 @@ public interface FloorPlan {
       Ref... tos
   );
 
-  FloorPlan requires(Predicate<Profile> requirement);
+  /**
+   * By giving {@code null}, you can reset requirements already given to this profile.
+   *
+   * @param requirement A requirement that describes profile on which this floor can be deployed
+   * @return This object.
+   */
+  FloorPlan requireProfile(Predicate<Profile> requirement);
 
   Set<Ref> allReferences();
 
@@ -36,15 +42,16 @@ public interface FloorPlan {
 
   List<? extends ResolverEntry> allWires();
 
-  boolean canBeDeployedOn(Profile profile);
+  boolean isCompatibleWith(Profile profile);
 
   static FloorPlan create() {
     return new Impl();
   }
+
   final class Impl implements FloorPlan {
     private final Set<Ref>              refs  = new LinkedHashSet<>();
     private final Map<Connector, Ref[]> wires = new LinkedHashMap<>();
-    private Predicate<Profile> requirements;
+    private       Predicate<Profile>    requirements;
 
     public Impl() {
     }
@@ -104,8 +111,7 @@ public interface FloorPlan {
     }
 
     @Override
-    public FloorPlan requires(Predicate<Profile> requirement) {
-      requireNonNull(requirement);
+    public FloorPlan requireProfile(Predicate<Profile> requirement) {
       this.requirements = this.requirements == null ?
           requirement :
           this.requirements.and(requirement);
@@ -158,8 +164,8 @@ public interface FloorPlan {
      * @param profile A profile to be checked.
      * @return true - {@code profile} can be used with this floorplan / false - otherwise
      */
-    public boolean canBeDeployedOn(Profile profile) {
-      return true;
+    public boolean isCompatibleWith(Profile profile) {
+      return this.requirements == null || this.requirements.test(profile);
     }
   }
 }
