@@ -6,6 +6,7 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.exception.IncompatibleProfile;
 import com.github.dakusui.floorplan.exception.MissingValueException;
 import com.github.dakusui.floorplan.exception.TypeMismatch;
 import com.github.dakusui.floorplan.policy.Policy;
@@ -281,5 +282,15 @@ public class FloorPlanTest {
       );
       throw e;
     }
+  }
+
+  @Test(expected = IncompatibleProfile.class)
+  public void givenIncompatibleProfile$whenPolicyIsBuilt$thenExceptionIsThrown() {
+    Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
+    System.out.println(UtUtils.buildPolicy(
+        UtUtils.createUtFloorPlan()
+            .add(simple1)
+            .requireProfile(p -> false), // Give a requirement that is never met.
+        SimpleComponent.SPEC));
   }
 }

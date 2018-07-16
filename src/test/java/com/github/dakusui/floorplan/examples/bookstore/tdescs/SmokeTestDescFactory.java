@@ -9,10 +9,15 @@ import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
+import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.Utils;
 
+import java.util.function.Predicate;
+
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static com.github.dakusui.floorplan.utils.Utils.toPrintable;
 
 public class SmokeTestDescFactory extends BasicTestDescFactory {
   @Override
@@ -77,7 +82,10 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
-        .requires(p -> false);
+        .requireProfile(toPrintable(
+            () -> "isInstanceOf[BookstoreProfile]",
+            (Predicate<Profile>) p -> p instanceof BookstoreProfile)
+        );
   }
 
   @Override
