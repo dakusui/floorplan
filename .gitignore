@@ -38,3 +38,6 @@ hs_err_pid*
 
 .idea/
 Would skip repository target/checkout
+
+# Emacs backup files
+*~
