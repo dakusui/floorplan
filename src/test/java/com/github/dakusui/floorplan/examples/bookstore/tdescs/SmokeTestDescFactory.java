@@ -9,6 +9,7 @@ import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
+import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.Utils;
 
@@ -77,7 +78,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
-        .requires(p -> false);
+        .requires(p -> p instanceof BookstoreProfile);
   }
 
   @Override

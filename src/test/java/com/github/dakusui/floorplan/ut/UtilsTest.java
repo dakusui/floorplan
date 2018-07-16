@@ -67,7 +67,7 @@ public class UtilsTest {
   }
 
   @Test
-  public void givenOredPrintablePredicate$whenApplied$thenResultCorrectAndPrintedPretty() {
+  public void givenORedPrintablePredicate$whenApplied$thenResultCorrectAndPrintedPretty() {
     assertThat(
         toPrintable(() -> "alwaysFalse", (Predicate<Object>) v -> false).or(isInstanceOf(String.class).and(toPrintable(() -> "alwaysTrue", (Predicate<Object>) t -> true))),
         allOf(

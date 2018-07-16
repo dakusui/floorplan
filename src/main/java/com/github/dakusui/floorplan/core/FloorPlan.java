@@ -41,10 +41,11 @@ public interface FloorPlan {
   static FloorPlan create() {
     return new Impl();
   }
+
   final class Impl implements FloorPlan {
     private final Set<Ref>              refs  = new LinkedHashSet<>();
     private final Map<Connector, Ref[]> wires = new LinkedHashMap<>();
-    private Predicate<Profile> requirements;
+    private       Predicate<Profile>    requirements;
 
     public Impl() {
     }
@@ -159,7 +160,7 @@ public interface FloorPlan {
      * @return true - {@code profile} can be used with this floorplan / false - otherwise
      */
     public boolean canBeDeployedOn(Profile profile) {
-      return true;
+      return this.requirements == null || requirements.test(profile);
     }
   }
 }
