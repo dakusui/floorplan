@@ -3,7 +3,6 @@ package com.github.dakusui.floorplan.ut;
 import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.Test;
 
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
@@ -59,7 +58,7 @@ public class UtilsTest {
   @Test
   public void givenAndedPrintablePredicate$whenApplied$thenResultCorrectAndPrintedPretty() {
     assertThat(
-        isInstanceOf(String.class).and(toPrintable(() -> "alwaysTrue", (Predicate<Object>) t -> true)),
+        isInstanceOf(String.class).and(toPrintablePredicate(() -> "alwaysTrue", t -> true)),
         allOf(
             asString("toString").equalTo("and(assignableTo[String],alwaysTrue)").$(),
             asBoolean("test", "aStringObject").isTrue().$()
@@ -69,7 +68,7 @@ public class UtilsTest {
   @Test
   public void givenORedPrintablePredicate$whenApplied$thenResultCorrectAndPrintedPretty() {
     assertThat(
-        toPrintable(() -> "alwaysFalse", (Predicate<Object>) v -> false).or(isInstanceOf(String.class).and(toPrintable(() -> "alwaysTrue", (Predicate<Object>) t -> true))),
+        toPrintablePredicate(() -> "alwaysFalse", v -> false).or(isInstanceOf(String.class).and(toPrintablePredicate(() -> "alwaysTrue", t -> true))),
         allOf(
             asString("toString").equalTo("or(alwaysFalse,and(assignableTo[String],alwaysTrue))").$(),
             asBoolean("test", "aStringObject").isTrue().$()

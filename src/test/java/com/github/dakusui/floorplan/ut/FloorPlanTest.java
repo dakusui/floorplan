@@ -13,6 +13,7 @@ import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.ut.components.ReferenceComponent;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
+import com.github.dakusui.floorplan.ut.utils.UtBase;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -21,7 +22,7 @@ import java.util.List;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
-public class FloorPlanTest {
+public class FloorPlanTest extends UtBase {
   @Test
   public void givenSimpleAttribute$whenConfiguredWithImmediate$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");

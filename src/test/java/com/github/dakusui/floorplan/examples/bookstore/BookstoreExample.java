@@ -23,7 +23,7 @@ public class BookstoreExample extends StandardTestBase {
   }
 
   public BookstoreExample(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
-    super(testSuiteName, testActionFactories, testCaseName);
+    super(testSuiteName, testCaseName, testActionFactories);
     System.out.printf("Hello, I am executing a testcase:%s in a test suite:%s. Defined oracles are following.%n",
         this.testCaseName,
         this.testSuiteName

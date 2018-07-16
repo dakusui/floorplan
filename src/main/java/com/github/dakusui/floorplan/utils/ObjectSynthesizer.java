@@ -20,8 +20,8 @@ public abstract class ObjectSynthesizer<T> {
     this.anInterface = Objects.requireNonNull(anInterface);
   }
 
+  @SuppressWarnings("unchecked")
   private T synthesize() {
-    //noinspection unchecked
     return (T) Proxy.newProxyInstance(
         anInterface.getClassLoader(),
         new Class[] { anInterface },

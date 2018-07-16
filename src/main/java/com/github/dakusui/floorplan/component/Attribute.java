@@ -153,49 +153,51 @@ public interface Attribute {
 
   @SuppressWarnings("unchecked")
   static <A extends Attribute> List<A> attributes(Class<A> attrType) {
-    return new LinkedList<A>() {{
-      addAll(Arrays.stream(attrType.getFields())
-          .filter(field -> Modifier.isStatic(field.getModifiers()))
-          .filter(field -> Modifier.isFinal(field.getModifiers()))
-          .filter(field -> Attribute.class.isAssignableFrom(attrType))
-          .filter(field -> field.getType().isAssignableFrom(field.getType()))
-          .sorted(Comparator.comparing(Field::getName))
-          .peek(field ->
-              require(
-                  Utils.<Attribute>getStaticFieldValue(field).name(),
-                  n -> Objects.equals(n, field.getName()),
-                  n -> inconsistentSpec(
-                      () -> String.format(
-                          "Attribute '%s' has to have the same name as the name of the field (%s) to which it is assigned.", n, field.getName()
-                      ))))
-          .map(Utils::getStaticFieldValue)
-          .map(a -> (A) a)
-          .collect(Collector.of(
-              LinkedHashMap::new,
-              (map, attr) -> {
-                if (map.containsKey(attr.name()))
-                  map.put(
-                      attr.name(),
-                      attr.moreSpecialized(map.get(attr.name())).orElseThrow(
-                          inconsistentSpec(inconsistentSpecMessageSupplier(map.get(attr.name()), attr)))
-                  );
-                else
-                  map.put(attr.name(), attr);
-              },
-              (Map<String, A> mapA, Map<String, A> mapB) -> new LinkedHashMap<String, A>() {{
-                putAll(mapA);
-                mapB.forEach((key, value) -> {
-                  if (containsKey(key))
-                    put(key,
-                        value.moreSpecialized(get(key))
-                            .orElseThrow(inconsistentSpec(
-                                inconsistentSpecMessageSupplier(get(key), value)))
-                    );
-                  else
-                    put(key, value);
-                });
-              }})).values());
-    }};
+    return new LinkedList<A>() {
+      {
+        addAll(Arrays.stream(attrType.getFields())
+            .filter(field -> Modifier.isStatic(field.getModifiers()))
+            .filter(field -> Modifier.isFinal(field.getModifiers()))
+            .filter(field -> Attribute.class.isAssignableFrom(attrType))
+            .filter(field -> field.getType().isAssignableFrom(field.getType()))
+            .sorted(Comparator.comparing(Field::getName))
+            .peek(field ->
+                require(
+                    Utils.<Attribute>getStaticFieldValue(field).name(),
+                    n -> Objects.equals(n, field.getName()),
+                    n -> inconsistentSpec(
+                        () -> String.format(
+                            "Attribute '%s' has to have the same name as the name of the field (%s) to which it is assigned.", n, field.getName()
+                        ))))
+            .map(Utils::getStaticFieldValue)
+            .map(a -> (A) a)
+            .collect(attributeCollector()).values());
+      }
+    };
+  }
+
+  static <A extends Attribute> Collector<A, Map<String, A>, Map<String, A>> attributeCollector() {
+    return Collector.of(
+        LinkedHashMap::new,
+        (map, attr) -> {
+          String key = attr.name();
+          updateMapWithGivenAttributeIfNecessary(map, key, attr);
+        },
+        (Map<String, A> mapA, Map<String, A> mapB) -> new LinkedHashMap<String, A>() {{
+          putAll(mapA);
+          Map<String, A> map = this;
+          mapB.forEach((key, attr) -> updateMapWithGivenAttributeIfNecessary(map, key, attr));
+        }});
+  }
+
+  static <A extends Attribute> void updateMapWithGivenAttributeIfNecessary(Map<String, A> map, String key, A attr) {
+    if (map.containsKey(key))
+      map.put(key,
+          attr.moreSpecialized(map.get(key)).orElseThrow(
+              inconsistentSpec(inconsistentSpecMessageSupplier(map.get(key), attr)))
+      );
+    else
+      map.put(key, attr);
   }
 
   static <A extends Attribute> Supplier<String> inconsistentSpecMessageSupplier(A attr1, A attr2) {

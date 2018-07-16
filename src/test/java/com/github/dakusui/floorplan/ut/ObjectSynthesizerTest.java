@@ -1,12 +1,13 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
+import com.github.dakusui.floorplan.ut.utils.UtBase;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.methodCall;
 
-public class ObjectSynthesizerTest {
+public class ObjectSynthesizerTest extends UtBase {
   interface A {
     String aMethod();
   }
