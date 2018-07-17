@@ -24,7 +24,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * Returns a resolver for a specified attribute {@code attr} set to this object
    * itself. If it is not present, an empty {@code Optional} will be returned.
    *
-   * @param attr An attribute for which
+   * @param attr An attribute for which a resolver is searched.
    * @param <T>  Type of a value of an attribute {@code attr}.
    * @return An optional of a resolver for the given attribute {@code attr}.
    */
