@@ -86,7 +86,7 @@ public class Utils {
     return new Context.Impl();
   }
 
-  public static <T, R> Function<T, R> toPrintable(Supplier<String> messageSupplier, Function<T, R> func) {
+  public static <T, R> Function<T, R> toPrintableFunction(Supplier<String> messageSupplier, Function<T, R> func) {
     return new Function<T, R>() {
       @Override
       public R apply(T t) {
@@ -100,7 +100,7 @@ public class Utils {
     };
   }
 
-  public static <T> Predicate<T> toPrintable(Supplier<String> messageSupplier, Predicate<T> pred) {
+  public static <T> Predicate<T> toPrintablePredicate(Supplier<String> messageSupplier, Predicate<T> pred) {
     return new Predicate<T>() {
       @Override
       public boolean test(T t) {
@@ -109,17 +109,17 @@ public class Utils {
 
       @Override
       public Predicate<T> negate() {
-        return toPrintable(() -> String.format("!%s", this.toString()), pred.negate());
+        return toPrintablePredicate(() -> String.format("!%s", this.toString()), pred.negate());
       }
 
       @Override
       public Predicate<T> and(Predicate<? super T> another) {
-        return toPrintable(() -> String.format("and(%s,%s)", this.toString(), another.toString()), pred.and(another));
+        return toPrintablePredicate(() -> String.format("and(%s,%s)", this.toString(), another.toString()), pred.and(another));
       }
 
       @Override
       public Predicate<T> or(Predicate<? super T> another) {
-        return toPrintable(() -> String.format("or(%s,%s)", this.toString(), another.toString()), pred.or(another));
+        return toPrintablePredicate(() -> String.format("or(%s,%s)", this.toString(), another.toString()), pred.or(another));
       }
 
 
@@ -131,7 +131,7 @@ public class Utils {
   }
 
   public static Predicate<Object> isInstanceOf(Class<?> expectedType) {
-    return Utils.<Object>toPrintable(
+    return Utils.toPrintablePredicate(
         () -> String.format("assignableTo[%s]", expectedType.getSimpleName()),
         expectedType.isPrimitive() ?
             v -> v != null && expectedType.isAssignableFrom(v.getClass()) :
@@ -140,17 +140,17 @@ public class Utils {
   }
 
   public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
-    return Utils.toPrintable(
+    return Utils.toPrintablePredicate(
         () -> String.format("hasSpecOf[%s]", spec),
         (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
     );
   }
 
-  @SuppressWarnings({ "PointlessBooleanExpression", "unchecked" })
+  @SuppressWarnings({ "unchecked" })
   public static Predicate<Object> forAll(Predicate<Object> pred) {
-    return Utils.toPrintable(
+    return Utils.toPrintablePredicate(
         () -> String.format("allMatch[%s]", pred),
-        (Object v) -> List.class.cast(v).stream().allMatch(pred) == true
+        (Object v) -> List.class.cast(v).stream().allMatch(pred)
     );
   }
 

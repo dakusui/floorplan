@@ -1,13 +1,14 @@
-package com.github.dakusui.floorplan.examples;
+package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.examples.bookstore.AnotherBookstoreExample;
 import com.github.dakusui.floorplan.examples.bookstore.BookstoreExample;
+import com.github.dakusui.floorplan.ut.utils.UtBase;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
 import static com.github.dakusui.crest.Crest.*;
 
-public class ExamplesTest {
+public class ExamplesTest extends UtBase {
   @Test
   public void givenBookstoreExample$whenExecuteTests$thenAllPass() {
     assertThat(

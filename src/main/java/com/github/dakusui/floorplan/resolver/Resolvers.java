@@ -66,6 +66,7 @@ public enum Resolvers {
    * @param key A key to specify a value in a slot
    * @param <A> Type of attribute
    * @param <T> Type of returned value.
+   * @return A created resolver.
    */
   public static <A extends Attribute, T> Resolver<A, T> slotValue(String key) {
     return Resolver.of(

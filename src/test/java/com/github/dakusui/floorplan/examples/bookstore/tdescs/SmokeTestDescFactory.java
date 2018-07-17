@@ -10,14 +10,10 @@ import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
-import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.Utils;
 
-import java.util.function.Predicate;
-
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
-import static com.github.dakusui.floorplan.utils.Utils.toPrintable;
 
 public class SmokeTestDescFactory extends BasicTestDescFactory {
   @Override
@@ -61,7 +57,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
 
   @Override
   protected Action createActionForTest(int testCaseId, int testOracleId, Context $, Fixture fixture) {
-    return $.simple("Issue a request to end point",
+    return $.simple(String.format("Issue a request to end point[%s,%s]", testCaseId, testOracleId),
         () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", applicationEndpoint(fixture))
     );
   }
@@ -82,9 +78,9 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
-        .requireProfile(toPrintable(
+        .requireProfile(Utils.toPrintablePredicate(
             () -> "isInstanceOf[BookstoreProfile]",
-            (Predicate<Profile>) p -> p instanceof BookstoreProfile)
+            p -> p instanceof BookstoreProfile)
         );
   }
 

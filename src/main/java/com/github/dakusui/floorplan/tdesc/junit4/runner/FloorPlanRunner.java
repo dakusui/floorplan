@@ -37,6 +37,7 @@ public class FloorPlanRunner extends Parameterized {
    * Only called reflectively. Do not use programmatically.
    *
    * @param klass A target test class
+   * @throws Throwable Something went wrong
    */
   public FloorPlanRunner(Class<?> klass) throws Throwable {
     super(klass);

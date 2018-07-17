@@ -1,12 +1,16 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
+import com.github.dakusui.floorplan.ut.utils.UtBase;
+import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.Test;
+
+import java.util.function.Function;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.methodCall;
 
-public class ObjectSynthesizerTest {
+public class ObjectSynthesizerTest extends UtBase {
   interface A {
     String aMethod();
   }
@@ -58,7 +62,8 @@ public class ObjectSynthesizerTest {
             asString("bMethod").equalTo("b is called").$(),
             asString("toString").startsWith("com.github.dakusui.floorplan.ut.ObjectSynthesizerTest$1@").$(),
             asString("cMethod").equalTo("cMethod").$(),
-            asString("xMethod").equalTo("xMethod").$()
+            asString("xMethod").equalTo("xMethod").$(),
+            asInteger(call("xMethod").andThen("toString").andThen("length").$()).equalTo(7).$()
         ));
     System.out.println(x.aMethod());
     System.out.println(x.bMethod());

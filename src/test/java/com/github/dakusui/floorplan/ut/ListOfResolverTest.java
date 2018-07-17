@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 
 public class ListOfResolverTest {
@@ -44,7 +45,15 @@ public class ListOfResolverTest {
     Ref cut = Ref.ref(Cut.SPEC, "1");
     Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
-    System.out.println("" + fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR));
+    assertThat(
+        fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR),
+        allOf(
+            asInteger("size").equalTo(3).$(),
+            asString("get", 0).equalTo("hello").$(),
+            asString("get", 1).equalTo("world").$(),
+            asString("get", 2).equalTo("hi").$()
+        )
+    );
 
   }
 }

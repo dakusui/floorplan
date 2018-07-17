@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class StandardTestBase extends TestBase {
-  public StandardTestBase(String testSuiteName, Map<String, Function<Context, Named>> testActionFactories, String testCaseName) {
+  public StandardTestBase(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
     super(testSuiteName, testCaseName, testActionFactories);
   }
 
