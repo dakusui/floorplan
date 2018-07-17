@@ -22,7 +22,8 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
   ActionFactory actionFactoryFor(Operator.Type op);
 
   /**
-   * This method should return
+   * This method should return an ActionFactory to perform installation.
+   * @return a factory to create an action that performs installation.
    */
   default ActionFactory install() {
     return actionFactoryFor(Operator.Type.INSTALL);

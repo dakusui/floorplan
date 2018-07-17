@@ -26,6 +26,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    *
    * @param attr An attribute for which
    * @param <T>  Type of a value of an attribute {@code attr}.
+   * @return An optional of a resolver for the given attribute {@code attr}.
    */
   <T> Optional<Resolver<? super A, T>> resolverFor(A attr);
 
@@ -37,6 +38,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param attr   An attribute for which a resolver will be returned.
    * @param policy A policy object from which a resolver is searched.
    * @param <T>    A type of attribute value.
+   * @return A resolver for the given attribute {@code attr}.
    */
   default <T> Resolver<? super A, T> resolverFor(A attr, Policy policy) {
     require(
