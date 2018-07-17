@@ -15,7 +15,7 @@ you can
 at the same time.
   
 This library gives a programmable way to achieve those. For more detail,
-see our [our wiki].
+see our [our wiki][1].
 
 
 ## Installation and how to use it
@@ -50,4 +50,6 @@ $ mvn clean compile test
 ```
 
 # References
-[our wiki]: https://github.com/dakusui/floorplan/wiki
+* [1]: FloorPlan Wiki
+
+[1]: https://github.com/dakusui/floorplan/wiki
