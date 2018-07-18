@@ -5,7 +5,7 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanParametersRunnerFactory;
 import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.AfterClass;
 import org.junit.AssumptionViolatedException;
 import org.junit.BeforeClass;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static com.github.dakusui.floorplan.utils.Utils.newContext;
+import static com.github.dakusui.floorplan.utils.InternalUtils.newContext;
 import static java.util.stream.Collectors.toList;
 
 @RunWith(FloorPlanRunner.class)
@@ -62,12 +62,12 @@ public class TestBase {
 
   @BeforeClass
   public static void beforeAll(TestSuiteDescriptor descriptor) {
-    Utils.performAction(descriptor.setUpFirstTime(newContext()));
+    InternalUtils.performAction(descriptor.setUpFirstTime(newContext()));
   }
 
   @AfterClass
   public static void afterAll(TestSuiteDescriptor descriptor) {
-    Utils.performAction(descriptor.tearDownLastTime(newContext()));
+    InternalUtils.performAction(descriptor.tearDownLastTime(newContext()));
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -95,12 +95,12 @@ public class TestBase {
 
   @SuppressWarnings("WeakerAccess")
   protected void performTest(int oracleId) {
-    Utils.performAction(testActionFactories.get(testOracleNames.get(oracleId)).apply(this.context));
+    InternalUtils.performAction(testActionFactories.get(testOracleNames.get(oracleId)).apply(this.context));
   }
 
   @SuppressWarnings("WeakerAccess")
   protected void performTests(int fromOracleIdInclusive, int toOracleIdExclusive) {
-    Utils.performAction(this.context.named(
+    InternalUtils.performAction(this.context.named(
         this.testCaseName,
         this.context.concurrent(
             IntStream.range(fromOracleIdInclusive, toOracleIdExclusive)

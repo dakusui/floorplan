@@ -5,7 +5,7 @@ import com.github.dakusui.floorplan.component.*;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.utils.Utils.newContext;
+import static com.github.dakusui.floorplan.utils.InternalUtils.newContext;
 
 public class ComponentTest {
   @Test

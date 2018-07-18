@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.component;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -107,7 +107,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
                   Object u;
                   put(attr,
                       require(
-                          u = Utils.resolve(attr, Impl.this, policy),
+                          u = FloorPlanUtils.resolve(attr, Impl.this, policy),
                           attr::test,
                           Exceptions.typeMismatch(attr, u)
                       ));

@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -173,13 +173,13 @@ public interface Attribute {
             .sorted(Comparator.comparing(Field::getName))
             .peek(field ->
                 require(
-                    Utils.<Attribute>getStaticFieldValue(field).name(),
+                    InternalUtils.<Attribute>getStaticFieldValue(field).name(),
                     n -> Objects.equals(n, field.getName()),
                     n -> inconsistentSpec(
                         () -> String.format(
                             "Attribute '%s' has to have the same name as the name of the field (%s) to which it is assigned.", n, field.getName()
                         ))))
-            .map(Utils::getStaticFieldValue)
+            .map(InternalUtils::getStaticFieldValue)
             .map(a -> (A) a)
             .collect(attributeCollector()).values());
       }

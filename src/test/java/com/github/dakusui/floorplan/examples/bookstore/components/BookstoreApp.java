@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.examples.bookstore.components;
 
 import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolver;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
@@ -22,12 +22,12 @@ public class BookstoreApp {
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
             a -> c -> p -> {
-              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(Utils.resolve(DBSERVER, c, p));
+              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
               return String.format(
                   "jdbc:postgresql://%s:%s/%s",
-                  Utils.resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
-                  Utils.resolve(PostgreSQL.Attr.PORTNUMBER, dbServer, p),
-                  Utils.resolve(PostgreSQL.Attr.BOOKSTORE_DATABASE, dbServer, p)
+                  FloorPlanUtils.resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
+                  FloorPlanUtils.resolve(PostgreSQL.Attr.PORTNUMBER, dbServer, p),
+                  FloorPlanUtils.resolve(PostgreSQL.Attr.BOOKSTORE_DATABASE, dbServer, p)
               );
             },
             () -> "An endpoint to access a database server where data of this application is stored."
@@ -36,12 +36,12 @@ public class BookstoreApp {
     ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
             a -> c -> p -> {
-              Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(Utils.resolve(WEBSERVER, c, p));
+              Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
               return String.format(
                   "http://%s:%s/%s",
-                  Utils.resolve(Apache.Attr.HOSTNAME, webServer, p),
-                  Utils.resolve(Apache.Attr.PORTNUMBER, webServer, p),
-                  Utils.resolve(APPNAME, c, p)
+                  FloorPlanUtils.resolve(Apache.Attr.HOSTNAME, webServer, p),
+                  FloorPlanUtils.resolve(Apache.Attr.PORTNUMBER, webServer, p),
+                  FloorPlanUtils.resolve(APPNAME, c, p)
               );
             },
             () -> "An endpoint to access this application"

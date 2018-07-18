@@ -11,7 +11,8 @@ import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.FloorPlanUtils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
@@ -39,14 +40,14 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   @Override
   protected Action createActionForSetUpFirstTime(Context context, Fixture fixture) {
     return context.sequential(
-        Utils.createGroupedAction(
+        FloorPlanUtils.createGroupedAction(
             context,
             true,
             Component::uninstall,
             fixture,
             HTTPD, DBMS, APP, PROXY
         ),
-        Utils.createGroupedAction(
+        FloorPlanUtils.createGroupedAction(
             context,
             true,
             Component::install,
@@ -78,7 +79,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
-        .requireProfile(Utils.toPrintablePredicate(
+        .requireProfile(InternalUtils.toPrintablePredicate(
             () -> "isInstanceOf[BookstoreProfile]",
             p -> p instanceof BookstoreProfile)
         );

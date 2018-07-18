@@ -2,10 +2,7 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 import com.github.dakusui.floorplan.ut.utils.UtBase;
-import com.github.dakusui.floorplan.utils.Utils;
 import org.junit.Test;
-
-import java.util.function.Function;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.methodCall;

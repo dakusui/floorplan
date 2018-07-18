@@ -1,14 +1,14 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.Test;
 
 import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.utils.Utils.*;
+import static com.github.dakusui.floorplan.utils.InternalUtils.*;
 
-public class UtilsTest {
+public class InternalUtilsTest {
   @Test
   public void givenStreamContainingOnlyOneElement$whenCollectBySingletonCollector$thenValueReturned() {
     assertThat(
@@ -82,6 +82,6 @@ public class UtilsTest {
 
   @Test(expected = RuntimeException.class)
   public void givenPrivateConstructor$whenCreateWithNoParameterConstructor$thenFail() {
-    Utils.createWithNoParameterConstructor(ClassWithPrivateConstructor.class);
+    InternalUtils.createWithNoParameterConstructor(ClassWithPrivateConstructor.class);
   }
 }
