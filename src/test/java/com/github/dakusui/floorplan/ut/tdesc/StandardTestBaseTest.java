@@ -21,9 +21,9 @@ public class StandardTestBaseTest extends UtBase {
 
   @RunWith(FloorPlanRunner.class)
   @UseProfileFactory(BookstoreExample.ProfileFactory.class)
-  @UseTestSuiteDescriptorFactory(StandardTestBaseTestWith4Oracles.DescFactory.class)
-  public static class StandardTestBaseTestWith4Oracles extends StandardTestBase {
-    public StandardTestBaseTestWith4Oracles(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
+  @UseTestSuiteDescriptorFactory(With4Oracles.DescFactory.class)
+  public static class With4Oracles extends StandardTestBase {
+    public With4Oracles(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
       super(testSuiteName, testCaseName, testActionFactories);
     }
 
@@ -37,9 +37,9 @@ public class StandardTestBaseTest extends UtBase {
 
   @RunWith(FloorPlanRunner.class)
   @UseProfileFactory(BookstoreExample.ProfileFactory.class)
-  @UseTestSuiteDescriptorFactory(StandardTestBaseTestWith5Oracles.DescFactory.class)
-  public static class StandardTestBaseTestWith5Oracles extends StandardTestBase {
-    public StandardTestBaseTestWith5Oracles(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
+  @UseTestSuiteDescriptorFactory(With5Oracles.DescFactory.class)
+  public static class With5Oracles extends StandardTestBase {
+    public With5Oracles(String testSuiteName, String testCaseName, Map<String, Function<Context, Named>> testActionFactories) {
       super(testSuiteName, testCaseName, testActionFactories);
     }
 
@@ -54,8 +54,9 @@ public class StandardTestBaseTest extends UtBase {
   @Test
   public void test4() {
     assertThat(
-        runClasses(StandardTestBaseTestWith4Oracles.class),
+        runClasses(With4Oracles.class),
         allOf(
+            asBoolean("wasSuccessful").isTrue().$(),
             asInteger("getRunCount").equalTo(10).$(),
             asInteger("getIgnoreCount").equalTo(0).$(),
             asInteger("getFailureCount").equalTo(0).$()
@@ -66,8 +67,9 @@ public class StandardTestBaseTest extends UtBase {
   @Test
   public void test5() {
     assertThat(
-        runClasses(StandardTestBaseTestWith4Oracles.class),
+        runClasses(With4Oracles.class),
         allOf(
+            asBoolean("wasSuccessful").isTrue().$(),
             asInteger("getRunCount").equalTo(10).$(),
             asInteger("getIgnoreCount").equalTo(0).$(),
             asInteger("getFailureCount").equalTo(0).$()

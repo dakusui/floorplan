@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -40,8 +40,17 @@ public interface Attribute {
   }
 
   /**
-   * Checks if the given {@code value} is an instance of a class returned by
-   * {@code valueType()}.
+   * Checks if a given value can become a value of this attribute. Typically,
+   * if the {@code value} is an instance of a class returned through {@code valueType()},
+   * {@code true} will be returned. This can be said the bean of this object is
+   * created by {@code ComponentSpec#property(Class&lt;?&gt; type)} method.
+   * <p>
+   * For more detail, refer to methods in {@code ComponentSpec} class that return
+   * {@code Attribute.Bean.Builder} object.
+   *
+   * @param value A value to be tested.
+   * @return {@code true} - {@code value} can become a value of this attribute/ {@code false} - otherwise
+   * @see ComponentSpec
    */
   default boolean test(Object value) {
     return bean().constraint.test(value);
@@ -106,11 +115,12 @@ public interface Attribute {
   }
 
   /**
-   * Returns a bean class of this attribute interface.
+   * Returns a bean object of this attribute interface.
    * Accessing this method from outside this interface is discouraged.
    *
    * @param <A> Type of the attribute
    * @param <B> Type of the bean
+   * @return A bean object of this attribute.
    */
   <A extends Attribute, B extends Bean<A>> B bean();
 
@@ -163,13 +173,13 @@ public interface Attribute {
             .sorted(Comparator.comparing(Field::getName))
             .peek(field ->
                 require(
-                    Utils.<Attribute>getStaticFieldValue(field).name(),
+                    InternalUtils.<Attribute>getStaticFieldValue(field).name(),
                     n -> Objects.equals(n, field.getName()),
                     n -> inconsistentSpec(
                         () -> String.format(
                             "Attribute '%s' has to have the same name as the name of the field (%s) to which it is assigned.", n, field.getName()
                         ))))
-            .map(Utils::getStaticFieldValue)
+            .map(InternalUtils::getStaticFieldValue)
             .map(a -> (A) a)
             .collect(attributeCollector()).values());
       }
@@ -271,6 +281,7 @@ public interface Attribute {
 
       /**
        * Builds a {@code Bean} instance based on values given to this builder object.
+       * @return A new bean object.
        */
       public Bean<A> $() {
         return new Bean<>(

@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
-import static com.github.dakusui.floorplan.utils.Utils.singletonCollector;
+import static com.github.dakusui.floorplan.utils.InternalUtils.singletonCollector;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;

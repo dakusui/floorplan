@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.tdesc.junit4.runner;
 
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized;
@@ -72,11 +72,11 @@ public class FloorPlanRunner extends Parameterized {
   }
 
   private static TestSuiteDescriptor.Factory createTestSuiteDescriptorFactory(Class<?> testClass) {
-    return Utils.createWithNoParameterConstructor(testClass.getAnnotation(UseTestSuiteDescriptorFactory.class).value());
+    return InternalUtils.createWithNoParameterConstructor(testClass.getAnnotation(UseTestSuiteDescriptorFactory.class).value());
   }
 
   private static Profile.Factory<?> createProfileFactory(Class<?> testClass) {
-    return Utils.createWithNoParameterConstructor(testClass.getAnnotation(UseProfileFactory.class).value());
+    return InternalUtils.createWithNoParameterConstructor(testClass.getAnnotation(UseProfileFactory.class).value());
   }
 
   @Override

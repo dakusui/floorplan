@@ -29,7 +29,9 @@ public interface Policy {
   Profile profile();
 
   /**
-   * Returns a {@code FixtureConfigurator} instance.
+   * Returns a {@code FixtureConfigurator} instance associated with this object.
+   *
+   * @return  a {@code FixtureConfigurator} instance
    */
   FixtureConfigurator fixtureConfigurator();
 

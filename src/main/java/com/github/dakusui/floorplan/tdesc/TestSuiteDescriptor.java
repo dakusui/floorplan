@@ -41,16 +41,18 @@ public interface TestSuiteDescriptor {
     abstract class Base implements Factory {
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
-        Fixture fixture = addComponentSpecsTo(
-            allKnownComponentSpecs(),
-            new Policy.Builder()
-        ).setFloorPlan(
-            createFloorPlan()
-        ).setProfile(
-            requireNonNull(profile)
-        ).setFixtureFactory(
-            createFixtureFactory()
-        ).build().fixtureConfigurator().build();
+        Fixture fixture = configureFixture(
+            addComponentSpecsTo(
+                allKnownComponentSpecs(),
+                new Policy.Builder()
+            ).setFloorPlan(
+                createFloorPlan()
+            ).setProfile(
+                requireNonNull(profile)
+            ).setFixtureFactory(
+                createFixtureFactory()
+            ).build().fixtureConfigurator()
+        ).build();
         return new TestSuiteDescriptor() {
           @Override
           public Named setUpFirstTime(Context context) {

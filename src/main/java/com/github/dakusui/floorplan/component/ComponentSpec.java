@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.dakusui.floorplan.utils.Utils.*;
+import static com.github.dakusui.floorplan.utils.InternalUtils.*;
 import static java.util.Objects.requireNonNull;
 
 public interface ComponentSpec<A extends Attribute> {

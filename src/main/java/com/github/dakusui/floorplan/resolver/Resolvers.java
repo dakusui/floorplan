@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.resolver;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public enum Resolvers {
   public static <A extends Attribute, T> Resolver<A, T> referenceTo(A another) {
     requireNonNull(another);
     return Resolver.of(
-        a -> c -> p -> Utils.resolve(another, c, p),
+        a -> c -> p -> FloorPlanUtils.resolve(another, c, p),
         () -> String.format("referenceTo(attr:%s)", another)
     );
   }
@@ -48,7 +48,7 @@ public enum Resolvers {
   @SuppressWarnings("unchecked")
   public static <A extends Attribute, B extends Attribute, R> Resolver<A, R> attributeValueOf(B attr, Resolver<A, Ref> holder) {
     return Resolver.of(
-        a -> c -> p -> Utils.resolve(attr, p.fixtureConfigurator().lookUp(holder.apply(a).apply(c).apply(p)), p),
+        a -> c -> p -> FloorPlanUtils.resolve(attr, p.fixtureConfigurator().lookUp(holder.apply(a).apply(c).apply(p)), p),
         () -> String.format("attributeValueOf(%s, %s)", attr, holder)
     );
   }

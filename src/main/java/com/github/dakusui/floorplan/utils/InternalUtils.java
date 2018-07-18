@@ -3,13 +3,16 @@ package com.github.dakusui.floorplan.utils;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
-import com.github.dakusui.floorplan.component.*;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
-import com.github.dakusui.floorplan.policy.Policy;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -17,9 +20,8 @@ import java.util.stream.Collector;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
-public class Utils {
+public class InternalUtils {
   ;
 
   public static <T> Collector<T, List<T>, Optional<T>> singletonCollector() {
@@ -46,36 +48,6 @@ public class Utils {
               Optional.of(list.get(0));
         }
     );
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <A extends Attribute, T> T resolve(A attr, Configurator<A> configurator, Policy policy) {
-    return (T) Function.class.cast(Function.class.cast(configurator.resolverFor(attr, policy).<A>apply(attr)).apply(configurator)).apply(policy);
-  }
-
-  public static Action createGroupedAction(
-      Context context,
-      boolean parallel,
-      Function<Component<?>, Component.ActionFactory> actionFactoryCreator,
-      Fixture fixture,
-      Ref... refs
-  ) {
-    Action[] actions = Arrays.stream(
-        refs
-    ).map(
-        fixture::lookUp
-    ).map(
-        actionFactoryCreator::apply
-    ).map(
-        actionFactory -> actionFactory.apply(context)
-    ).collect(
-        toList()
-    ).toArray(
-        new Action[refs.length]
-    );
-    return parallel ?
-        context.concurrent(actions) :
-        context.sequential(actions);
   }
 
   public static void performAction(Action action) {
@@ -131,7 +103,7 @@ public class Utils {
   }
 
   public static Predicate<Object> isInstanceOf(Class<?> expectedType) {
-    return Utils.toPrintablePredicate(
+    return InternalUtils.toPrintablePredicate(
         () -> String.format("assignableTo[%s]", expectedType.getSimpleName()),
         expectedType.isPrimitive() ?
             v -> v != null && expectedType.isAssignableFrom(v.getClass()) :
@@ -140,7 +112,7 @@ public class Utils {
   }
 
   public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
-    return Utils.toPrintablePredicate(
+    return InternalUtils.toPrintablePredicate(
         () -> String.format("hasSpecOf[%s]", spec),
         (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
     );
@@ -148,7 +120,7 @@ public class Utils {
 
   @SuppressWarnings({ "unchecked" })
   public static Predicate<Object> forAll(Predicate<Object> pred) {
-    return Utils.toPrintablePredicate(
+    return InternalUtils.toPrintablePredicate(
         () -> String.format("allMatch[%s]", pred),
         (Object v) -> List.class.cast(v).stream().allMatch(pred)
     );

@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.component;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
-import com.github.dakusui.floorplan.utils.Utils;
+import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,8 +24,9 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * Returns a resolver for a specified attribute {@code attr} set to this object
    * itself. If it is not present, an empty {@code Optional} will be returned.
    *
-   * @param attr An attribute for which
+   * @param attr An attribute for which a resolver is searched.
    * @param <T>  Type of a value of an attribute {@code attr}.
+   * @return An optional of a resolver for the given attribute {@code attr}.
    */
   <T> Optional<Resolver<? super A, T>> resolverFor(A attr);
 
@@ -37,6 +38,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param attr   An attribute for which a resolver will be returned.
    * @param policy A policy object from which a resolver is searched.
    * @param <T>    A type of attribute value.
+   * @return A resolver for the given attribute {@code attr}.
    */
   default <T> Resolver<? super A, T> resolverFor(A attr, Policy policy) {
     require(
@@ -105,7 +107,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
                   Object u;
                   put(attr,
                       require(
-                          u = Utils.resolve(attr, Impl.this, policy),
+                          u = FloorPlanUtils.resolve(attr, Impl.this, policy),
                           attr::test,
                           Exceptions.typeMismatch(attr, u)
                       ));
