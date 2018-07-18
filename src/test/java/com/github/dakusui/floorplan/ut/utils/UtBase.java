@@ -6,7 +6,7 @@ import org.junit.Before;
 public abstract class UtBase {
   @Before
   public void before() {
-    UtUtils.suppressStdOutErrIfRunUnderSurefire();
+    UtUtils.suppressStdOutErrIfRunUnderSurefireOrPitest();
   }
 
   @After

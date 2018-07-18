@@ -118,8 +118,11 @@
                 <artifactId>pitest-maven</artifactId>
                 <version>1.2.0</version>
                 <configuration>
+                    <jvmArgs>
+                        <jvmArg>-Dunderpitest=yes</jvmArg>
+                    </jvmArgs>
                     <targetClasses>
-                        <param>com.github.dakusui.floorplan.ut.*</param>
+                        <param>com.github.dakusui.floorplan.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>

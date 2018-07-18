@@ -7,6 +7,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
+import org.hamcrest.CoreMatchers;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.stream.Collector;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static org.junit.Assume.assumeThat;
 
 public class InternalUtils {
   ;
@@ -148,4 +150,5 @@ public class InternalUtils {
       throw Exceptions.rethrow(e);
     }
   }
+
 }

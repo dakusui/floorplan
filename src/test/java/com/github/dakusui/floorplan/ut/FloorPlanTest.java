@@ -12,8 +12,8 @@ import com.github.dakusui.floorplan.exception.TypeMismatch;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.ut.components.ReferenceComponent;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
-import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.ut.utils.UtBase;
+import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -21,6 +21,7 @@ import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.assumeThatNotUnderPitest;
 
 public class FloorPlanTest extends UtBase {
   @Test
@@ -133,6 +134,7 @@ public class FloorPlanTest extends UtBase {
 
   @Test(expected = UnsupportedOperationException.class)
   public void givenSimpleComponent$whenInstallerIsNotConfigured$thenExceptionThrown() {
+    assumeThatNotUnderPitest();
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Policy policy = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC);
 
