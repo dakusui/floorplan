@@ -6,6 +6,7 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.exception.IncompatibleProfile;
 import com.github.dakusui.floorplan.exception.MissingValueException;
 import com.github.dakusui.floorplan.exception.TypeMismatch;
@@ -21,7 +22,9 @@ import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.ut.components.ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.assumeThatNotUnderPitest;
+
 
 public class FloorPlanTest extends UtBase {
   @Test
@@ -162,6 +165,42 @@ public class FloorPlanTest extends UtBase {
         ReferenceComponent.SPEC
     );
 
+    FixtureConfigurator fixtureConfigurator = policy.fixtureConfigurator(
+    ).configure(
+        simple1,
+        SimpleComponent.Attr.INSTANCE_NAME,
+        immediate("configured-instance-name-simple1")
+    ).configure(
+        ref1,
+        REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
+        referenceTo(simple1)
+    );
+
+    assertThat(
+        fixtureConfigurator.lookUp(ref1),
+        allOf(
+            asObject(
+                call("resolverFor", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE)
+                    .andThen("get")
+                    .andThen("apply", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, fixtureConfigurator.lookUp(ref1), policy)
+                    .$()
+            ).isInstanceOf(
+                Ref.class
+            ).$()
+        )
+    );
+  }
+
+  @Test
+  public void givenReferencingAttribute$whenConfiguredWithReferenceAndBuilt$thenAttributeIsResolvedCorrectly() {
+    Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
+    Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
+    Policy policy = UtUtils.buildPolicy(
+        UtUtils.createUtFloorPlan().add(simple1).add(ref1.spec(), ref1.id()),
+        SimpleComponent.SPEC,
+        ReferenceComponent.SPEC
+    );
+
     Fixture fixture = policy.fixtureConfigurator(
     ).configure(
         simple1,
@@ -169,7 +208,7 @@ public class FloorPlanTest extends UtBase {
         immediate("configured-instance-name-simple1")
     ).configure(
         ref1,
-        ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
+        REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
         referenceTo(simple1)
     ).build();
 
@@ -177,7 +216,7 @@ public class FloorPlanTest extends UtBase {
         fixture.lookUp(ref1),
         allOf(
             asObject(
-                "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
+                "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
             ).isInstanceOf(Component.class).$(),
             asString(
                 "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE
@@ -198,7 +237,7 @@ public class FloorPlanTest extends UtBase {
         ).add(
             ref1
         ).wire(
-            ref1, ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, simple1
+            ref1, REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, simple1
         ),
         SimpleComponent.SPEC,
         ReferenceComponent.SPEC
@@ -215,7 +254,7 @@ public class FloorPlanTest extends UtBase {
         fixture.lookUp(ref1),
         allOf(
             asObject(
-                "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
+                "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
             ).isInstanceOf(Component.class).$(),
             asString(
                 "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE

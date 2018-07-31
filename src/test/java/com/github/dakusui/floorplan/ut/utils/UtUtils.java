@@ -86,5 +86,4 @@ public enum UtUtils {
         CoreMatchers.equalTo(false)
     );
   }
-
 }

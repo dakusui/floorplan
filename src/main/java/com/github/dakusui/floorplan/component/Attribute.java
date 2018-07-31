@@ -1,8 +1,8 @@
 package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.floorplan.resolver.Resolver;
-import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 import com.github.dakusui.floorplan.utils.InternalUtils;
+import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -281,6 +281,7 @@ public interface Attribute {
 
       /**
        * Builds a {@code Bean} instance based on values given to this builder object.
+       *
        * @return A new bean object.
        */
       public Bean<A> $() {
