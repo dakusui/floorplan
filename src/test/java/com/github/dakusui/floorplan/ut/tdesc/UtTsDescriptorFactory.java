@@ -1,7 +1,6 @@
 package com.github.dakusui.floorplan.ut.tdesc;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
@@ -10,6 +9,7 @@ import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
 import java.util.List;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.floorplan.component.Ref.ref;
 import static java.util.Collections.singletonList;
 
@@ -51,28 +51,28 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected Action createActionForSetUp(int testCaseId, Context context, Fixture fixture) {
-    return context.nop();
+  protected Action createActionForSetUp(int testCaseId, Fixture fixture) {
+    return nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Context context, Fixture fixture) {
-    return context.nop();
+  protected Action createActionForSetUpFirstTime(Fixture fixture) {
+    return nop();
   }
 
   @Override
-  protected Action createActionForTest(int testCaseId, int testOracleId, Context context, Fixture fixture) {
-    return context.nop();
+  protected Action createActionForTest(int testCaseId, int testOracleId, Fixture fixture) {
+    return nop();
   }
 
   @Override
-  protected Action createActionForTearDown(int testCaseId, Context context, Fixture fixture) {
-    return context.nop();
+  protected Action createActionForTearDown(int testCaseId, Fixture fixture) {
+    return nop();
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Context context, Fixture fixture) {
-    return context.nop();
+  protected Action createActionForTearDownLastTime(Fixture fixture) {
+    return nop();
   }
 
   @Override

@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.tdesc;
 
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
@@ -12,6 +11,7 @@ import com.github.dakusui.floorplan.policy.Profile;
 
 import java.util.List;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public interface TestSuiteDescriptor {
@@ -25,15 +25,15 @@ public interface TestSuiteDescriptor {
 
   String getTestOracleNameFor(int testOracleId);
 
-  Named setUpFirstTime(Context context);
+  Named setUpFirstTime();
 
-  Named setUp(Context context, int testCaseId);
+  Named setUp(int testCaseId);
 
-  Named test(Context context, int testCaseId, int testOracleId);
+  Named test(int testCaseId, int testOracleId);
 
-  Named tearDown(Context context, int testCaseId);
+  Named tearDown(int testCaseId);
 
-  Named tearDownLastTime(Context context);
+  Named tearDownLastTime();
 
   interface Factory {
     TestSuiteDescriptor create(Profile profile);
@@ -55,26 +55,26 @@ public interface TestSuiteDescriptor {
         ).build();
         return new TestSuiteDescriptor() {
           @Override
-          public Named setUpFirstTime(Context context) {
-            return (Named) context.named(
+          public Named setUpFirstTime() {
+            return (Named) named(
                 "BEFORE ALL",
-                createActionForSetUpFirstTime(context, fixture)
+                createActionForSetUpFirstTime(fixture)
             );
           }
 
           @Override
-          public Named setUp(Context context, int testCaseId) {
-            return (Named) context.named(
+          public Named setUp(int testCaseId) {
+            return (Named) named(
                 String.format("BEFORE:%s", getTestCaseNameFor(testCaseId)),
-                createActionForSetUp(testCaseId, context, fixture)
+                createActionForSetUp(testCaseId, fixture)
             );
           }
 
           @Override
-          public Named test(Context context, int testCaseId, int testOracleId) {
-            return (Named) context.named(
+          public Named test(int testCaseId, int testOracleId) {
+            return (Named) named(
                 String.format("TEST:%s.%s", getTestOracleNameFor(testOracleId), getTestCaseNameFor(testCaseId)),
-                createActionForTest(testCaseId, testOracleId, context, fixture)
+                createActionForTest(testCaseId, testOracleId, fixture)
             );
           }
 
@@ -104,17 +104,17 @@ public interface TestSuiteDescriptor {
           }
 
           @Override
-          public Named tearDown(Context context, int testCaseId) {
-            return (Named) context.named(
+          public Named tearDown(int testCaseId) {
+            return (Named) named(
                 String.format("AFTER:%s", getTestCaseNameFor(testCaseId)),
-                createActionForTearDown(testCaseId, context, fixture)
+                createActionForTearDown(testCaseId, fixture)
             );
           }
 
           @Override
-          public Named tearDownLastTime(Context context) {
-            return (Named) context.named("AFTER ALL",
-                createActionForTearDownLastTime(context, fixture)
+          public Named tearDownLastTime() {
+            return (Named) named("AFTER ALL",
+                createActionForTearDownLastTime(fixture)
             );
           }
 
@@ -147,15 +147,15 @@ public interface TestSuiteDescriptor {
 
       protected abstract List<ComponentSpec<?>> allKnownComponentSpecs();
 
-      protected abstract Action createActionForSetUp(int testCaseId, Context context, Fixture fixture);
+      protected abstract Action createActionForSetUp(int testCaseId, Fixture fixture);
 
-      protected abstract Action createActionForSetUpFirstTime(Context context, Fixture fixture);
+      protected abstract Action createActionForSetUpFirstTime(Fixture fixture);
 
-      protected abstract Action createActionForTest(int testCaseId, int testOracleId, Context context, Fixture fixture);
+      protected abstract Action createActionForTest(int testCaseId, int testOracleId, Fixture fixture);
 
-      protected abstract Action createActionForTearDown(int testCaseId, Context context, Fixture fixture);
+      protected abstract Action createActionForTearDown(int testCaseId, Fixture fixture);
 
-      protected abstract Action createActionForTearDownLastTime(Context context, Fixture fixture);
+      protected abstract Action createActionForTearDownLastTime(Fixture fixture);
 
       protected abstract FloorPlan configureFloorPlan(FloorPlan floorPlan);
 

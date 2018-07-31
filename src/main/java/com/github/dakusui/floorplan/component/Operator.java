@@ -1,12 +1,14 @@
 package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
+import com.github.dakusui.actionunit.core.ActionSupport;
 import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.util.function.Function;
 
-public interface Operator<A extends Attribute> extends Function<Component<A>, Component.ActionFactory> {
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
+
+public interface Operator<A extends Attribute> extends Function<Component<A>, Action> {
   /**
    * This enumerates categories of actions that can be performed on a component.
    */
@@ -41,7 +43,7 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Co
   Type type();
 
   interface Factory<A extends Attribute> extends Function<ComponentSpec<A>, Operator<A>> {
-    static <A extends Attribute> Factory<A> of(Type type, Function<Component<A>, Function<Context, Action>> func) {
+    static <A extends Attribute> Factory<A> of(Type type, Function<Component<A>, Action> func) {
       return new Factory<A>() {
         @Override
         public Operator<A> apply(ComponentSpec<A> aComponentSpec) {
@@ -52,10 +54,10 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Co
             }
 
             @Override
-            public Component.ActionFactory apply(Component<A> component) {
-              return context -> context.named(
+            public Action apply(Component<A> component) {
+              return named(
                   String.format("%s %s", type, component),
-                  func.apply(component).apply(context)
+                  func.apply(component)
               );
             }
 
@@ -76,14 +78,14 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Co
     static Factory nop(Type type) {
       return of(
           type,
-          component -> Context::nop
+          component -> ActionSupport.nop()
       );
     }
 
     static Factory unsupported(Type type) {
       return of(
           type,
-          component -> context -> {
+          component -> {
             throw Exceptions.throwUnsupportedOperation(String.format("This operation is not supported by '%s'", component));
           }
       );

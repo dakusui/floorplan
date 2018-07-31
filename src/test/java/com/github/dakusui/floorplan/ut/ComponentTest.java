@@ -1,9 +1,12 @@
 package com.github.dakusui.floorplan.ut;
 
+import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.*;
 import org.junit.Test;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.named;
+import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.utils.InternalUtils.newContext;
 
@@ -20,22 +23,19 @@ public class ComponentTest {
             ).$(),
             asString(
                 call("start")
-                    .andThen("apply", c)
-                    .andThen("getName")
+                    .andThen("name")
                     .$())
                 .equalTo("name=START")
                 .$(),
             asString(
                 call("stop")
-                    .andThen("apply", c)
-                    .andThen("getName")
+                    .andThen("name")
                     .$())
                 .equalTo("name=STOP")
                 .$(),
             asString(
                 call("nuke")
-                    .andThen("apply", c)
-                    .andThen("getName")
+                    .andThen("name")
                     .$())
                 .equalTo("name=NUKE")
                 .$()
@@ -56,8 +56,8 @@ public class ComponentTest {
       }
 
       @Override
-      public ActionFactory actionFactoryFor(Operator.Type op) {
-        return c -> c.named("name=" + op.name(), c.nop());
+      public Action actionFactoryFor(Operator.Type op) {
+        return named("name=" + op.name(), nop());
       }
 
       @Override

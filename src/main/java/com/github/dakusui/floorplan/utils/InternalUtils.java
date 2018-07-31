@@ -2,7 +2,8 @@ package com.github.dakusui.floorplan.utils;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
@@ -51,11 +52,11 @@ public class InternalUtils {
   }
 
   public static void performAction(Action action) {
-    new ReportingActionPerformer.Builder(action).build().performAndReport();
+    ReportingActionPerformer.create(Writer.Std.OUT).performAndReport(action);
   }
 
   public static Context newContext() {
-    return new Context.Impl();
+    return Context.create();
   }
 
   public static <T, R> Function<T, R> toPrintableFunction(Supplier<String> messageSupplier, Function<T, R> func) {
@@ -104,7 +105,7 @@ public class InternalUtils {
 
   public static Predicate<Object> isInstanceOf(Class<?> expectedType) {
     return InternalUtils.toPrintablePredicate(
-        () ->String.format("assignableTo[%s]", expectedType.getSimpleName()),
+        () -> String.format("assignableTo[%s]", expectedType.getSimpleName()),
         expectedType.isPrimitive() ?
             v -> v != null && expectedType.isAssignableFrom(v.getClass()) :
             v -> v == null || expectedType.isAssignableFrom(v.getClass())
@@ -113,7 +114,7 @@ public class InternalUtils {
 
   public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
     return InternalUtils.toPrintablePredicate(
-        () ->String.format("hasSpecOf[%s]", spec),
+        () -> String.format("hasSpecOf[%s]", spec),
         (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
     );
   }

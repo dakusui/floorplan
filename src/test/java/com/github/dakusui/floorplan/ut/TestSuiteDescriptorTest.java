@@ -21,23 +21,23 @@ public class TestSuiteDescriptorTest {
             asString("getTestCaseNameFor", 0).equalTo("UtTsDescCase[00]").$(),
             asString(InternalUtils.toPrintableFunction(
                 () -> "setUpFirstTime(context).getName()",
-                (TestSuiteDescriptor d) -> d.setUpFirstTime(context).getName())
+                (TestSuiteDescriptor d) -> d.setUpFirstTime().name())
             ).equalTo("BEFORE ALL").$(),
             asString(InternalUtils.toPrintableFunction(
                 () -> "setUp(context, 0).getName()",
-                (TestSuiteDescriptor d) -> d.setUp(context, 0).getName())
+                (TestSuiteDescriptor d) -> d.setUp(0).name())
             ).equalTo("BEFORE:UtTsDescCase[00]").$(),
             asString(InternalUtils.toPrintableFunction(
                 () -> "test(context, 0).getName()",
-                (TestSuiteDescriptor d) -> d.test(context, 0, 0).getName())
+                (TestSuiteDescriptor d) -> d.test(0, 0).name())
             ).equalTo("TEST:UtTsDescOracle[00].UtTsDescCase[00]").$(),
             asString(InternalUtils.toPrintableFunction(
                 () -> "tearDoen(context, 0).getName()",
-                (TestSuiteDescriptor d) -> d.tearDown(context, 0).getName())
+                (TestSuiteDescriptor d) -> d.tearDown(0).name())
             ).equalTo("AFTER:UtTsDescCase[00]").$(),
             asString(InternalUtils.toPrintableFunction(
                 () -> "tearDownLastTime(context).getName()",
-                (TestSuiteDescriptor d) -> d.tearDownLastTime(context).getName())
+                (TestSuiteDescriptor d) -> d.tearDownLastTime().name())
             ).equalTo("AFTER ALL").$()
         )
     );

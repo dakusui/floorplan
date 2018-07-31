@@ -1,13 +1,15 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
+import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
-
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.resolver.Resolvers.slotValue;
+import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
 public class Apache {
   public enum Attr implements Attribute {
@@ -32,53 +34,44 @@ public class Apache {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.INSTALL,
-          component -> $ -> $.sequential(
-              $.simple("yum install", () -> {
-                runShell("ssh -l root@%s yum install httpd", component.<String>valueOf(Attr.HOSTNAME));
-              }),
-              $.simple("update datadir", () -> {
-                runShell(
-                    "ssh -l root@%s sed -i /etc/httpd.conf 's/^<Directory .+/<Directory \"%s\">/g'",
-                    component.<String>valueOf(Attr.HOSTNAME),
-                    component.<String>valueOf(Attr.DATADIR)
-                );
-              }),
-              $.simple("update port number", () -> {
-                runShell(
-                    "ssh -l root@%s sed -i /etc/httpd.conf 's/^Listen .+/Listen %s/g'",
-                    component.<String>valueOf(Attr.HOSTNAME),
-                    component.<String>valueOf(Attr.PORTNUMBER)
-                );
-              })
+          component -> sequential(
+              simple("yum install",
+                  (context) -> runShell("ssh -l root@%s yum install httpd", component.<String>valueOf(Attr.HOSTNAME))),
+              simple("update datadir", (context) -> runShell(
+                  "ssh -l root@%s sed -i /etc/httpd.conf 's/^<Directory .+/<Directory \"%s\">/g'",
+                  component.<String>valueOf(Attr.HOSTNAME),
+                  component.<String>valueOf(Attr.DATADIR)
+              )),
+              simple("update port number", (Context context) -> runShell(
+                  "ssh -l root@%s sed -i /etc/httpd.conf 's/^Listen .+/Listen %s/g'",
+                  component.<String>valueOf(Attr.HOSTNAME),
+                  component.<String>valueOf(Attr.PORTNUMBER)
+              ))
           )
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.START,
-          component -> $ -> $.simple("start", () -> {
-            runShell("ssh -l httpd@%s apachectl start", component.<String>valueOf(Attr.HOSTNAME));
-          })
+          component -> simple("start", (context) ->
+              runShell("ssh -l httpd@%s apachectl start", component.<String>valueOf(Attr.HOSTNAME)))
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.STOP,
-          component -> $ -> $.simple("stop", () -> {
-            runShell("ssh -l httpd@%s apachectl stop", component.<String>valueOf(Attr.HOSTNAME));
-          })
+          component -> simple("stop", (context) ->
+              runShell("ssh -l httpd@%s apachectl stop", component.<String>valueOf(Attr.HOSTNAME)))
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.NUKE,
-          component -> $ -> $.simple("", () -> {
-            runShell("ssh -l root@%s pkill -9 stop", component.<String>valueOf(Attr.HOSTNAME));
-          })
+          component -> simple("nuke",
+              (context) -> runShell("ssh -l root@%s pkill -9 stop", component.<String>valueOf(Attr.HOSTNAME)))
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.UNINSTALL,
-          component -> $ -> $.simple("", () -> {
-            runShell("ssh -l root@%s yum remove httpd", component.<String>valueOf(Attr.HOSTNAME));
-          })
+          component -> simple("uninstall",
+              (context) -> runShell("ssh -l root@%s yum remove httpd", component.<String>valueOf(Attr.HOSTNAME)))
       )
   ).build();
 }

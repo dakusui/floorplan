@@ -1,13 +1,11 @@
 package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -16,32 +14,30 @@ import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
-  interface ActionFactory extends Function<Context, Action> {
-  }
-
-  ActionFactory actionFactoryFor(Operator.Type op);
+  Action actionFactoryFor(Operator.Type op);
 
   /**
    * This method should return an ActionFactory to perform installation.
+   *
    * @return a factory to create an action that performs installation.
    */
-  default ActionFactory install() {
+  default Action install() {
     return actionFactoryFor(Operator.Type.INSTALL);
   }
 
-  default ActionFactory start() {
+  default Action start() {
     return actionFactoryFor(Operator.Type.START);
   }
 
-  default ActionFactory stop() {
+  default Action stop() {
     return actionFactoryFor(Operator.Type.STOP);
   }
 
-  default ActionFactory nuke() {
+  default Action nuke() {
     return actionFactoryFor(Operator.Type.NUKE);
   }
 
-  default ActionFactory uninstall() {
+  default Action uninstall() {
     return actionFactoryFor(Operator.Type.UNINSTALL);
   }
 
@@ -89,7 +85,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ActionFactory actionFactoryFor(Operator.Type op) {
+    public Action actionFactoryFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),
           o -> (Operator<A>) Operator.Factory.unsupported(op).apply(spec())

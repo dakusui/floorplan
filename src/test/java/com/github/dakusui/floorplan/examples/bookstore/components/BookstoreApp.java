@@ -4,6 +4,7 @@ import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
@@ -66,29 +67,25 @@ public class BookstoreApp {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.INSTALL,
-          component -> $ -> $.sequential(
-              $.simple("Deploy files under apache httpd", () -> {
-                runShell(
-                    "scp -r ~/apps/%s root@%s:%s/%s",
-                    component.valueOf(Attr.APPNAME),
-                    component.valueOf(Attr.WEBSERVER_HOST),
-                    component.<Component<Apache.Attr>>valueOf(Attr.WEBSERVER).valueOf(Apache.Attr.DATADIR),
-                    component.valueOf(Attr.APPNAME)
-                );
-              }),
-              $.simple("Modify database server location", () -> {
-                runShell(
-                    "ssh -l root@%s sed -i /etc/bookstoreapp.conf 's!dbms=__DBMS__!dbms=%s!g'",
-                    component.valueOf(Attr.WEBSERVER_HOST),
-                    component.valueOf(Attr.DBSERVER_ENDPOINT)
-                );
-              })
+          component -> sequential(
+              simple("Deploy files under apache httpd", (c) -> runShell(
+                  "scp -r ~/apps/%s root@%s:%s/%s",
+                  component.valueOf(Attr.APPNAME),
+                  component.valueOf(Attr.WEBSERVER_HOST),
+                  component.<Component<Apache.Attr>>valueOf(Attr.WEBSERVER).valueOf(Apache.Attr.DATADIR),
+                  component.valueOf(Attr.APPNAME)
+              )),
+              simple("Modify database server location", (c) -> runShell(
+                  "ssh -l root@%s sed -i /etc/bookstoreapp.conf 's!dbms=__DBMS__!dbms=%s!g'",
+                  component.valueOf(Attr.WEBSERVER_HOST),
+                  component.valueOf(Attr.DBSERVER_ENDPOINT)
+              ))
           )
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.UNINSTALL,
-          attrComponent -> $ -> $.named("Do something for uninstallation", $.nop())
+          attrComponent -> named("Do something for uninstallation", nop())
       )
   ).build();
 }

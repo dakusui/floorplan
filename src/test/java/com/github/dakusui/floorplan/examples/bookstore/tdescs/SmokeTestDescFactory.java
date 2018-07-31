@@ -1,7 +1,6 @@
 package com.github.dakusui.floorplan.examples.bookstore.tdescs;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.core.Fixture;
@@ -14,6 +13,7 @@ import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public class SmokeTestDescFactory extends BasicTestDescFactory {
@@ -33,22 +33,20 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected Action createActionForSetUp(int testCaseId, Context context, Fixture fixture) {
-    return context.nop();
+  protected Action createActionForSetUp(int testCaseId, Fixture fixture) {
+    return nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Context context, Fixture fixture) {
-    return context.sequential(
+  protected Action createActionForSetUpFirstTime(Fixture fixture) {
+    return sequential(
         FloorPlanUtils.createGroupedAction(
-            context,
             true,
             Component::uninstall,
             fixture,
             HTTPD, DBMS, APP, PROXY
         ),
         FloorPlanUtils.createGroupedAction(
-            context,
             true,
             Component::install,
             fixture,
@@ -57,20 +55,20 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected Action createActionForTest(int testCaseId, int testOracleId, Context $, Fixture fixture) {
-    return $.simple(String.format("Issue a request to end point[%s,%s]", testCaseId, testOracleId),
-        () -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", applicationEndpoint(fixture))
+  protected Action createActionForTest(int testCaseId, int testOracleId, Fixture fixture) {
+    return simple(String.format("Issue a request to end point[%s,%s]", testCaseId, testOracleId),
+        (c) -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", applicationEndpoint(fixture))
     );
   }
 
   @Override
-  protected Action createActionForTearDown(int testCaseId, Context $, Fixture fixture) {
-    return $.named("Collect log files", $.nop());
+  protected Action createActionForTearDown(int testCaseId, Fixture fixture) {
+    return named("Collect log files", nop());
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Context $, Fixture fixture) {
-    return $.nop();
+  protected Action createActionForTearDownLastTime(Fixture fixture) {
+    return nop();
   }
 
   @Override
@@ -90,11 +88,11 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
     fixtureConfigurator.lookUp(PROXY).addOperatorFactory(
         Operator.Factory.of(
             Operator.Type.START,
-            c -> $ -> $.named("configuredStart", $.nop())
+            c -> named("configuredStart", nop())
         )).addOperatorFactory(
         Operator.Factory.of(
             Operator.Type.NUKE,
-            c -> $ -> $.named("configuredNuke", $.nop())
+            c -> named("configuredNuke", nop())
         ));
     return fixtureConfigurator;
   }
