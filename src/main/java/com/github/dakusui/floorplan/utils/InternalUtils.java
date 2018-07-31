@@ -104,7 +104,7 @@ public class InternalUtils {
 
   public static Predicate<Object> isInstanceOf(Class<?> expectedType) {
     return InternalUtils.toPrintablePredicate(
-        () -> String.format("assignableTo[%s]", expectedType.getSimpleName()),
+        () ->String.format("assignableTo[%s]", expectedType.getSimpleName()),
         expectedType.isPrimitive() ?
             v -> v != null && expectedType.isAssignableFrom(v.getClass()) :
             v -> v == null || expectedType.isAssignableFrom(v.getClass())
@@ -113,7 +113,7 @@ public class InternalUtils {
 
   public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
     return InternalUtils.toPrintablePredicate(
-        () -> String.format("hasSpecOf[%s]", spec),
+        () ->String.format("hasSpecOf[%s]", spec),
         (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
     );
   }
@@ -148,4 +148,5 @@ public class InternalUtils {
       throw Exceptions.rethrow(e);
     }
   }
+
 }

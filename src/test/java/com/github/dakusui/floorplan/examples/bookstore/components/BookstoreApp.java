@@ -16,7 +16,7 @@ public class BookstoreApp {
     APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
     WEBSERVER(SPEC.property(Apache.SPEC).defaultsTo(nothing()).$()),
     WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
-    WEBSERVER_PORT(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
+    WEBSERVER_PORT(SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()),
     DBSERVER(SPEC.property(PostgreSQL.SPEC).defaultsTo(nothing()).$()),
     @SuppressWarnings("unchecked")
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(

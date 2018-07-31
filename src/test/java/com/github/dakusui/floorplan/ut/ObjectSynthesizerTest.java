@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 import com.github.dakusui.floorplan.ut.utils.UtBase;
+import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
