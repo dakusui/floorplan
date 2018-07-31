@@ -8,6 +8,7 @@ import com.github.dakusui.floorplan.component.Operator;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Mappers.mapper;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
@@ -52,13 +53,13 @@ public class Nginx {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.INSTALL,
-          component -> $ -> $.sequential(
-              $.simple(
+          component -> sequential(
+              simple(
                   "yum install",
-                  () -> runShell("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
-              $.simple(
+                  (c) -> runShell("ssh -l root@%s 'yum install nginx'", component.<String>valueOf(Attr.HOSTNAME))),
+              simple(
                   "configure",
-                  () -> runShell(
+                  (c) -> runShell(
                       "ssh -l root@%s, echo \"upstream dynamic {%n" +
                           "%s",
                       "}\" > /etc/nginx.conf%n",
@@ -80,7 +81,7 @@ public class Nginx {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.UNINSTALL,
-          attrComponent -> $ -> $.named("Do something for uninstallation", $.nop())
+          attrComponent -> named("Do something for uninstallation", nop())
       )
   ).build();
 }

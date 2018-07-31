@@ -1,7 +1,6 @@
 package com.github.dakusui.floorplan.utils;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Configurator;
@@ -12,6 +11,8 @@ import com.github.dakusui.floorplan.policy.Policy;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.parallel;
+import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -21,9 +22,8 @@ public enum FloorPlanUtils {
   ;
 
   public static Action createGroupedAction(
-      Context context,
       boolean parallel,
-      Function<Component<?>, Component.ActionFactory> actionFactoryCreator,
+      Function<Component<?>, Action> actionFactoryCreator,
       Fixture fixture,
       Ref... refs
   ) {
@@ -33,16 +33,14 @@ public enum FloorPlanUtils {
         fixture::lookUp
     ).map(
         actionFactoryCreator::apply
-    ).map(
-        actionFactory -> actionFactory.apply(context)
     ).collect(
         toList()
     ).toArray(
         new Action[refs.length]
     );
     return parallel ?
-        context.concurrent(actions) :
-        context.sequential(actions);
+        parallel(actions) :
+        sequential(actions);
   }
 
   @SuppressWarnings("unchecked")

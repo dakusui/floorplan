@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.visitors.reporting.ReportingActionPerformer;
+import com.github.dakusui.actionunit.io.Writer;
+import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.component.Ref;
@@ -20,6 +20,7 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.components.ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE;
@@ -117,14 +118,15 @@ public class FloorPlanTest extends UtBase {
         simple1,
         Operator.Factory.of(
             Operator.Type.INSTALL,
-            c -> context -> context.simple("simple", () -> out.add("hello"))
+            c -> simple("simple", (context) -> out.add("hello"))
         )
     ).build();
 
-    new ReportingActionPerformer.Builder(
-        fixture.lookUp(simple1).install().apply(new Context.Impl())
-    ).build(
-    ).performAndReport();
+    ReportingActionPerformer.create(
+        Writer.Std.OUT
+    ).performAndReport(
+        fixture.lookUp(simple1).install()
+    );
 
     assertThat(
         out,
@@ -148,10 +150,11 @@ public class FloorPlanTest extends UtBase {
         immediate("configured-instance-name-simple1")
     ).build();
 
-    new ReportingActionPerformer.Builder(
-        fixture.lookUp(simple1).install().apply(new Context.Impl())
-    ).build(
-    ).performAndReport();
+    ReportingActionPerformer.create(
+        Writer.Std.OUT
+    ).performAndReport(
+        fixture.lookUp(simple1).install()
+    );
   }
 
 

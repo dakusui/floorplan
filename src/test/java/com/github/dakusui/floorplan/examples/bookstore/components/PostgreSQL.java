@@ -4,6 +4,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Operator;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.resolver.Resolvers.slotValue;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
@@ -44,28 +45,22 @@ public class PostgreSQL {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.INSTALL,
-          component -> $ -> $.sequential(
-              $.simple("yum install", () -> {
-                runShell("ssh -l root@%s yum install postgresql", component.<String>valueOf(Attr.HOSTNAME));
-              }),
-              $.simple("initdb", () -> {
-                runShell("ssh -l root@%s postgresql-setup initdb", component.<String>valueOf(Attr.HOSTNAME));
-              }),
-              $.named("Update postgresql.conf",
-                  $.sequential(
-                      $.simple("Update port", () -> {
-                        runShell(
-                            "ssh -l root@%s sed -i /etc/postgresql.conf s/PGPORT=.+/PGPORT=%s/g",
-                            component.<String>valueOf(Attr.HOSTNAME),
-                            component.<Integer>valueOf(Attr.PORTNUMBER)
-                        );
-                      }),
-                      $.simple("Update data dir", () -> {
-                        runShell(
-                            "ssh -l root@%s sed -i /etc/postgresql.conf s/DATADIR=.+/DATADIR=%s/g",
-                            component.<String>valueOf(Attr.HOSTNAME),
-                            component.<String>valueOf(Attr.DATADIR));
-                      })
+          component -> sequential(
+              simple("yum install", (c) -> runShell(
+                  "ssh -l root@%s yum install postgresql", component.<String>valueOf(Attr.HOSTNAME))),
+              simple("initdb", (c) -> runShell(
+                  "ssh -l root@%s postgresql-setup initdb", component.<String>valueOf(Attr.HOSTNAME))),
+              named("Update postgresql.conf",
+                  sequential(
+                      simple("Update port", (c) -> runShell(
+                          "ssh -l root@%s sed -i /etc/postgresql.conf s/PGPORT=.+/PGPORT=%s/g",
+                          component.<String>valueOf(Attr.HOSTNAME),
+                          component.<Integer>valueOf(Attr.PORTNUMBER)
+                      )),
+                      simple("Update data dir", (c) -> runShell(
+                          "ssh -l root@%s sed -i /etc/postgresql.conf s/DATADIR=.+/DATADIR=%s/g",
+                          component.<String>valueOf(Attr.HOSTNAME),
+                          component.<String>valueOf(Attr.DATADIR)))
                   )
               )
           )
@@ -73,42 +68,34 @@ public class PostgreSQL {
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.START,
-          component -> $ -> $.simple(
+          component -> simple(
               "pg_ctl start",
-              () -> {
-                runShell("ssh -l postgres@%s pg_ctl start");
-              }
+              (c) -> runShell("ssh -l postgres@%s pg_ctl start")
           )
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.STOP,
-          component -> $ -> $.simple(
+          component -> simple(
               "pg_ctl stop",
-              () -> {
-                runShell("ssh -l postgres@%s pg_ctl stop");
-              }
+              (c) -> runShell("ssh -l postgres@%s pg_ctl stop")
           )
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.NUKE,
-          component -> $ -> $.simple(
+          component -> simple(
               "send kill -9",
-              () -> {
-                runShell("ssh -l root@%s pkill -9 postgres", component.valueOf(Attr.HOSTNAME));
-              })
+              (c) -> runShell("ssh -l root@%s pkill -9 postgres", component.valueOf(Attr.HOSTNAME)))
       )
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.UNINSTALL,
-          component -> $ -> $.sequential(
-              $.simple("remove basedir", () -> {
-                runShell("rm -fr %s", component.<String>valueOf(Attr.BASEDIR));
-              }),
-              $.simple("remove datadir", () -> {
-                runShell("rm -fr %s", component.<String>valueOf(Attr.DATADIR));
-              }))
+          component -> sequential(
+              simple("remove basedir", (c) -> runShell(
+                  "rm -fr %s", component.<String>valueOf(Attr.BASEDIR))),
+              simple("remove datadir", (c) -> runShell(
+                  "rm -fr %s", component.<String>valueOf(Attr.DATADIR))))
       )
   ).build();
 }

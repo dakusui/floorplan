@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.utils.InternalUtils.newContext;
 import static java.util.stream.Collectors.toList;
 
@@ -53,7 +54,7 @@ public class TestBase {
               IntStream.range(0, descriptor.numTestOracles())
                   .forEach(j -> put(
                       descriptor.getTestOracleNameFor(j),
-                      c -> composeTestAction(c, descriptor, i, j)
+                      c -> composeTestAction(descriptor, i, j)
                   ));
             }}
         }
@@ -62,12 +63,12 @@ public class TestBase {
 
   @BeforeClass
   public static void beforeAll(TestSuiteDescriptor descriptor) {
-    InternalUtils.performAction(descriptor.setUpFirstTime(newContext()));
+    InternalUtils.performAction(descriptor.setUpFirstTime());
   }
 
   @AfterClass
   public static void afterAll(TestSuiteDescriptor descriptor) {
-    InternalUtils.performAction(descriptor.tearDownLastTime(newContext()));
+    InternalUtils.performAction(descriptor.tearDownLastTime());
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -75,21 +76,22 @@ public class TestBase {
     throw new AssumptionViolatedException(String.format("No test oracle provided for id:%s", oracleId));
   }
 
-  private static Named composeTestAction(Context $, TestSuiteDescriptor tsDesc, int i, int j) {
-    return (Named) $.named(tsDesc.getTestOracleNameFor(j),
-        $.sequential(
-            tsDesc.setUp($, i),
-            $.attempt(
-                tsDesc.test($, i, j)
+  private static Named composeTestAction(TestSuiteDescriptor tsDesc, int i, int j) {
+    return (Named) named(tsDesc.getTestOracleNameFor(j),
+        sequential(
+            tsDesc.setUp(i),
+            attempt(
+                tsDesc.test(i, j)
             ).recover(
-                AssertionError.class, ($$, supplier) -> $$.simple("rethrow", () -> {
-                  Throwable t = supplier.get();
-                  if (t instanceof AssertionError)
-                    throw (AssertionError) t;
-                  throw new RuntimeException(String.format("Exception was caught:%s%n", t.getMessage()), t);
-                })
+                Exception.class,
+                leaf(
+                    context -> {
+                      Throwable t = context.thrownException();
+                      throw new RuntimeException(String.format("Exception was caught:%s%n", t.getMessage()), t);
+                    }
+                )
             ).ensure(
-                $$ -> tsDesc.tearDown($$, i)
+                tsDesc.tearDown(i)
             )));
   }
 
@@ -100,9 +102,9 @@ public class TestBase {
 
   @SuppressWarnings("WeakerAccess")
   protected void performTests(int fromOracleIdInclusive, int toOracleIdExclusive) {
-    InternalUtils.performAction(this.context.named(
+    InternalUtils.performAction(named(
         this.testCaseName,
-        this.context.concurrent(
+        parallel(
             IntStream.range(fromOracleIdInclusive, toOracleIdExclusive)
                 .mapToObj(oracleId -> testActionFactories.get(testOracleNames.get(oracleId)).apply(context))
                 .collect(toList())
