@@ -56,7 +56,7 @@ public class ComponentTest {
       }
 
       @Override
-      public Action actionFactoryFor(Operator.Type op) {
+      public Action actionFor(Operator.Type op) {
         return named("name=" + op.name(), nop());
       }
 
