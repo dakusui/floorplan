@@ -14,7 +14,7 @@ import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
-  Action actionFactoryFor(Operator.Type op);
+  Action actionFor(Operator.Type op);
 
   /**
    * This method should return an ActionFactory to perform installation.
@@ -22,23 +22,23 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
    * @return a factory to create an action that performs installation.
    */
   default Action install() {
-    return actionFactoryFor(Operator.Type.INSTALL);
+    return actionFor(Operator.Type.INSTALL);
   }
 
   default Action start() {
-    return actionFactoryFor(Operator.Type.START);
+    return actionFor(Operator.Type.START);
   }
 
   default Action stop() {
-    return actionFactoryFor(Operator.Type.STOP);
+    return actionFor(Operator.Type.STOP);
   }
 
   default Action nuke() {
-    return actionFactoryFor(Operator.Type.NUKE);
+    return actionFor(Operator.Type.NUKE);
   }
 
   default Action uninstall() {
-    return actionFactoryFor(Operator.Type.UNINSTALL);
+    return actionFor(Operator.Type.UNINSTALL);
   }
 
   <T> T valueOf(A attr);
@@ -85,7 +85,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Action actionFactoryFor(Operator.Type op) {
+    public Action actionFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),
           o -> (Operator<A>) Operator.Factory.unsupported(op).apply(spec())
