@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 /**
@@ -20,24 +20,24 @@ public abstract class ObjectSynthesizer<T> {
     this.anInterface = Objects.requireNonNull(anInterface);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "Convert2MethodRef" })
   private T synthesize() {
     return (T) Proxy.newProxyInstance(
         anInterface.getClassLoader(),
         new Class[] { anInterface },
-        (proxy, method, args) -> handleMethodCall(method, args)
+        (proxy, method, args) -> handleMethodCall(proxy, method, args)
     );
   }
 
-  private Object handleMethodCall(Method method, Object[] args) {
-    return lookUpMethodCallHandler(method).orElseThrow(UnsupportedOperationException::new).apply(args);
+  private Object handleMethodCall(Object self, Method method, Object[] args) {
+    return lookUpMethodCallHandler(method).orElseThrow(UnsupportedOperationException::new).apply(self, args);
   }
 
   public static <T> ObjectSynthesizer.Default.Builder<T> builder(Class<T> anInterface) {
     return new Default.Builder<>(anInterface);
   }
 
-  abstract protected Optional<? extends Function<Object[], Object>> lookUpMethodCallHandler(Method method);
+  abstract protected Optional<? extends BiFunction<Object, Object[], Object>> lookUpMethodCallHandler(Method method);
 
   public static class Default<T> extends ObjectSynthesizer<T> {
 
@@ -51,23 +51,23 @@ public abstract class ObjectSynthesizer<T> {
     }
 
     @Override
-    protected Optional<? extends Function<Object[], Object>> lookUpMethodCallHandler(Method method) {
-      Optional<? extends Function<Object[], Object>> ret = handlers.stream().filter(handler -> handler.test(method)).findFirst();
+    protected Optional<? extends BiFunction<Object, Object[], Object>> lookUpMethodCallHandler(Method method) {
+      Optional<? extends BiFunction<Object, Object[], Object>> ret = handlers.stream().filter(handler -> handler.test(method)).findFirst();
       return ret.isPresent() ?
           ret :
           Optional.of(_lookUpMethodCallHandler(method));
     }
 
-    private Function<Object[], Object> _lookUpMethodCallHandler(Method method) {
-      return args -> invokeMethod(fallbackObject, method, args);
+    private BiFunction<Object, Object[], Object> _lookUpMethodCallHandler(Method method) {
+      return (self, args) -> invokeMethod(fallbackObject, method, args);
     }
 
-    private Object invokeMethod(Object object, Method method, Object[] args) {
+    private Object invokeMethod(Object self, Method method, Object[] args) {
       try {
         boolean wasAccessible = method.isAccessible();
         try {
           method.setAccessible(true);
-          return method.invoke(object, args);
+          return method.invoke(self, args);
         } finally {
           method.setAccessible(wasAccessible);
         }
@@ -79,7 +79,8 @@ public abstract class ObjectSynthesizer<T> {
     public static Handler.Builder methodCall(String methodName, Class<?>... parameterTypes) {
       return methodCall(method -> {
         AtomicInteger i = new AtomicInteger(-1);
-        return Objects.equals(methodName, method.getName()) &&
+        return Objects.equals(
+            methodName, method.getName()) &&
             parameterTypes.length == method.getParameterCount() &&
             Arrays.stream(
                 parameterTypes
@@ -119,21 +120,28 @@ public abstract class ObjectSynthesizer<T> {
       }
 
       public T synthesize() {
-        return build().synthesize();
+        return this.handle(
+            // a default for 'equals' method. If and only if given args is the same object
+            // as itself ('this'), true will be returned.
+            methodCall("equals", Object.class).with(
+                (self, objects) -> self == objects[0]
+            )
+        ).build(
+        ).synthesize();
       }
     }
   }
 
-  interface Handler extends Function<Object[], Object>, Predicate<Method> {
+  interface Handler extends BiFunction<Object, Object[], Object>, Predicate<Method> {
     class Builder {
-      private final Predicate<Method>          matcher;
-      private       Function<Object[], Object> function;
+      private final Predicate<Method>                    matcher;
+      private       BiFunction<Object, Object[], Object> function;
 
       public Builder(Predicate<Method> matcher) {
         this.matcher = Objects.requireNonNull(matcher);
       }
 
-      public Handler with(Function<Object[], Object> function) {
+      public Handler with(BiFunction<Object, Object[], Object> function) {
         this.function = Objects.requireNonNull(function);
         return this.build();
       }
@@ -141,8 +149,8 @@ public abstract class ObjectSynthesizer<T> {
       public Handler build() {
         return new Handler() {
           @Override
-          public Object apply(Object[] objects) {
-            return function.apply(objects);
+          public Object apply(Object self, Object[] objects) {
+            return function.apply(self, objects);
           }
 
           @Override

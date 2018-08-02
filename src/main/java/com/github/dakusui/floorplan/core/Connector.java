@@ -30,6 +30,11 @@ public class Connector {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s.%s", from, fromAttr);
+  }
+
   static Connector connector(Ref from, Attribute fromAttr) {
     return new Connector(from, fromAttr);
   }

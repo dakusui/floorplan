@@ -2,31 +2,42 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.ut.utils.UtBase;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
+import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.Default.methodCall;
 
 public class ObjectSynthesizerTest extends UtBase {
+  private X fallbackObject;
+
   interface A {
+    // ReflectivelyCalled
+    @SuppressWarnings("unused")
     String aMethod();
   }
 
   interface B {
+    // ReflectivelyCalled
+    @SuppressWarnings("unused")
     String bMethod();
   }
 
   interface C {
+    // ReflectivelyCalled
+    @SuppressWarnings("unused")
     String cMethod();
   }
 
   interface X extends A, B, C {
+    // ReflectivelyCalled
+    @SuppressWarnings("unused")
     String xMethod();
   }
 
-  @Test
-  public void test() {
-    Object fallbackObject = new X() {
+  @Before
+  public void before() {
+    this.fallbackObject = new X() {
       @Override
       public String xMethod() {
         return "xMethod";
@@ -47,9 +58,13 @@ public class ObjectSynthesizerTest extends UtBase {
         return "aMethod";
       }
     };
+  }
+
+  @Test
+  public void whenMethodsCalled$thenProxiedToIntendedMethods() {
     X x = ObjectSynthesizer.builder(X.class)
-        .handle(methodCall("aMethod").with(args -> "a is called"))
-        .handle(methodCall("bMethod").with(args -> "b is called"))
+        .handle(methodCall("aMethod").with((self, args) -> "a is called"))
+        .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
         .synthesize();
     assertThat(
@@ -62,11 +77,32 @@ public class ObjectSynthesizerTest extends UtBase {
             asString("xMethod").equalTo("xMethod").$(),
             asInteger(call("xMethod").andThen("toString").andThen("length").$()).equalTo(7).$()
         ));
-    System.out.println(x.aMethod());
-    System.out.println(x.bMethod());
-    System.out.println(x.toString());
-    System.out.println(x.cMethod());
-    System.out.println(x.xMethod());
   }
 
+
+  @Test
+  public void whenEqualsOnSameObject$thenTrue() {
+    X x = ObjectSynthesizer.builder(X.class)
+        .handle(methodCall("aMethod").with((self, args) -> "a is called"))
+        .handle(methodCall("bMethod").with((self, args) -> "b is called"))
+        .fallbackTo(fallbackObject)
+        .synthesize();
+    assertThat(
+        x,
+        asBoolean("equals", x).isTrue().$()
+    );
+  }
+
+  @Test
+  public void whenEqualsOnAnotherObject$thenFalse() {
+    X x = ObjectSynthesizer.builder(X.class)
+        .handle(methodCall("aMethod").with((self, args) -> "a is called"))
+        .handle(methodCall("bMethod").with((self, args) -> "b is called"))
+        .fallbackTo(fallbackObject)
+        .synthesize();
+    assertThat(
+        x,
+        asBoolean("equals", this.fallbackObject).isFalse().$()
+    );
+  }
 }
