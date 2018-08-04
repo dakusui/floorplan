@@ -1,6 +1,5 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 import com.github.dakusui.floorplan.ut.tdesc.UtTsDescProfile;
 import com.github.dakusui.floorplan.ut.tdesc.UtTsDescriptorFactory;
@@ -12,7 +11,6 @@ import static com.github.dakusui.crest.Crest.*;
 public class TestSuiteDescriptorTest {
   @Test
   public void givenUtTestSuiteDesc$when$then() {
-    Context context = InternalUtils.newContext();
     assertThat(
         new UtTsDescriptorFactory().create(new UtTsDescProfile()),
         allOf(

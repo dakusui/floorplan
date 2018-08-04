@@ -149,7 +149,14 @@ public class InternalUtils {
     }
   }
 
-  public static <A extends Attribute> List<Field> attributeFields(Class<A> attrType) {
+  public static <A extends Attribute> String determineAttributeName(Class<? extends A> attributeClass, A attribute) {
+    return attributeFields(attributeClass).stream()
+        .filter(s -> Objects.equals(InternalUtils.getStaticFieldValue(s), attribute))
+        .map(Field::getName)
+        .findFirst().orElseThrow(RuntimeException::new);
+  }
+
+  private static <A extends Attribute> List<Field> attributeFields(Class<A> attrType) {
     return Arrays.stream(attrType.getFields())
         .filter(field -> Modifier.isStatic(field.getModifiers()))
         .filter(field -> Modifier.isFinal(field.getModifiers()))
@@ -157,12 +164,5 @@ public class InternalUtils {
         .filter(field -> field.getType().isAssignableFrom(field.getType()))
         .sorted(Comparator.comparing(Field::getName))
         .collect(Collectors.toList());
-  }
-
-  public static <A extends Attribute> String determineAttributeName(Class<? extends A> attributeClass, A attribute) {
-    return attributeFields(attributeClass).stream()
-        .filter(s -> Objects.equals(InternalUtils.getStaticFieldValue(s), attribute))
-        .map(Field::getName)
-        .findFirst().orElseThrow(RuntimeException::new);
   }
 }

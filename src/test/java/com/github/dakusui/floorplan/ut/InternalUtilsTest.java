@@ -20,6 +20,22 @@ public class InternalUtilsTest {
     );
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void givenParallelStream$whenCollectBySingletonCollector$thenExceptionThrown() {
+    Stream.of("hello", "world").parallel().collect(singletonCollector());
+  }
+
+  @Test
+  public void givenParallelStreamWithOneElement$whenCollectBySingletonCollector$thenExceptionThrown() {
+    assertThat(
+        Stream.of("hello", "world").filter(s -> s.equals("world")).parallel().collect(singletonCollector()),
+        allOf(
+            asBoolean("isPresent").isTrue().$(),
+            asString("get").equalTo("world").$()
+        )
+    );
+  }
+
   @Test
   public void givenEmptyStream$whenCollectBySingletonCollector$thenEmptyReturned() {
     assertThat(
