@@ -79,7 +79,6 @@ public class ObjectSynthesizerTest extends UtBase {
         ));
   }
 
-
   @Test
   public void whenEqualsOnSameObject$thenTrue() {
     X x = ObjectSynthesizer.builder(X.class)
@@ -89,8 +88,10 @@ public class ObjectSynthesizerTest extends UtBase {
         .synthesize();
     assertThat(
         x,
-        asBoolean("equals", x).isTrue().$()
-    );
+        allOf(
+            asBoolean("equals", x).isTrue().$(),
+            asBoolean("equals", fallbackObject).isTrue().$()
+        ));
   }
 
   @Test
@@ -102,7 +103,7 @@ public class ObjectSynthesizerTest extends UtBase {
         .synthesize();
     assertThat(
         x,
-        asBoolean("equals", this.fallbackObject).isFalse().$()
+        asBoolean("equals", "Hello").isFalse().$()
     );
   }
 }

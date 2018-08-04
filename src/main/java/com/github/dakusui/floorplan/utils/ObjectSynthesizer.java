@@ -1,5 +1,7 @@
 package com.github.dakusui.floorplan.utils;
 
+import com.github.dakusui.floorplan.exception.Exceptions;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -72,7 +74,7 @@ public abstract class ObjectSynthesizer<T> {
           method.setAccessible(wasAccessible);
         }
       } catch (IllegalAccessException | InvocationTargetException e) {
-        throw new RuntimeException(e);
+        throw Exceptions.rethrow(e);
       }
     }
 
@@ -120,14 +122,15 @@ public abstract class ObjectSynthesizer<T> {
       }
 
       public T synthesize() {
-        return this.handle(
-            // a default for 'equals' method. If and only if given args is the same object
-            // as itself ('this'), true will be returned.
-            methodCall("equals", Object.class).with(
-                (self, objects) -> self == objects[0]
-            )
-        ).build(
-        ).synthesize();
+        return this
+            .handle(
+                // a default for 'equals' method. If and only if given args is the same object
+                // as itself ('this'), true will be returned.
+                methodCall("equals", Object.class).with(
+                    (self, objects) -> self == objects[0] || fallbackObject.equals(objects[0])
+                ))
+            .build()
+            .synthesize();
       }
     }
   }
