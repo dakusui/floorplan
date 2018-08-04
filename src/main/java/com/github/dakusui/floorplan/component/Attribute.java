@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.inconsistentSpec;
-import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
@@ -124,58 +123,6 @@ public interface Attribute {
    */
   <A extends Attribute, B extends Bean<A>> B bean();
 
-  static <A extends Attribute> A create(String attrName, Bean<A> bean) {
-    return create(attrName, bean.spec.attributeType(), bean);
-  }
-
-  /**
-   * Use this method with care.
-   * This method is used to create an attribute that needs to specify a type to which
-   * it belongs. Such as an attribute defined in an interface, not in an {@code Enum},
-   * and references to another defined in a super-interface.
-   *
-   * @param attrName A name of the attribute to be created
-   * @param attrType A type of the attribute to be created. Not to be confused with
-   *                 type of the value of the attribute.
-   * @param bean     An object that holds contents of the attribute to be created.
-   * @param <A>      A type of attribute, represented by {@code attrType}.
-   * @return Created attribute.
-   */
-  static <A extends Attribute> A create(String attrName, Class<A> attrType, Bean<?> bean) {
-    return ObjectSynthesizer.builder(attrType)
-        .fallbackTo(new Attribute() {
-          @SuppressWarnings("unchecked")
-          @Override
-          public <AA extends Attribute, B extends Bean<AA>> B bean() {
-            return (B) bean;
-          }
-
-          public String toString() {
-            return attrName;
-          }
-
-          public String name() {
-            return attrName;
-          }
-
-          @Override
-          public int hashCode() {
-            return attrName.hashCode();
-          }
-
-          @Override
-          public boolean equals(Object anotherObject) {
-            if (anotherObject instanceof Attribute) {
-              Attribute another = (Attribute) anotherObject;
-              return this.spec().attributeType().equals(another.spec().attributeType()) &&
-                  this.name().equals(another.name());
-            }
-            return false;
-          }
-        })
-        .synthesize();
-  }
-
   /**
    * @param bean An object that holds contents of the attribute to be created.
    * @param <A>  A type of attribute, represented by {@code attrType}.
@@ -217,14 +164,6 @@ public interface Attribute {
             .filter(field -> Attribute.class.isAssignableFrom(attrType))
             .filter(field -> field.getType().isAssignableFrom(field.getType()))
             .sorted(Comparator.comparing(Field::getName))
-            .peek(field ->
-                require(
-                    InternalUtils.<Attribute>getStaticFieldValue(field).name(),
-                    n -> Objects.equals(n, field.getName()),
-                    n -> inconsistentSpec(
-                        () -> String.format(
-                            "Attribute '%s' has to have the same name as the name of the field (%s) to which it is assigned.", n, field.getName()
-                        ))))
             .map(InternalUtils::getStaticFieldValue)
             .map(a -> (A) a)
             .collect(attributeCollector()).values());
