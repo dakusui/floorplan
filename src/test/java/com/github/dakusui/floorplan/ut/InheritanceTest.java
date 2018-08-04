@@ -137,7 +137,7 @@ public class InheritanceTest {
 
   public static class L1 {
     public interface Attr extends Attribute {
-      Attr NAME = Attribute.create("NAME", SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
+      Attr NAME = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
     }
 
     public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();

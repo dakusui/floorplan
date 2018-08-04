@@ -161,12 +161,8 @@ public class InternalUtils {
 
   public static <A extends Attribute> String determineAttributeName(Class<? extends A> attributeClass, A attribute) {
     return attributeFields(attributeClass).stream()
-        .peek(s -> System.out.println("1:<" + s + ">=" + attribute))
-        .peek(s -> System.out.println("2:<" + InternalUtils.getStaticFieldValue(s) + ">"))
-        .filter(s -> InternalUtils.getStaticFieldValue(s) == attribute)
-        .peek(s -> System.out.println("3:<" + s + ">=" + attribute))
+        .filter(s -> Objects.equals(InternalUtils.getStaticFieldValue(s), attribute))
         .map(Field::getName)
-        .peek(s -> System.out.println("4:<" + s + ">"))
-        .findFirst().get();
+        .findFirst().orElseThrow(RuntimeException::new);
   }
 }

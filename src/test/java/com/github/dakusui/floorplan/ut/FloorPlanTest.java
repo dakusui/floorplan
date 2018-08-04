@@ -266,6 +266,10 @@ public class FloorPlanTest extends UtBase {
             singletonList(ref1),
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
             singletonList(simple1))
+        .configure(
+            simple1,
+            SimpleComponent.Attr.INSTANCE_NAME,
+            immediate("configured-instance-name-simple1"))
         .build());
 
     assertThat(
@@ -293,6 +297,10 @@ public class FloorPlanTest extends UtBase {
             ref1,
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
             simple1)
+        .configure(
+            simple1,
+            SimpleComponent.Attr.INSTANCE_NAME,
+            immediate("configured-instance-name-simple1"))
         .build());
 
     assertThat(

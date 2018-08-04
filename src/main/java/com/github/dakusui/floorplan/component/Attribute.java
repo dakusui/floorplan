@@ -176,6 +176,37 @@ public interface Attribute {
         .synthesize();
   }
 
+  /**
+   * @param bean An object that holds contents of the attribute to be created.
+   * @param <A>  A type of attribute, represented by {@code attrType}.
+   * @return Created attribute.
+   */
+  static <A extends Attribute> A create(Bean<A> bean) {
+    return ObjectSynthesizer.builder(bean.spec.attributeType())
+        .fallbackTo(new Attribute() {
+          String attrName = null;
+
+          @SuppressWarnings("unchecked")
+          @Override
+          public <AA extends Attribute, B extends Bean<AA>> B bean() {
+            return (B) bean;
+          }
+
+          public synchronized String toString() {
+            return attrName == null
+                ? String.format("%s.(noname)@%d", spec().attributeType().getSimpleName(), System.identityHashCode(this))
+                : attrName;
+          }
+
+          public synchronized String name() {
+            if (attrName == null)
+              attrName = InternalUtils.determineAttributeName(bean.spec.attributeType(), this);
+            return attrName;
+          }
+        })
+        .synthesize();
+  }
+
   @SuppressWarnings("unchecked")
   static <A extends Attribute> List<A> attributes(Class<A> attrType) {
     return new LinkedList<A>() {
