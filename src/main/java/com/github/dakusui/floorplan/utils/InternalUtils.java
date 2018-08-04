@@ -10,14 +10,13 @@ import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
@@ -105,7 +104,7 @@ public class InternalUtils {
 
   public static Predicate<Object> isInstanceOf(Class<?> expectedType) {
     return InternalUtils.toPrintablePredicate(
-        () ->String.format("assignableTo[%s]", expectedType.getSimpleName()),
+        () -> String.format("assignableTo[%s]", expectedType.getSimpleName()),
         expectedType.isPrimitive() ?
             v -> v != null && expectedType.isAssignableFrom(v.getClass()) :
             v -> v == null || expectedType.isAssignableFrom(v.getClass())
@@ -114,7 +113,7 @@ public class InternalUtils {
 
   public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
     return InternalUtils.toPrintablePredicate(
-        () ->String.format("hasSpecOf[%s]", spec),
+        () -> String.format("hasSpecOf[%s]", spec),
         (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
     );
   }
@@ -150,4 +149,24 @@ public class InternalUtils {
     }
   }
 
+  public static <A extends Attribute> List<Field> attributeFields(Class<A> attrType) {
+    return Arrays.stream(attrType.getFields())
+        .filter(field -> Modifier.isStatic(field.getModifiers()))
+        .filter(field -> Modifier.isFinal(field.getModifiers()))
+        .filter(field -> Attribute.class.isAssignableFrom(attrType))
+        .filter(field -> field.getType().isAssignableFrom(field.getType()))
+        .sorted(Comparator.comparing(Field::getName))
+        .collect(Collectors.toList());
+  }
+
+  public static <A extends Attribute> String determineAttributeName(Class<? extends A> attributeClass, A attribute) {
+    return attributeFields(attributeClass).stream()
+        .peek(s -> System.out.println("1:<" + s + ">=" + attribute))
+        .peek(s -> System.out.println("2:<" + InternalUtils.getStaticFieldValue(s) + ">"))
+        .filter(s -> InternalUtils.getStaticFieldValue(s) == attribute)
+        .peek(s -> System.out.println("3:<" + s + ">=" + attribute))
+        .map(Field::getName)
+        .peek(s -> System.out.println("4:<" + s + ">"))
+        .findFirst().get();
+  }
 }

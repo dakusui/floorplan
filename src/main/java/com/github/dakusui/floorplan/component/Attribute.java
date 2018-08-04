@@ -157,6 +157,21 @@ public interface Attribute {
           public String name() {
             return attrName;
           }
+
+          @Override
+          public int hashCode() {
+            return attrName.hashCode();
+          }
+
+          @Override
+          public boolean equals(Object anotherObject) {
+            if (anotherObject instanceof Attribute) {
+              Attribute another = (Attribute) anotherObject;
+              return this.spec().attributeType().equals(another.spec().attributeType()) &&
+                  this.name().equals(another.name());
+            }
+            return false;
+          }
         })
         .synthesize();
   }
