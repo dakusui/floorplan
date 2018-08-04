@@ -102,11 +102,6 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this.ref;
     }
 
-    @Override
-    public ComponentSpec<A> spec() {
-      return this.spec;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<Resolver<? super A, T>> resolverFor(A attr) {

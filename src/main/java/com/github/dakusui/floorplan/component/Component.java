@@ -145,12 +145,6 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ComponentSpec<A> spec() {
-      return (ComponentSpec<A>) ref.spec();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public Action actionFor(Operator.Type op) {
       return this.operators.computeIfAbsent(
           requireNonNull(op),

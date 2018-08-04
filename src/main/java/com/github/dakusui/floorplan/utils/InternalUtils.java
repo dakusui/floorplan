@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.inconsistentSpec;
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
@@ -165,4 +166,46 @@ public class InternalUtils {
         .sorted(Comparator.comparing(Field::getName))
         .collect(Collectors.toList());
   }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Attribute> List<A> attributes(Class<A> attrType) {
+    return new LinkedList<A>() {
+      {
+        addAll(Arrays.stream(attrType.getFields())
+            .filter(field -> Modifier.isStatic(field.getModifiers()))
+            .filter(field -> Modifier.isFinal(field.getModifiers()))
+            .filter(field -> Attribute.class.isAssignableFrom(attrType))
+            .filter(field -> field.getType().isAssignableFrom(field.getType()))
+            .sorted(Comparator.comparing(Field::getName))
+            .map(InternalUtils::getStaticFieldValue)
+            .map(a -> (A) a)
+            .collect(attributeCollector()).values());
+      }
+    };
+  }
+
+  public static <A extends Attribute> Collector<A, Map<String, A>, Map<String, A>> attributeCollector() {
+    return Collector.of(
+        LinkedHashMap::new,
+        (map, attr) -> {
+          String key = attr.name();
+          updateMapWithGivenAttributeIfNecessary(map, key, attr);
+        },
+        (Map<String, A> mapA, Map<String, A> mapB) -> new LinkedHashMap<String, A>() {{
+          putAll(mapA);
+          Map<String, A> map = this;
+          mapB.forEach((key, attr) -> updateMapWithGivenAttributeIfNecessary(map, key, attr));
+        }});
+  }
+
+  public static <A extends Attribute> void updateMapWithGivenAttributeIfNecessary(Map<String, A> map, String key, A attr) {
+    if (map.containsKey(key))
+      map.put(key,
+          attr.moreSpecialized(map.get(key)).orElseThrow(
+              inconsistentSpec(Exceptions.inconsistentSpecMessageSupplier(map.get(key), attr)))
+      );
+    else
+      map.put(key, attr);
+  }
+
 }

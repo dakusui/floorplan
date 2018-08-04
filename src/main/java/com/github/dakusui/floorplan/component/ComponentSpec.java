@@ -1,5 +1,7 @@
 package com.github.dakusui.floorplan.component;
 
+import com.github.dakusui.floorplan.utils.InternalUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,7 @@ public interface ComponentSpec<A extends Attribute> {
   Class<A> attributeType();
 
   default List<A> attributes() {
-    return Attribute.attributes(attributeType());
+    return InternalUtils.attributes(attributeType());
   }
 
   default Attribute.Bean.Builder<A> property(Class<?> type) {
