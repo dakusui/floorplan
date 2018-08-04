@@ -5,7 +5,6 @@ import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.exception.InconsistentSpec;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
@@ -128,16 +127,9 @@ public class InheritanceTest {
     );
   }
 
-
-  @Test(expected = InconsistentSpec.class)
-  public void testL3$whenBuilt$thenError() {
-    Ref cut = Ref.ref(LE.SPEC, "1");
-    buildPolicy(UtUtils.createUtFloorPlan().add(cut), L1.SPEC, L2.SPEC, L3.SPEC, LE.SPEC).fixtureConfigurator().build();
-  }
-
   public static class L1 {
     public interface Attr extends Attribute {
-      Attr NAME = Attribute.create("NAME", SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
+      Attr NAME = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
     }
 
     public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
@@ -146,14 +138,10 @@ public class InheritanceTest {
   public static class L2 {
     public interface Attr extends L1.Attr {
       Attr NAME2 = Attribute.create(
-          "NAME2",
-          Attr.class,
           SPEC.property(String.class).defaultsTo(referenceTo(L1.Attr.NAME)).$()
       );
 
       Attr NAME3 = Attribute.create(
-          "NAME3",
-          Attr.class,
           SPEC.property(String.class).defaultsTo(transform(
               referenceTo(L1.Attr.NAME),
               mapper(v -> v + ":" + v))).$()
@@ -166,24 +154,9 @@ public class InheritanceTest {
   public static class L3 {
     public interface Attr extends L2.Attr {
       Attr NAME3 = Attribute.create(
-          "NAME3",
-          Attr.class,
           SPEC.property(String.class).defaultsTo(immediate("overridden")).$());
     }
 
     public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
   }
-
-  public static class LE {
-    public interface Attr extends L2.Attr {
-      @SuppressWarnings("unused")
-      Attr NAME3 = Attribute.create(
-          "NAMEE",
-          Attr.class,
-          SPEC.property(String.class).defaultsTo(immediate("overridden")).$());
-    }
-
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
-  }
-
 }
