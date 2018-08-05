@@ -9,26 +9,65 @@ import java.util.Map;
 import static com.github.dakusui.floorplan.utils.InternalUtils.*;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An interface to describe a certain component's specification.
+ *
+ * @param <A> A type of attributes to describe the component.
+ * @see Attribute.Bean
+ * @see Attribute
+ */
 public interface ComponentSpec<A extends Attribute> {
+  /**
+   * Creates a new {@code Configurator} instance with specified {@code id} of a
+   * component described by this object.
+   *
+   * @param id An id of a new configurator.
+   * @return A new configurator.
+   */
   Configurator<A> configurator(String id);
 
+  /**
+   * A class of attributes that describe a components specification
+   *
+   * @return A class of an attribute.
+   */
   Class<A> attributeType();
 
+  /**
+   * Returns mappings from a type operator type to a factory of a corresponding
+   * operator.
+   *
+   * @return A map from an operator type to a factory of an operator.
+   */
+  Map<Operator.Type, Operator.Factory<A>> operatorFactories();
+
+  /**
+   * Returns a list of all attributes to describe the component.
+   *
+   * @return A list of attributes.
+   */
   default List<A> attributes() {
     return InternalUtils.attributes(attributeType());
   }
 
+
+  /**
+   * Returns a new builder of an attribute bean for a given type.
+   *
+   * @param type A type of an attribute value for which the bean works.
+   * @return A new attribute bean builder.
+   */
   default Attribute.Bean.Builder<A> property(Class<?> type) {
     return new Attribute.Bean.Builder<>(this, type, isInstanceOf(type));
   }
 
   /**
-   * Returns a builder to create an attribute that references to another component
+   * Returns a new builder to create an attribute that references to another component
    * of a specified type.
    *
    * @param spec A type of a component referenced by an attribute built by returned
    *             builder.
-   * @return An attribute bean builder.
+   * @return An new attribute bean builder.
    */
   default Attribute.Bean.Builder<A> property(ComponentSpec<?> spec) {
     return new Attribute.Bean.Builder<>(
@@ -37,6 +76,12 @@ public interface ComponentSpec<A extends Attribute> {
         isInstanceOf(Ref.class).and(hasSpecOf(spec)));
   }
 
+  /**
+   * Returns a new builder of an attribute bean for a list of given type.
+   *
+   * @param type A type of elements in a new attribute value.
+   * @return A new attribute bean builder.
+   */
   default Attribute.Bean.Builder<A> listPropertyOf(Class<?> type) {
     return new Attribute.Bean.Builder<>(
         this,
@@ -45,6 +90,13 @@ public interface ComponentSpec<A extends Attribute> {
     );
   }
 
+  /**
+   * Returns a new builder of an attribute bean for a list of references to
+   * component instances/configurators of a given {@code spec}.
+   *
+   * @param spec A spec of elements in a new attribute value reference to.
+   * @return A new attribute bean builder.
+   */
   default Attribute.Bean.Builder<A> listPropertyOf(ComponentSpec<?> spec) {
     return new Attribute.Bean.Builder<>(
         this,
@@ -52,8 +104,6 @@ public interface ComponentSpec<A extends Attribute> {
         isInstanceOf(List.class).and(forAll(isInstanceOf(Ref.class).and(hasSpecOf(spec))))
     );
   }
-
-  Map<Operator.Type, Operator.Factory<A>> operatorFactories();
 
   class Impl<A extends Attribute> implements ComponentSpec<A> {
     private final Class<A>                                attributeType;
@@ -88,11 +138,23 @@ public interface ComponentSpec<A extends Attribute> {
 
   }
 
+  /**
+   * A builder for a {@code ComponentSpec}.
+   *
+   * @param <A> A type of attribute that characterizes an instance of the component spec.
+   */
   class Builder<A extends Attribute> {
-    private final Class<A>                             attributeType;
-    private final String                               specName;
+    private final Class<A>                                attributeType;
+    private final String                                  specName;
     private       Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
+    /**
+     * Creates a new instance of this class with given {@code specName} and {@code attributeType}.
+     *
+     * @param specName      A name of the spec.
+     * @param attributeType A type of attributes that characterize an instance of
+     *                      a given spec.
+     */
     public Builder(String specName, Class<A> attributeType) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);

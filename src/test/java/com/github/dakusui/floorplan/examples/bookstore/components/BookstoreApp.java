@@ -79,9 +79,7 @@ public class BookstoreApp {
                   "ssh -l root@%s sed -i /etc/bookstoreapp.conf 's!dbms=__DBMS__!dbms=%s!g'",
                   component.valueOf(Attr.WEBSERVER_HOST),
                   component.valueOf(Attr.DBSERVER_ENDPOINT)
-              ))
-          )
-      )
+              ))))
   ).addOperatorFactory(
       Operator.Factory.of(
           Operator.Type.UNINSTALL,
