@@ -4,14 +4,10 @@ import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 
-import static com.github.dakusui.floorplan.exception.Exceptions.inconsistentSpec;
 import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
@@ -152,57 +148,6 @@ public interface Attribute {
           }
         })
         .synthesize();
-  }
-
-  @SuppressWarnings("unchecked")
-  static <A extends Attribute> List<A> attributes(Class<A> attrType) {
-    return new LinkedList<A>() {
-      {
-        addAll(Arrays.stream(attrType.getFields())
-            .filter(field -> Modifier.isStatic(field.getModifiers()))
-            .filter(field -> Modifier.isFinal(field.getModifiers()))
-            .filter(field -> Attribute.class.isAssignableFrom(attrType))
-            .filter(field -> field.getType().isAssignableFrom(field.getType()))
-            .sorted(Comparator.comparing(Field::getName))
-            .map(InternalUtils::getStaticFieldValue)
-            .map(a -> (A) a)
-            .collect(attributeCollector()).values());
-      }
-    };
-  }
-
-  static <A extends Attribute> Collector<A, Map<String, A>, Map<String, A>> attributeCollector() {
-    return Collector.of(
-        LinkedHashMap::new,
-        (map, attr) -> {
-          String key = attr.name();
-          updateMapWithGivenAttributeIfNecessary(map, key, attr);
-        },
-        (Map<String, A> mapA, Map<String, A> mapB) -> new LinkedHashMap<String, A>() {{
-          putAll(mapA);
-          Map<String, A> map = this;
-          mapB.forEach((key, attr) -> updateMapWithGivenAttributeIfNecessary(map, key, attr));
-        }});
-  }
-
-  static <A extends Attribute> void updateMapWithGivenAttributeIfNecessary(Map<String, A> map, String key, A attr) {
-    if (map.containsKey(key))
-      map.put(key,
-          attr.moreSpecialized(map.get(key)).orElseThrow(
-              inconsistentSpec(inconsistentSpecMessageSupplier(map.get(key), attr)))
-      );
-    else
-      map.put(key, attr);
-  }
-
-  static <A extends Attribute> Supplier<String> inconsistentSpecMessageSupplier(A attr1, A attr2) {
-    return () -> String.format(
-        "It cannot be determined which is more special between '%s'(%s) and '%s'(%s)",
-        attr2,
-        attr2.getClass(),
-        attr1,
-        attr1.getClass()
-    );
   }
 
   final class Bean<A extends Attribute> {

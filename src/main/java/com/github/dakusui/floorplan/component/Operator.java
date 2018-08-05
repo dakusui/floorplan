@@ -8,6 +8,13 @@ import java.util.function.Function;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
 
+/**
+ * An interface that represents an operation performed on an instance of a certain
+ * component.
+ *
+ * @param <A> A type of attribute that describes a component where an operation is
+ *            performed.
+ */
 public interface Operator<A extends Attribute> extends Function<Component<A>, Action> {
   /**
    * This enumerates categories of actions that can be performed on a component.
@@ -40,6 +47,11 @@ public interface Operator<A extends Attribute> extends Function<Component<A>, Ac
     UNINSTALL
   }
 
+  /**
+   * Returns a type of operation.
+   *
+   * @return A type of operation.
+   */
   Type type();
 
   interface Factory<A extends Attribute> extends Function<ComponentSpec<A>, Operator<A>> {

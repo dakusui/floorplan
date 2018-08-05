@@ -13,11 +13,44 @@ import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * A {@code onfigurator} is created from a 'spec' (a {@code ComponentSpec} instance),
+ * which defines a specification of a certain component.
+ * <p>
+ * And through this interface, users can 'configure' components under test before
+ * instantiating a {@code Component} by {@code build} method.
+ * <p>
+ * In other words, a {@code Configurator} is a builder of a component.
+ *
+ * @param <A> A type of attributes that characterize a component built by this object.
+ * @see ComponentSpec
+ */
 public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
+  /**
+   * Configures a specified attribute using a given resolver.
+   *
+   * @param attr     An attribute to be configured
+   * @param resolver A resolver that provides a value to be set to {@code attr}.
+   * @return This object
+   */
   Configurator<A> configure(A attr, Resolver<A, ?> resolver);
 
+  /**
+   * Adds a specified operator factory to this object. The operator will be added
+   * to a component built by this object.
+   *
+   * @param operator An operator to be added.
+   * @return This object
+   */
   Configurator<A> addOperatorFactory(Operator.Factory<A> operator);
 
+  /**
+   * Builds a component instance using resolvers set to attributes of this object.
+   *
+   * @param policy A policy object
+   * @param pool   A pool that stores mappings from {@code ref} objects to {@code component} objects.
+   * @return A built component.
+   */
   Component<A> build(Policy policy, Map<Ref, Component<?>> pool);
 
   /**
@@ -44,8 +77,9 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     require(
         attr,
         (A a) -> a.spec().getClass().isAssignableFrom(this.spec().getClass()),
-        n -> Exceptions.inconsistentSpec(() ->
-            String.format("An attribute '%s' is not compatible with '%s'", n.name(), this.spec())
+        n -> Exceptions.inconsistentSpec(
+            () ->
+                String.format("An attribute '%s' is not compatible with '%s'", n.name(), this.spec())
         ));
     return this.<T>resolverFor(attr).orElseGet(() -> policy.fallbackResolverFor(this.ref(), attr));
   }
@@ -66,11 +100,6 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     @Override
     public Ref ref() {
       return this.ref;
-    }
-
-    @Override
-    public ComponentSpec<A> spec() {
-      return this.spec;
     }
 
     @SuppressWarnings("unchecked")

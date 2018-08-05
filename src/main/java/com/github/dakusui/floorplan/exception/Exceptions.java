@@ -89,4 +89,14 @@ public enum Exceptions {
       throw (Error) e;
     throw new RuntimeException(e);
   }
+
+  public static <A extends Attribute> Supplier<String> inconsistentSpecMessageSupplier(A attr1, A attr2) {
+    return () -> format(
+        "It cannot be determined which is more special between '%s'(%s) and '%s'(%s)",
+        attr2,
+        attr2.getClass(),
+        attr1,
+        attr1.getClass()
+    );
+  }
 }

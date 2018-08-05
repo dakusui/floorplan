@@ -51,11 +51,6 @@ public class ComponentTest {
       }
 
       @Override
-      public ComponentSpec spec() {
-        return null;
-      }
-
-      @Override
       public Action actionFor(Operator.Type op) {
         return named("name=" + op.name(), nop());
       }

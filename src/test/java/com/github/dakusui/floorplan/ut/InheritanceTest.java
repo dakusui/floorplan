@@ -7,6 +7,7 @@ import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
@@ -18,7 +19,7 @@ public class InheritanceTest {
   @Test
   public void testL1() {
     assertThat(
-        Attribute.attributes(L1.Attr.class),
+        InternalUtils.attributes(L1.Attr.class),
         allOf(
             asInteger("size").equalTo(1).$(),
             asString(
@@ -30,7 +31,7 @@ public class InheritanceTest {
   @Test
   public void testL2() {
     assertThat(
-        Attribute.attributes(L2.Attr.class),
+        InternalUtils.attributes(L2.Attr.class),
         allOf(
             asInteger("size").equalTo(3).$(),
             asString(
@@ -48,7 +49,7 @@ public class InheritanceTest {
   @Test
   public void testL3() {
     assertThat(
-        Attribute.attributes(L3.Attr.class),
+        InternalUtils.attributes(L3.Attr.class),
         allOf(
             asInteger("size").equalTo(3).$(),
             asString(
