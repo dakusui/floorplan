@@ -4,5 +4,5 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.resolver.Resolver;
 
 public interface Slot {
-  <A extends Attribute, T> Resolver<A, T> resolverFor(String key);
+  <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key);
 }

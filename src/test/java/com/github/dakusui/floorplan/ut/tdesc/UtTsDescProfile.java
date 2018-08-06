@@ -13,7 +13,7 @@ public class UtTsDescProfile implements Profile {
     return new Slot() {
       @SuppressWarnings("unchecked")
       @Override
-      public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
+      public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
         return Resolvers.immediate((T)String.format("valueFor:%s@%s", ref.toString(), key));
       }
     };
