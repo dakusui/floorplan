@@ -82,6 +82,11 @@ public class BookstoreProfile implements Profile {
   }
 
   @Override
+  public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
+    throw new RuntimeException("Unknown key:" + key);
+  }
+
+  @Override
   public String toString() {
     return this.getCategory().name();
   }

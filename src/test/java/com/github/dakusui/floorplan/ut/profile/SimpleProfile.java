@@ -30,4 +30,13 @@ public class SimpleProfile implements Profile {
         a -> c -> p -> (T) (String.format("profile(%s)", key))
     );
   }
+
+  @Override
+  public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
+    return Resolver.of(
+        a -> c -> p -> {
+          throw new UnsupportedOperationException();
+        }
+    );
+  }
 }
