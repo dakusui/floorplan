@@ -40,7 +40,7 @@ public class BookstoreProfile implements Profile {
       return new Slot() {
         @SuppressWarnings("unchecked")
         @Override
-        public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
+        public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
           if ("hostname".equals(key))
             return Resolvers.immediate((T) String.format("%s.localdomain", hostname("webserver")));
           if ("port".equals(key))
@@ -52,7 +52,7 @@ public class BookstoreProfile implements Profile {
       return new Slot() {
         @SuppressWarnings("unchecked")
         @Override
-        public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
+        public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
           if ("hostname".equals(key))
             return Resolvers.immediate((T) String.format("%s.localdomain", hostname("dbserver")));
           if ("port".equals(key))
@@ -64,7 +64,7 @@ public class BookstoreProfile implements Profile {
       return new Slot() {
         @SuppressWarnings("unchecked")
         @Override
-        public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
+        public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
           if ("hostname".equals(key))
             return Resolvers.immediate((T) String.format("%s.localdomain", hostname("proxy")));
           if ("port".equals(key))
