@@ -14,6 +14,8 @@ public interface Profile {
 
   <A extends Attribute, T> Resolver<A, T> resolverFor(String key);
 
+  <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key);
+
   interface Factory<P extends Profile> {
     P create();
   }

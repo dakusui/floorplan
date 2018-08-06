@@ -14,7 +14,7 @@ public class UtTsDescProfile implements Profile {
       @SuppressWarnings("unchecked")
       @Override
       public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
-        return Resolvers.immediate((T)String.format("valueFor:%s@%s", ref.toString(), key));
+        return Resolvers.immediate((T) String.format("valueFor:%s@%s", ref.toString(), key));
       }
     };
   }
@@ -22,6 +22,11 @@ public class UtTsDescProfile implements Profile {
   @SuppressWarnings("unchecked")
   @Override
   public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
-    return Resolvers.immediate((T)String.format("valurFor:%s", key));
+    return Resolvers.immediate((T) String.format("valurFor:%s", key));
+  }
+
+  @Override
+  public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
+    throw new UnsupportedOperationException();
   }
 }
