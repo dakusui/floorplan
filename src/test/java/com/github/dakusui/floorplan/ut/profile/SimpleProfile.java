@@ -17,7 +17,7 @@ public class SimpleProfile implements Profile {
     return slots.computeIfAbsent(ref, r1 -> new Slot() {
       @SuppressWarnings("unchecked")
       @Override
-      public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
+      public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
         return Resolver.of(a -> c -> p -> (T) (String.format("slot(%s, %s)", r1, key)));
       }
     });
