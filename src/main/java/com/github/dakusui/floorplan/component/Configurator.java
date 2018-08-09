@@ -61,7 +61,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param <T>  Type of a value of an attribute {@code attr}.
    * @return An optional of a resolver for the given attribute {@code attr}.
    */
-  <T> Optional<Resolver<? super A, T>> resolverFor(A attr);
+  <T> Optional<Resolver<A, T>> resolverFor(A attr);
 
   /**
    * Returns a resolver for a specified attribute {@code attr}. If no resolver is
@@ -73,7 +73,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param <T>    A type of attribute value.
    * @return A resolver for the given attribute {@code attr}.
    */
-  default <T> Resolver<? super A, T> resolverFor(A attr, Policy policy) {
+  default <T> Resolver<A, T> resolverFor(A attr, Policy policy) {
     require(
         attr,
         (A a) -> a.spec().getClass().isAssignableFrom(this.spec().getClass()),
@@ -104,7 +104,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Optional<Resolver<? super A, T>> resolverFor(A attr) {
+    public <T> Optional<Resolver<A, T>> resolverFor(A attr) {
       return resolvers.containsKey(attr) ?
           Optional.of((Resolver<A, T>) resolvers.get(attr)) :
           Optional.empty();
