@@ -4,16 +4,21 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FloorPlan;
+import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
+import com.github.dakusui.floorplan.examples.bookstore.tdescs.BasicTestDescFactory;
+import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 
+import java.util.function.Predicate;
+
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
+import static com.github.dakusui.floorplan.component.Operator.Type.NUKE;
+import static com.github.dakusui.floorplan.component.Operator.Type.START;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public class SmokeTestDescFactory extends BasicTestDescFactory {
@@ -28,7 +33,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected int numOracles() {
+  protected int numTestOracles() {
     return 2;
   }
 
@@ -72,29 +77,31 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected FloorPlan configureFloorPlan(FloorPlan floorPlan) {
-    return floorPlan.add(APP, HTTPD, DBMS, PROXY)
+  protected FixtureDescriptor buildFixtureDescriptor(FixtureDescriptor.Builder builder) {
+    return builder
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
-        .requireProfile(InternalUtils.toPrintablePredicate(
-            () -> "isInstanceOf[BookstoreProfile]",
-            p -> p instanceof BookstoreProfile)
-        );
+        .addOperatorFactory(
+            PROXY,
+            Operator.Factory.of(
+                START,
+                c -> named("configuredStart", nop())))
+        .addOperatorFactory(
+            PROXY,
+            Operator.Factory.of(
+                NUKE,
+                c -> named("configuredNuke", nop())
+            ))
+        .build();
   }
 
   @Override
-  protected FixtureConfigurator configureFixture(FixtureConfigurator fixtureConfigurator) {
-    fixtureConfigurator.lookUp(PROXY).addOperatorFactory(
-        Operator.Factory.of(
-            Operator.Type.START,
-            c -> named("configuredStart", nop())
-        )).addOperatorFactory(
-        Operator.Factory.of(
-            Operator.Type.NUKE,
-            c -> named("configuredNuke", nop())
-        ));
-    return fixtureConfigurator;
+  protected Predicate<Profile> profileRequirement() {
+    return InternalUtils.toPrintablePredicate(
+        () -> "isInstanceOf[BookstoreProfile]",
+        profile -> profile instanceof BookstoreProfile
+    );
   }
 
   @Override
@@ -102,6 +109,3 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
     return requireNonNull(fixture).lookUp(PROXY).valueOf(Nginx.Attr.ENDPOINT);
   }
 }
-
-
-

@@ -52,7 +52,7 @@ public class ResolversTest {
   @Test
   public void givenInstanceIdResolver$whenApplied$thenCorrectResultReturned() {
     assertThat(
-        Resolvers.instanceId().apply(null).<Attribute>apply(Configurator.class.cast(SimpleComponent.SPEC.configurator("2"))).apply(null),
+        Resolvers.instanceId().<Attribute>apply(Configurator.class.cast(SimpleComponent.SPEC.configurator("2"))).apply(null),
         asString().equalTo("2").$()
     );
   }
@@ -60,8 +60,8 @@ public class ResolversTest {
   @Test
   public void givenSlotValueResolver$whenToString$thenCorrectMessageReturned() {
     assertThat(
-        Resolvers.slotValue("key").toString(),
-        asString().equalTo("slotValueOf(key)").$()
+        Resolvers.slotValue(String.class, "key").toString(),
+        asString().equalTo("slotValueOf(String,key)").$()
     );
   }
 
@@ -89,7 +89,7 @@ public class ResolversTest {
   public void givenNothingResolver$whenToString$thenCorrectMessageReturned() {
     assertThat(
         Resolvers.nothing().toString(),
-        asString().equalTo("nothing").$()
+        asString().equalTo("a->nothing").$()
     );
   }
 }

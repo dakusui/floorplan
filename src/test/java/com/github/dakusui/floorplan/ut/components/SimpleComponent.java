@@ -3,11 +3,12 @@ package com.github.dakusui.floorplan.ut.components;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 
-import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
+import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
 
 public class SimpleComponent {
   public enum Attr implements Attribute {
-    INSTANCE_NAME(SPEC.property(String.class).defaultsTo(nothing()).$()),
+    INSTANCE_NAME(SPEC.property(String.class).required().$()),
     DEFAULT_TO_IMMEDIATE(SPEC.property(String.class).defaultsTo(immediate("default-value")).$()),
     DEFAULT_TO_INTERNAL_REFERENCE(SPEC.property(String.class).defaultsTo(referenceTo(INSTANCE_NAME)).$()),;
     private final Bean<Attr> bean;

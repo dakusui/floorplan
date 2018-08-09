@@ -113,9 +113,9 @@ public class InheritanceTest {
         L1.SPEC, L2.SPEC, L3.SPEC
     ).fixtureConfigurator();
     fixtureConfigurator.lookUp(cut)
-        .configure(L3.Attr.NAME, Resolver.of(a -> c -> p -> "configured-1"))
-        .configure(L3.Attr.NAME2, Resolver.of(a -> c -> p -> "configured-2"))
-        .configure(L3.Attr.NAME3, Resolver.of(a -> c -> p -> "configured-3"));
+        .configure(L3.Attr.NAME, Resolver.of(c -> p -> "configured-1"))
+        .configure(L3.Attr.NAME2, Resolver.of(c -> p -> "configured-2"))
+        .configure(L3.Attr.NAME3, Resolver.of(c -> p -> "configured-3"));
     Fixture fixture = fixtureConfigurator.build();
 
     assertThat(

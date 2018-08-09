@@ -2,6 +2,7 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.exception.IncompatibleProfile;
+import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class ExceptionsTest {
 
   @Test(expected = IncompatibleProfile.class)
   public void whenIncompatibleProfile$thenThrown() {
-    RuntimeException exception = Exceptions.incompatibleProfile(null, null).get();
+    RuntimeException exception = Exceptions.incompatibleProfile(new SimpleProfile(), p -> false).get();
     exception.printStackTrace();
   }
 

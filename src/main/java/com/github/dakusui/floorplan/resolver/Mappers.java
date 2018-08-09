@@ -8,6 +8,6 @@ public enum Mappers {
   ;
 
   public static <A extends Attribute, T, R> Mapper<A, T, R> mapper(Function<T, R> func) {
-    return Mapper.of(a -> c -> p -> func);
+    return Mapper.of(c -> p -> func);
   }
 }

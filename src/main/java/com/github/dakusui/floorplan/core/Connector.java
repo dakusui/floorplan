@@ -7,7 +7,7 @@ import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
 public class Connector {
-  private Attribute fromAttr;
+  public Attribute fromAttr;
   private Ref       from;
 
   private Connector(Ref from, Attribute fromAttr) {

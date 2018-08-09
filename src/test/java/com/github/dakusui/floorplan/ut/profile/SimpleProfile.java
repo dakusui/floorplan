@@ -18,7 +18,7 @@ public class SimpleProfile implements Profile {
       @SuppressWarnings("unchecked")
       @Override
       public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
-        return Resolver.of(a -> c -> p -> (T) (String.format("slot(%s, %s)", r1, key)));
+        return Resolver.of(c -> p -> (T) (String.format("slot(%s, %s)", r1, key)));
       }
     });
   }
@@ -26,17 +26,16 @@ public class SimpleProfile implements Profile {
   @SuppressWarnings("unchecked")
   @Override
   public <A extends Attribute, T> Resolver<A, T> resolverFor(String key) {
-    return Resolver.of(
-        a -> c -> p -> (T) (String.format("profile(%s)", key))
-    );
+    return Resolver.of(c -> p ->
+        (T) (String.format("profile(%s)", key)));
   }
 
   @Override
   public <A extends Attribute, T> Resolver<A, T> resolverFor(Class<T> requestedType, String key) {
-    return Resolver.of(
-        a -> c -> p -> {
-          throw new UnsupportedOperationException();
-        }
-    );
+    if (requestedType.isAssignableFrom(String.class))
+      return resolverFor(key);
+    return Resolver.of(c -> p -> {
+      throw new UnsupportedOperationException();
+    });
   }
 }

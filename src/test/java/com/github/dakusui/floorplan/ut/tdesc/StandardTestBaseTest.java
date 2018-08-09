@@ -29,7 +29,7 @@ public class StandardTestBaseTest extends UtBase {
 
     public static class DescFactory extends UtTsDescriptorFactory {
       @Override
-      public int numOracles() {
+      public int numTestOracles() {
         return 4;
       }
     }
@@ -45,7 +45,7 @@ public class StandardTestBaseTest extends UtBase {
 
     public static class DescFactory extends UtTsDescriptorFactory {
       @Override
-      public int numOracles() {
+      public int numTestOracles() {
         return 5;
       }
     }

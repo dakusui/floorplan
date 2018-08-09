@@ -21,7 +21,7 @@ public class ListReferenceTest {
    */
   public static class Cut {
     enum Attr implements Attribute {
-      LIST_REF_ATTR(SPEC.property(List.class).defaultsTo(nothing()).$());
+      LIST_REF_ATTR(SPEC.property(List.class).required().$());
 
       final private Bean<Attr> bean;
 

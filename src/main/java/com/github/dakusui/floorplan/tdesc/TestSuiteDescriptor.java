@@ -2,17 +2,16 @@ package com.github.dakusui.floorplan.tdesc;
 
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.policy.Policy;
+import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.policy.Profile;
+import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.named;
-import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static com.github.dakusui.floorplan.exception.Exceptions.incompatibleProfile;
+import static com.github.dakusui.floorplan.utils.Checks.require;
 
 public interface TestSuiteDescriptor {
   String getName();
@@ -41,19 +40,15 @@ public interface TestSuiteDescriptor {
     abstract class Base implements Factory {
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
-        Fixture fixture = configureFixture(
-            addComponentSpecsTo(
-                allKnownComponentSpecs(),
-                new Policy.Builder()
-            ).setFloorPlan(
-                createFloorPlan()
-            ).setProfile(
-                requireNonNull(profile)
-            ).setFixtureFactory(
-                createFixtureFactory()
-            ).build().fixtureConfigurator()
-        ).build();
+        Fixture fixture = FloorPlanUtils.buildFixture(
+            buildFixtureDescriptor(createFixtureDescriptorBuilder(profile))
+        );
+
         return new TestSuiteDescriptor() {
+          {
+            require(profile, profileRequirement(), p -> incompatibleProfile(p, profileRequirement()));
+          }
+
           @Override
           public Named setUpFirstTime() {
             return (Named) named(
@@ -85,7 +80,7 @@ public interface TestSuiteDescriptor {
 
           @Override
           public int numTestOracles() {
-            return numOracles();
+            return Base.this.numTestOracles();
           }
 
           @Override
@@ -118,6 +113,10 @@ public interface TestSuiteDescriptor {
             );
           }
 
+          public Predicate<Profile> profileRequirement() {
+            return Base.this.profileRequirement();
+          }
+
           @Override
           public String toString() {
             return String.format("%s(%s[testcases])", this.getName(), size());
@@ -125,13 +124,13 @@ public interface TestSuiteDescriptor {
         };
       }
 
-      private Fixture.Factory createFixtureFactory() {
-        return (policy, fixtureConfigurator) -> new Fixture.Impl(policy, configureFixture(fixtureConfigurator));
+      private FixtureDescriptor.Builder createFixtureDescriptorBuilder(Profile profile) {
+        return new FixtureDescriptor.Builder(profile);
       }
 
-      private FloorPlan createFloorPlan() {
-        return configureFloorPlan(new FloorPlan.Impl());
-      }
+      protected abstract FixtureDescriptor buildFixtureDescriptor(FixtureDescriptor.Builder fixtureDescriptorBuilder);
+
+      protected abstract Predicate<Profile> profileRequirement();
 
       protected abstract String name();
 
@@ -141,11 +140,7 @@ public interface TestSuiteDescriptor {
 
       protected abstract int numTests();
 
-      protected abstract int numOracles();
-
-      protected abstract FixtureConfigurator configureFixture(FixtureConfigurator fixtureConfigurator);
-
-      protected abstract List<ComponentSpec<?>> allKnownComponentSpecs();
+      protected abstract int numTestOracles();
 
       protected abstract Action createActionForSetUp(int testCaseId, Fixture fixture);
 
@@ -156,13 +151,6 @@ public interface TestSuiteDescriptor {
       protected abstract Action createActionForTearDown(int testCaseId, Fixture fixture);
 
       protected abstract Action createActionForTearDownLastTime(Fixture fixture);
-
-      protected abstract FloorPlan configureFloorPlan(FloorPlan floorPlan);
-
-      private Policy.Builder addComponentSpecsTo(List<ComponentSpec<?>> specs, Policy.Builder policyBuilder) {
-        specs.forEach(policyBuilder::addComponentSpec);
-        return policyBuilder;
-      }
     }
   }
 }

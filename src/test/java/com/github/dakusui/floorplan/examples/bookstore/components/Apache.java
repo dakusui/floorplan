@@ -13,8 +13,8 @@ import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 
 public class Apache {
   public enum Attr implements Attribute {
-    HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue("hostname")).$()),
-    PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
+    HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue(String.class, "hostname")).$()),
+    PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue(Integer.class, "port")).$()),
     DATADIR(SPEC.property(String.class).defaultsTo(immediate("/var/apache/www")).$());
     private final Bean<Attr> bean;
 

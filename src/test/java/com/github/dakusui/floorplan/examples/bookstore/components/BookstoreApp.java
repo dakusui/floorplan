@@ -15,14 +15,14 @@ import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
 public class BookstoreApp {
   public enum Attr implements Attribute {
     APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    WEBSERVER(SPEC.property(Apache.SPEC).defaultsTo(nothing()).$()),
+    WEBSERVER(SPEC.property(Apache.SPEC).required().$()),
     WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
     WEBSERVER_PORT(SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()),
-    DBSERVER(SPEC.property(PostgreSQL.SPEC).defaultsTo(nothing()).$()),
+    DBSERVER(SPEC.property(PostgreSQL.SPEC).required().$()),
     @SuppressWarnings("unchecked")
     DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
-            a -> c -> p -> {
+            c -> p -> {
               Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
               return String.format(
                   "jdbc:postgresql://%s:%s/%s",
@@ -36,7 +36,7 @@ public class BookstoreApp {
     ).$()),
     ENDPOINT(SPEC.property(String.class).defaultsTo(
         Resolver.of(
-            a -> c -> p -> {
+            c -> p -> {
               Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
               return String.format(
                   "http://%s:%s/%s",

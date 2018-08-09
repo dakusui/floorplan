@@ -65,7 +65,7 @@ public class FloorPlanTest extends UtBase {
 
     Fixture fixture = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
-            .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, profileValue("configured-instance-name-simple1"))
+            .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, profileValue(String.class, "configured-instance-name-simple1"))
             .build()
     );
 
@@ -98,7 +98,7 @@ public class FloorPlanTest extends UtBase {
             .configure(
                 simple1,
                 SimpleComponent.Attr.INSTANCE_NAME,
-                slotValue("configured-instance-name-simple1"))
+                slotValue(String.class, "configured-instance-name-simple1"))
             .build()
     );
 
@@ -189,7 +189,7 @@ public class FloorPlanTest extends UtBase {
             asObject(
                 call("resolverFor", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE)
                     .andThen("get")
-                    .andThen("apply", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, fixtureConfigurator.lookUp(ref1), policy)
+                    .andThen("apply", fixtureConfigurator.lookUp(ref1), policy)
                     .$()
             ).isInstanceOf(
                 Ref.class

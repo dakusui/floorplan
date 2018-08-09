@@ -1,9 +1,11 @@
 package com.github.dakusui.floorplan.ut.components;
 
-import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Operator;
+import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
-import static com.github.dakusui.floorplan.resolver.Resolvers.nothing;
 import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
 
 /**
@@ -12,7 +14,7 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
  */
 public class ReferenceComponent {
   public enum Attr implements Attribute {
-    REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE(SPEC.property(Ref.class).defaultsTo(nothing()).$()),
+    REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE(SPEC.property(Ref.class).required().$()),
     REFERENCE_TO_ATTRIBUTE(SPEC.property(String.class).defaultsTo(Resolvers.attributeValueOf(SimpleComponent.Attr.INSTANCE_NAME, referenceTo(REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE))).$());
 
     private final Bean<Attr> bean;
@@ -30,7 +32,7 @@ public class ReferenceComponent {
 
   public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
       Attr.class
-  ).addOperatorFactory(
+  ).<Attr>addOperatorFactory(
       Operator.Factory.nop(Operator.Type.INSTALL)
   ).build();
 

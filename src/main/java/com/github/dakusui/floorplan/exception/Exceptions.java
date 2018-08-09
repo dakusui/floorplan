@@ -4,8 +4,10 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.policy.Profile;
+import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
@@ -39,8 +41,8 @@ public enum Exceptions {
     };
   }
 
-  public static Supplier<RuntimeException> missingValue(Ref ref, Attribute attribute) {
-    return missingValue(format("Missing value for attribute '%s' in component '%s'", attribute.name(), ref));
+  public static Supplier<RuntimeException> missingValue(Ref ref, String attrName) {
+    return missingValue(format("Missing value for attribute '%s' in component '%s'", attrName, ref));
   }
 
   public static Supplier<RuntimeException> missingValue(String message) {
@@ -63,14 +65,24 @@ public enum Exceptions {
     };
   }
 
-  public static Supplier<RuntimeException> incompatibleProfile(FloorPlan floorPlan, Profile profile) {
+
+  public static Supplier<RuntimeException> typeMismatch(Class type, Object v) {
+    return () -> {
+      throw new TypeMismatch(String.format(
+          "Given value '%s'(%s), was expected to be of '%s', but not.",
+          v,
+          v != null ?
+              v.getClass().getCanonicalName() :
+              "n/a",
+          type.getCanonicalName()
+      ));
+    };
+  }
+
+  public static Supplier<RuntimeException> incompatibleProfile(Profile p, Predicate<Profile> profileRequirement) {
     return () -> {
       throw new IncompatibleProfile(
-          format(
-              "Given profile is not compatible with the floorplan. (floorplan='%s', profile='%s')",
-              floorPlan,
-              profile
-          ));
+          String.format("Given profile '%s'(%s) did not meet requirement %s", p, p.getClass().getCanonicalName(), profileRequirement));
     };
   }
 

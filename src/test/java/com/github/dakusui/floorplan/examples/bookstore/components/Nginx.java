@@ -19,7 +19,7 @@ public class Nginx {
     HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue("hostname")).$()),
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
     BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).defaultsTo(nothing()).$()),
+    UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).required().$()),
     @SuppressWarnings("unchecked") AUTHORS(SPEC.listPropertyOf(String.class).defaultsTo(listOf(
         String.class,
         immediate("mrx"),

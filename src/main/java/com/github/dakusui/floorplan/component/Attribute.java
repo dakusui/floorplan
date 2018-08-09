@@ -6,8 +6,10 @@ import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.floorplan.resolver.Resolvers.nothing;
 import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static java.util.Objects.requireNonNull;
 
@@ -31,7 +33,7 @@ public interface Attribute {
 
   @SuppressWarnings("unchecked")
   default <A extends Attribute> Resolver<? super A, ?> defaultValueResolver() {
-    return bean().defaultValueResolver;
+    return bean().defaultValueResolverFactory.apply(this);
   }
 
   /**
@@ -154,39 +156,39 @@ public interface Attribute {
     /**
      * Spec of the component to which this attribute belongs.
      */
-    final ComponentSpec<A>       spec;
+    final ComponentSpec<A>            spec;
     /**
      * A function to resolve a default value of an attribute.
      */
-    final Resolver<? super A, ?> defaultValueResolver;
+    final Function<A, Resolver<A, ?>> defaultValueResolverFactory;
     /**
      * A constraint to be satisfied by a value for the attribute to which this
      * bean belongs.
      */
-    final Predicate<Object>      constraint;
+    final Predicate<Object>           constraint;
     /**
      * Type of value the attribute holds.
      */
-    final Class                  valueType;
+    final Class                       valueType;
 
     private Bean(
         Class<?> valueType,
         ComponentSpec<A> spec,
-        Resolver<? super A, ?> defaultValueResolver,
+        Function<A, Resolver<A, ?>> defaultValueResolverFactory,
         Predicate<Object> constraint
     ) {
       requireNonNull(valueType);
       this.spec = requireNonNull(spec);
-      this.defaultValueResolver = defaultValueResolver;
+      this.defaultValueResolverFactory = defaultValueResolverFactory;
       this.constraint = constraint;
       this.valueType = valueType;
     }
 
     public static class Builder<A extends Attribute> {
-      private final ComponentSpec<A>       spec;
-      private       Class<?>               valueType;
-      private       Resolver<? super A, ?> defaultValueResolver = null;
-      private       Predicate<Object>      constraint;
+      private final ComponentSpec<A>            spec;
+      private       Class<?>                    valueType;
+      private       Function<A, Resolver<A, ?>> defaultValueResolverFactory = null;
+      private       Predicate<Object>           constraint;
 
       /**
        * @param spec A spec of a component to which the attribute belongs
@@ -205,7 +207,17 @@ public interface Attribute {
        */
       @SuppressWarnings("unchecked")
       public Bean.Builder<A> defaultsTo(Resolver<? super A, ?> resolver) {
-        this.defaultValueResolver = resolver;
+        return this.defaultsTo_(a -> (Resolver<A, ?>) resolver);
+      }
+
+      @SuppressWarnings("unchecked")
+      public Bean.Builder<A> required() {
+        return this.defaultsTo_(Function.class.cast(nothing()));
+      }
+
+      @SuppressWarnings("unchecked")
+      private Bean.Builder<A> defaultsTo_(Function<A, Resolver<A, ?>> resolverFactory) {
+        this.defaultValueResolverFactory = Function.class.cast(resolverFactory);
         return this;
       }
 
@@ -218,7 +230,7 @@ public interface Attribute {
         return new Bean<>(
             this.valueType,
             this.spec,
-            this.defaultValueResolver,
+            this.defaultValueResolverFactory,
             this.constraint
         );
       }

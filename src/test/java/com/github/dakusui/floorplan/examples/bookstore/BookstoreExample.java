@@ -12,6 +12,8 @@ import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseTestS
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+
 @UseTestSuiteDescriptorFactory(SmokeTestDescFactory.class)
 @UseProfileFactory(BookstoreExample.ProfileFactory.class)
 public class BookstoreExample extends StandardTestBase {
@@ -30,4 +32,5 @@ public class BookstoreExample extends StandardTestBase {
     );
     this.testOracleNames.forEach(k -> System.out.printf("  %s:%s%n", k, this.testActionFactories.get(k)));
   }
+
 }

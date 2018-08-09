@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.github.dakusui.floorplan.utils.Checks.require;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;

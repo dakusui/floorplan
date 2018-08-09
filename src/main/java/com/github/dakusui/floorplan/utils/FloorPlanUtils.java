@@ -48,7 +48,7 @@ public enum FloorPlanUtils {
 
   @SuppressWarnings("unchecked")
   public static <A extends Attribute, T> T resolve(A attr, Configurator<A> configurator, Policy policy) {
-    return (T) Function.class.cast(Function.class.cast(configurator.resolverFor(attr, policy).<A>apply(attr)).apply(configurator)).apply(policy);
+    return (T) Function.class.cast(Function.class.cast(configurator.resolverFor(attr, policy).apply(configurator))).apply(policy);
   }
 
   public static Fixture buildFixture(FixtureDescriptor fixtureDescriptor) {

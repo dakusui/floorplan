@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
 import static com.github.dakusui.floorplan.utils.Checks.*;
@@ -31,7 +32,7 @@ public interface Policy {
   /**
    * Returns a {@code FixtureConfigurator} instance associated with this object.
    *
-   * @return  a {@code FixtureConfigurator} instance
+   * @return a {@code FixtureConfigurator} instance
    */
   FixtureConfigurator fixtureConfigurator();
 
@@ -124,10 +125,11 @@ public interface Policy {
 
     @SuppressWarnings("unchecked")
     public Policy build() {
+      Predicate<Profile> req = p -> requireNonNull(this.floorPlan).isCompatibleWith(p);
       require(
           requireNonNull(this.profile),
-          p -> requireNonNull(this.floorPlan).isCompatibleWith(p),
-          Exceptions.incompatibleProfile(floorPlan, profile)
+          req,
+          Exceptions.incompatibleProfile(profile, req)
       );
       return new Impl(new LinkedList<ResolverEntry>(resolvers) {{
         reverse(this);

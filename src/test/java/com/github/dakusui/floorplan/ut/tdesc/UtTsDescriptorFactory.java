@@ -1,20 +1,19 @@
 package com.github.dakusui.floorplan.ut.tdesc;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.core.Fixture;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FloorPlan;
+import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.nop;
 import static com.github.dakusui.floorplan.component.Ref.ref;
-import static java.util.Collections.singletonList;
 
 public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
     implements TestSuiteDescriptor.Factory {
+
   @Override
   protected String name() {
     return "UtTsDesc";
@@ -36,18 +35,8 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected int numOracles() {
+  protected int numTestOracles() {
     return 1;
-  }
-
-  @Override
-  protected FixtureConfigurator configureFixture(FixtureConfigurator fixtureConfigurator) {
-    return fixtureConfigurator;
-  }
-
-  @Override
-  protected List<ComponentSpec<?>> allKnownComponentSpecs() {
-    return singletonList(UtComponent.SPEC);
   }
 
   @Override
@@ -76,7 +65,12 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected FloorPlan configureFloorPlan(FloorPlan floorPlan) {
-    return floorPlan.add(ref(UtComponent.SPEC, "1"));
+  protected FixtureDescriptor buildFixtureDescriptor(FixtureDescriptor.Builder fixtureDescriptorBuilder) {
+    return fixtureDescriptorBuilder.add(ref(UtComponent.SPEC, "1")).build();
+  }
+
+  @Override
+  protected Predicate<Profile> profileRequirement() {
+    return v -> true;
   }
 }

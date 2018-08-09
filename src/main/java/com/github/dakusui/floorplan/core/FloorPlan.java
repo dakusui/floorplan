@@ -16,7 +16,6 @@ import static com.github.dakusui.floorplan.component.Ref.ref;
 import static com.github.dakusui.floorplan.core.Connector.connector;
 import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public interface FloorPlan {
@@ -133,21 +132,21 @@ public interface FloorPlan {
               (ref, attribute) ->
                   entry.getKey().equals(Connector.connector(ref, attribute)),
               Resolver.of(
-                      (a -> c -> p -> a.valueType().equals(List.class) ?
-                          Resolvers.listOf(
-                              Ref.class,
-                              Arrays.stream(
-                                  entry.getValue()
-                              ).map(
-                                  Ref.class::cast
-                              ).map(
-                                  Resolvers::referenceTo
-                              ).collect(
-                                  toList()
-                              )
-                          ).apply(a, c, p) :
-                          entry.getValue()[0]),
-		              () -> String.format("%s->%s", entry.getKey(), Arrays.toString(entry.getValue()))
+                  (c -> p -> entry.getKey().fromAttr.valueType().equals(List.class) ?
+                      Resolvers.listOf(
+                          Ref.class,
+                          Arrays.stream(
+                              entry.getValue()
+                          ).map(
+                              Ref.class::cast
+                          ).map(
+                              Resolvers::referenceTo
+                          ).collect(
+                              toList()
+                          )
+                      ).apply(c, p) :
+                      entry.getValue()[0]),
+                  () -> String.format("%s->%s", entry.getKey(), Arrays.toString(entry.getValue()))
               )
           )
       ).collect(
