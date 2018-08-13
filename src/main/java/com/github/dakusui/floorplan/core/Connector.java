@@ -11,7 +11,7 @@ public class Connector {
   private Ref       from;
 
   private Connector(Ref from, Attribute fromAttr) {
-    requireArgument(fromAttr, attr -> from.spec() == attr.spec());
+    requireArgument(fromAttr, attr -> from.spec() == attr.spec() || attr.spec().attributeType().isAssignableFrom(from.spec().attributeType()));
     this.fromAttr = requireNonNull(fromAttr);
     this.from = requireNonNull(from);
   }
