@@ -93,8 +93,7 @@ public interface Policy {
     private       FloorPlan              floorPlan      = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
-    private       Fixture.Factory        fixtureFactory =
-        Fixture.Impl::new;
+    private       Fixture.Factory        fixtureFactory = Fixture.Impl::new;
 
     public Builder() {
     }
@@ -115,11 +114,6 @@ public interface Policy {
       requireNonNull(spec);
       this.resolvers.addAll(createResolversForComponentSpec(spec));
       this.specs.add(spec);
-      return this;
-    }
-
-    public Builder setFixtureFactory(Fixture.Factory fixtureFactory) {
-      this.fixtureFactory = requireNonNull(fixtureFactory);
       return this;
     }
 
