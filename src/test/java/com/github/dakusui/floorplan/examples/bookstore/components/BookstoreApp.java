@@ -13,14 +13,14 @@ import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
  * application.
  */
 public class BookstoreApp {
-  public enum Attr implements Attribute {
-    APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    WEBSERVER(SPEC.property(Apache.SPEC).required().$()),
-    WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
-    WEBSERVER_PORT(SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()),
-    DBSERVER(SPEC.property(PostgreSQL.SPEC).required().$()),
+  public interface Attr extends Attribute {
+    Attr APPNAME = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$());
+    Attr WEBSERVER = Attribute.create((SPEC.property(Apache.SPEC).required().$()));
+    Attr WEBSERVER_HOST = Attribute.create((SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()));
+    Attr WEBSERVER_PORT = Attribute.create((SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()));
+    Attr DBSERVER = Attribute.create((SPEC.property(PostgreSQL.SPEC).required().$()));
     @SuppressWarnings("unchecked")
-    DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
+    Attr DBSERVER_ENDPOINT = Attribute.create((SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
@@ -33,8 +33,8 @@ public class BookstoreApp {
             },
             () -> "An endpoint to access a database server where data of this application is stored."
         )
-    ).$()),
-    ENDPOINT(SPEC.property(String.class).defaultsTo(
+    ).$()));
+    Attr ENDPOINT = Attribute.create((SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
@@ -47,19 +47,7 @@ public class BookstoreApp {
             },
             () -> "An endpoint to access this application"
         )
-    ).$());
-    private final Bean<Attr> bean;
-
-    Attr(Bean<Attr> bean) {
-      this.bean = bean;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Bean<Attr> bean() {
-      return this.bean;
-    }
-
+    ).$()));
   }
 
   public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
