@@ -12,9 +12,9 @@ public class AttributeTest {
   @Test
   public void testInconsistentMessageSupplier() {
     assertThat(
-        Exceptions.inconsistentSpecMessageSupplier(SimpleComponent.Attr.INSTANCE_NAME, UtComponent.Attr.NAME).get(),
+        Exceptions.inconsistentSpecMessageSupplier(SimpleComponent.INSTANCE_NAME, UtComponent.Attr.NAME).get(),
         allOf(
-            asString().containsString(SimpleComponent.Attr.INSTANCE_NAME.name()).$(),
+            asString().containsString(SimpleComponent.INSTANCE_NAME.name()).$(),
             asString().containsString(UtComponent.Attr.NAME.name()).$()
         )
     );

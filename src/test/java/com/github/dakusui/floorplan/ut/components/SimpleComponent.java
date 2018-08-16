@@ -6,25 +6,11 @@ import com.github.dakusui.floorplan.component.ComponentSpec;
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
 
-public class SimpleComponent {
-  public enum Attr implements Attribute {
-    INSTANCE_NAME(SPEC.property(String.class).required().$()),
-    DEFAULT_TO_IMMEDIATE(SPEC.property(String.class).defaultsTo(immediate("default-value")).$()),
-    DEFAULT_TO_INTERNAL_REFERENCE(SPEC.property(String.class).defaultsTo(referenceTo(INSTANCE_NAME)).$()),;
-    private final Bean<Attr> bean;
-
-    Attr(Bean<Attr> bean) {
-      this.bean = bean;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Bean<Attr> bean() {
-      return this.bean;
-    }
-  }
-
-  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
-      Attr.class
+public interface SimpleComponent extends Attribute {
+  ComponentSpec<SimpleComponent> SPEC                          = new ComponentSpec.Builder<>(
+      SimpleComponent.class
   ).build();
+  SimpleComponent                INSTANCE_NAME                 = Attribute.create(SPEC.property(String.class).required().$());
+  SimpleComponent                DEFAULT_TO_IMMEDIATE          = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("default-value")).$());
+  SimpleComponent                DEFAULT_TO_INTERNAL_REFERENCE = Attribute.create(SPEC.property(String.class).defaultsTo(referenceTo(INSTANCE_NAME)).$());
 }

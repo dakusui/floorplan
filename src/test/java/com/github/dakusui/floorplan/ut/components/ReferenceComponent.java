@@ -11,26 +11,12 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
  * A component definition example that utilizes 'external' reference, i.e.,
  * a reference to another component instance.
  */
-public class ReferenceComponent {
-  public enum Attr implements Attribute {
-    REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE(SPEC.property(Ref.class).required().$()),
-    REFERENCE_TO_ATTRIBUTE(SPEC.property(String.class).defaultsTo(Resolvers.attributeValueOf(SimpleComponent.Attr.INSTANCE_NAME, referenceTo(REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE))).$());
-
-    private final Bean<Attr> bean;
-
-    Attr(Bean<Attr> bean) {
-      this.bean = bean;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Bean<Attr> bean() {
-      return this.bean;
-    }
-  }
-
-  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
-      Attr.class
+public interface ReferenceComponent extends Attribute {
+  ComponentSpec<ReferenceComponent> SPEC                                    = new ComponentSpec.Builder<>(
+      ReferenceComponent.class
   ).build();
-
+  ReferenceComponent                REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE = Attribute.create(SPEC.property(Ref.class).required().$());
+  ReferenceComponent                REFERENCE_TO_ATTRIBUTE                  = Attribute.create(SPEC.property(String.class).defaultsTo(
+      Resolvers.attributeValueOf(SimpleComponent.INSTANCE_NAME, referenceTo(REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE)
+      )).$());
 }

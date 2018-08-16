@@ -52,13 +52,13 @@ public class ListReferenceTest {
         Cut.SPEC,
         SimpleComponent.SPEC
     ).fixtureConfigurator(
-    ).configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, immediate("ins01")
-    ).configure(simple2, SimpleComponent.Attr.INSTANCE_NAME, immediate("ins02")
+    ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
+    ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
     ).build();
 
     assertThat(
         fixture.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0),
-        asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME).equalTo("ins01").$()
+        asString("valueOf", SimpleComponent.INSTANCE_NAME).equalTo("ins01").$()
     );
   }
 
@@ -76,13 +76,13 @@ public class ListReferenceTest {
         SimpleComponent.SPEC
     ).fixtureConfigurator(
     ).configure(cut, Cut.Attr.LIST_REF_ATTR, listOf(Ref.class, referenceTo(simple1), referenceTo(simple2))
-    ).configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, immediate("ins01")
-    ).configure(simple2, SimpleComponent.Attr.INSTANCE_NAME, immediate("ins02")
+    ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
+    ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
     ).build();
 
     assertThat(
-        fixture.lookUp(cut).<Component<SimpleComponent.Attr>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
-        asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME).eq("ins02").$()
+        fixture.lookUp(cut).<Component<SimpleComponent>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
+        asString("valueOf", SimpleComponent.INSTANCE_NAME).eq("ins02").$()
     );
   }
 }

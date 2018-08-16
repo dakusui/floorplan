@@ -33,10 +33,10 @@ public class ResolversTest {
   @Test
   public void givenAttributeReferenceResolver$whenToString$thenAppropriateMessageReturned() {
     assertThat(
-        Resolvers.referenceTo(SimpleComponent.Attr.INSTANCE_NAME).toString(),
+        Resolvers.referenceTo(SimpleComponent.INSTANCE_NAME).toString(),
         allOf(
             asString().startsWith("referenceTo(attr:").$(),
-            asString().containsString(SimpleComponent.Attr.INSTANCE_NAME.name()).$()
+            asString().containsString(SimpleComponent.INSTANCE_NAME.name()).$()
         ));
   }
 
