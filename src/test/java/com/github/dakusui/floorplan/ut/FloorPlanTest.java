@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
-import static com.github.dakusui.floorplan.ut.components.ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE;
+import static com.github.dakusui.floorplan.ut.components.ReferenceComponent.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE;
 import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
 import static java.util.Collections.singletonList;
 
@@ -33,7 +33,7 @@ public class FloorPlanTest extends UtBase {
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
-                SimpleComponent.Attr.INSTANCE_NAME,
+                SimpleComponent.INSTANCE_NAME,
                 immediate("configured-instance-name-simple1"))
             .build()
     );
@@ -42,11 +42,11 @@ public class FloorPlanTest extends UtBase {
         fixture.lookUp(simple1),
         allOf(
             asObject(
-                (Component<SimpleComponent.Attr> c) -> c.valueOf(SimpleComponent.Attr.INSTANCE_NAME)
+                (Component<SimpleComponent> c) -> c.valueOf(SimpleComponent.INSTANCE_NAME)
             ).isInstanceOf(String.class).$(),
-            asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME).equalTo("configured-instance-name-simple1").$(),
-            asString("valueOf", SimpleComponent.Attr.DEFAULT_TO_IMMEDIATE).equalTo("default-value").$(),
-            asString("valueOf", SimpleComponent.Attr.DEFAULT_TO_INTERNAL_REFERENCE).equalTo("configured-instance-name-simple1").$()
+            asString("valueOf", SimpleComponent.INSTANCE_NAME).equalTo("configured-instance-name-simple1").$(),
+            asString("valueOf", SimpleComponent.DEFAULT_TO_IMMEDIATE).equalTo("default-value").$(),
+            asString("valueOf", SimpleComponent.DEFAULT_TO_INTERNAL_REFERENCE).equalTo("configured-instance-name-simple1").$()
         )
     );
   }
@@ -57,7 +57,7 @@ public class FloorPlanTest extends UtBase {
 
     Fixture fixture = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
-            .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, profileValue(String.class, "configured-instance-name-simple1"))
+            .configure(simple1, SimpleComponent.INSTANCE_NAME, profileValue(String.class, "configured-instance-name-simple1"))
             .build()
     );
 
@@ -65,16 +65,16 @@ public class FloorPlanTest extends UtBase {
         fixture.lookUp(simple1),
         allOf(
             asObject(
-                (Component<SimpleComponent.Attr> c) -> c.valueOf(SimpleComponent.Attr.INSTANCE_NAME))
+                (Component<SimpleComponent> c) -> c.valueOf(SimpleComponent.INSTANCE_NAME))
                 .isInstanceOf(String.class)
                 .$(),
-            asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME)
+            asString("valueOf", SimpleComponent.INSTANCE_NAME)
                 .equalTo("profile(configured-instance-name-simple1)")
                 .$(),
-            asString("valueOf", SimpleComponent.Attr.DEFAULT_TO_IMMEDIATE)
+            asString("valueOf", SimpleComponent.DEFAULT_TO_IMMEDIATE)
                 .equalTo("default-value")
                 .$(),
-            asString("valueOf", SimpleComponent.Attr.DEFAULT_TO_INTERNAL_REFERENCE)
+            asString("valueOf", SimpleComponent.DEFAULT_TO_INTERNAL_REFERENCE)
                 .equalTo("profile(configured-instance-name-simple1)")
                 .$()
         )
@@ -89,7 +89,7 @@ public class FloorPlanTest extends UtBase {
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
-                SimpleComponent.Attr.INSTANCE_NAME,
+                SimpleComponent.INSTANCE_NAME,
                 slotValue(String.class, "configured-instance-name-simple1"))
             .build()
     );
@@ -98,13 +98,13 @@ public class FloorPlanTest extends UtBase {
         fixture.lookUp(simple1),
         allOf(
             asObject(
-                (Component<SimpleComponent.Attr> c) -> c.valueOf(SimpleComponent.Attr.INSTANCE_NAME))
+                (Component<SimpleComponent> c) -> c.valueOf(SimpleComponent.INSTANCE_NAME))
                 .isInstanceOf(String.class).$(),
-            asString("valueOf", SimpleComponent.Attr.INSTANCE_NAME)
+            asString("valueOf", SimpleComponent.INSTANCE_NAME)
                 .equalTo("slot(SimpleComponent#simple1, configured-instance-name-simple1)").$(),
-            asString("valueOf", SimpleComponent.Attr.DEFAULT_TO_IMMEDIATE)
+            asString("valueOf", SimpleComponent.DEFAULT_TO_IMMEDIATE)
                 .equalTo("default-value").$(),
-            asString("valueOf", SimpleComponent.Attr.DEFAULT_TO_INTERNAL_REFERENCE)
+            asString("valueOf", SimpleComponent.DEFAULT_TO_INTERNAL_REFERENCE)
                 .equalTo("slot(SimpleComponent#simple1, configured-instance-name-simple1)").$())
     );
   }
@@ -122,7 +122,7 @@ public class FloorPlanTest extends UtBase {
     FixtureConfigurator fixtureConfigurator = policy.fixtureConfigurator()
         .configure(
             simple1,
-            SimpleComponent.Attr.INSTANCE_NAME,
+            SimpleComponent.INSTANCE_NAME,
             immediate("configured-instance-name-simple1"))
         .configure(
             ref1,
@@ -152,7 +152,7 @@ public class FloorPlanTest extends UtBase {
     Fixture fixture = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .add(simple1, ref1)
-            .configureWithValue(simple1, SimpleComponent.Attr.INSTANCE_NAME, "configured-instance-name-simple1")
+            .configureWithValue(simple1, SimpleComponent.INSTANCE_NAME, "configured-instance-name-simple1")
             .configure(ref1, REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, referenceTo(simple1))
             .build()
     );
@@ -179,7 +179,7 @@ public class FloorPlanTest extends UtBase {
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
-                SimpleComponent.Attr.INSTANCE_NAME,
+                SimpleComponent.INSTANCE_NAME,
                 immediate("configured-instance-name-simple1"))
             .configure(
                 ref1,
@@ -194,7 +194,7 @@ public class FloorPlanTest extends UtBase {
                 "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
             ).isInstanceOf(Component.class).$(),
             asString(
-                "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE
+                "valueOf", ReferenceComponent.REFERENCE_TO_ATTRIBUTE
             ).equalTo(
                 "configured-instance-name-simple1"
             ).$()
@@ -214,7 +214,7 @@ public class FloorPlanTest extends UtBase {
             singletonList(simple1))
         .configure(
             simple1,
-            SimpleComponent.Attr.INSTANCE_NAME,
+            SimpleComponent.INSTANCE_NAME,
             immediate("configured-instance-name-simple1"))
         .build());
 
@@ -225,7 +225,7 @@ public class FloorPlanTest extends UtBase {
                 "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
             ).isInstanceOf(Component.class).$(),
             asString(
-                "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE
+                "valueOf", ReferenceComponent.REFERENCE_TO_ATTRIBUTE
             ).equalTo(
                 "configured-instance-name-simple1"
             ).$()
@@ -245,7 +245,7 @@ public class FloorPlanTest extends UtBase {
             simple1)
         .configure(
             simple1,
-            SimpleComponent.Attr.INSTANCE_NAME,
+            SimpleComponent.INSTANCE_NAME,
             immediate("configured-instance-name-simple1"))
         .build());
 
@@ -256,7 +256,7 @@ public class FloorPlanTest extends UtBase {
                 "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
             ).isInstanceOf(Component.class).$(),
             asString(
-                "valueOf", ReferenceComponent.Attr.REFERENCE_TO_ATTRIBUTE
+                "valueOf", ReferenceComponent.REFERENCE_TO_ATTRIBUTE
             ).equalTo(
                 "configured-instance-name-simple1"
             ).$()
@@ -294,7 +294,7 @@ public class FloorPlanTest extends UtBase {
           e,
           asString("getMessage")
               .startsWith("Missing value")
-              .containsString(SimpleComponent.Attr.INSTANCE_NAME.name())
+              .containsString(SimpleComponent.INSTANCE_NAME.name())
               .containsString(simple1.toString())
               .$()
       );
@@ -308,9 +308,9 @@ public class FloorPlanTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
       Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
-          .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, immediate(123))
+          .configure(simple1, SimpleComponent.INSTANCE_NAME, immediate(123))
           .build();
-      System.out.println(String.format("value='%s'", fixture.lookUp(simple1).valueOf(SimpleComponent.Attr.INSTANCE_NAME)));
+      System.out.println(String.format("value='%s'", fixture.lookUp(simple1).valueOf(SimpleComponent.INSTANCE_NAME)));
     } catch (TypeMismatch e) {
       assertThat(
           e,

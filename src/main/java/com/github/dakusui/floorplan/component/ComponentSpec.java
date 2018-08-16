@@ -96,8 +96,8 @@ public interface ComponentSpec<A extends Attribute> {
   }
 
   class Impl<A extends Attribute> implements ComponentSpec<A> {
-    private final Class<A>                                attributeType;
-    private final String                                  specName;
+    private final Class<A> attributeType;
+    private final String   specName;
 
     Impl(String specName, Class<A> attributeType) {
       this.specName = requireNonNull(specName);
@@ -127,8 +127,8 @@ public interface ComponentSpec<A extends Attribute> {
    * @param <A> A type of attribute that characterizes an instance of the component spec.
    */
   class Builder<A extends Attribute> {
-    private final Class<A>                                attributeType;
-    private final String                                  specName;
+    private final Class<A> attributeType;
+    private final String   specName;
 
     /**
      * Creates a new instance of this class with given {@code specName} and {@code attributeType}.
@@ -143,7 +143,7 @@ public interface ComponentSpec<A extends Attribute> {
     }
 
     public Builder(Class<A> attributeType) {
-      this(requireNonNull(requireNonNull(attributeType).getEnclosingClass()).getSimpleName(), attributeType);
+      this(attributeType.getSimpleName(), attributeType);
     }
 
     public ComponentSpec<A> build() {
