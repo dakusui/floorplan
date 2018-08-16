@@ -1,24 +1,20 @@
 package com.github.dakusui.floorplan.examples.bookstore.tdescs;
 
 import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
-import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
-import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
-import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
+import com.github.dakusui.floorplan.examples.bookstore.components.*;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
-import com.github.dakusui.floorplan.examples.bookstore.tdescs.BasicTestDescFactory;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
-import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import java.util.function.Predicate;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
-import static com.github.dakusui.floorplan.component.Operator.Type.NUKE;
-import static com.github.dakusui.floorplan.component.Operator.Type.START;
+import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 
 public class SmokeTestDescFactory extends BasicTestDescFactory {
@@ -42,21 +38,27 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
     return nop();
   }
 
+  private <A extends Attribute> Action toAction(Component<A> component, A actionFactoryAttribute) {
+    return component.<ActionFactory<A>>valueOf(actionFactoryAttribute).create(component);
+  }
+
+
   @Override
   protected Action createActionForSetUpFirstTime(Fixture fixture) {
     return sequential(
-        FloorPlanUtils.createGroupedAction(
-            true,
-            Component::uninstall,
-            fixture,
-            HTTPD, DBMS, APP, PROXY
+        parallel(
+            toAction(fixture.lookUp(HTTPD), Apache.Attr.UNINSTALL),
+            toAction(fixture.lookUp(DBMS), PostgreSQL.Attr.UNINSTALL),
+            toAction(fixture.lookUp(APP), BookstoreApp.Attr.UNINSTALL),
+            toAction(fixture.lookUp(PROXY), Nginx.Attr.UNINSTALL)
         ),
-        FloorPlanUtils.createGroupedAction(
-            true,
-            Component::install,
-            fixture,
-            HTTPD, DBMS, APP, PROXY
-        ));
+        parallel(
+            toAction(fixture.lookUp(HTTPD), Apache.Attr.INSTALL),
+            toAction(fixture.lookUp(DBMS), PostgreSQL.Attr.INSTALL),
+            toAction(fixture.lookUp(APP), BookstoreApp.Attr.INSTALL),
+            toAction(fixture.lookUp(PROXY), Nginx.Attr.INSTALL)
+        )
+    );
   }
 
   @Override
@@ -82,17 +84,14 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)
-        .addOperatorFactory(
-            PROXY,
-            Operator.Factory.of(
-                START,
-                c -> named("configuredStart", nop())))
-        .addOperatorFactory(
-            PROXY,
-            Operator.Factory.of(
-                NUKE,
+        .configure(
+            PROXY, Nginx.Attr.START, immediate(ActionFactory.of(
+                c -> named("configuredStart", nop())
+            )))
+        .configure(
+            PROXY, Nginx.Attr.NUKE, immediate(ActionFactory.of(
                 c -> named("configuredNuke", nop())
-            ))
+            )))
         .build();
   }
 

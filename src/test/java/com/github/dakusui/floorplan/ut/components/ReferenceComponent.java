@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.ut.components;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
@@ -32,8 +31,6 @@ public class ReferenceComponent {
 
   public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
       Attr.class
-  ).<Attr>addOperatorFactory(
-      Operator.Factory.nop(Operator.Type.INSTALL)
   ).build();
 
 }

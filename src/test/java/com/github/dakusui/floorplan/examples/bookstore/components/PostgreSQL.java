@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.examples.bookstore.components;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Operator;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
@@ -26,7 +25,54 @@ public class PostgreSQL {
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
     BOOKSTORE_DATABASE(SPEC.property(String.class).defaultsTo(immediate("bookstore_db")).$()),
     BASEDIR(SPEC.property(String.class).defaultsTo(immediate("/usr/local/postgresql")).$()),
-    DATADIR(SPEC.property(String.class).defaultsTo(immediate("/var/postgresql/data")).$());
+    DATADIR(SPEC.property(String.class).defaultsTo(immediate("/var/postgresql/data")).$()),
+    INSTALL(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.of(
+            component -> sequential(
+                simple("yum install", (c) -> runShell(
+                    "ssh -l root@%s yum install postgresql", component.<String>valueOf(Attr.HOSTNAME))),
+                simple("initdb", (c) -> runShell(
+                    "ssh -l root@%s postgresql-setup initdb", component.<String>valueOf(Attr.HOSTNAME))),
+                named("Update postgresql.conf",
+                    sequential(
+                        simple("Update port", (c) -> runShell(
+                            "ssh -l root@%s sed -i /etc/postgresql.conf s/PGPORT=.+/PGPORT=%s/g",
+                            component.<String>valueOf(Attr.HOSTNAME),
+                            component.<Integer>valueOf(Attr.PORTNUMBER)
+                        )),
+                        simple("Update data dir", (c) -> runShell(
+                            "ssh -l root@%s sed -i /etc/postgresql.conf s/DATADIR=.+/DATADIR=%s/g",
+                            component.<String>valueOf(Attr.HOSTNAME),
+                            component.<String>valueOf(Attr.DATADIR)))
+                    )))))).$()),
+    START(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.of(
+            component -> simple(
+                "pg_ctl start",
+                (c) -> runShell("ssh -l postgres@%s pg_ctl start")
+            )
+        ))).$()),
+    STOP(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.of(
+            component -> simple(
+                "pg_ctl stop",
+                (c) -> runShell("ssh -l postgres@%s pg_ctl stop")
+            )
+        ))).$()),
+    NUKE(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.of(
+            component -> simple(
+                "send kill -9",
+                (c) -> runShell("ssh -l root@%s pkill -9 postgres", component.valueOf(Attr.HOSTNAME)))
+        ))).$()),
+    UNINSTALL(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.of(
+            component -> sequential(
+                simple("remove basedir", (c) -> runShell(
+                    "rm -fr %s", component.<String>valueOf(Attr.BASEDIR))),
+                simple("remove datadir", (c) -> runShell(
+                    "rm -fr %s", component.<String>valueOf(Attr.DATADIR))))
+        ))).$());
     private final Bean<Attr> bean;
 
     Attr(Bean<Attr> bean) {
@@ -40,62 +86,5 @@ public class PostgreSQL {
     }
   }
 
-  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
-      Attr.class
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.INSTALL,
-          component -> sequential(
-              simple("yum install", (c) -> runShell(
-                  "ssh -l root@%s yum install postgresql", component.<String>valueOf(Attr.HOSTNAME))),
-              simple("initdb", (c) -> runShell(
-                  "ssh -l root@%s postgresql-setup initdb", component.<String>valueOf(Attr.HOSTNAME))),
-              named("Update postgresql.conf",
-                  sequential(
-                      simple("Update port", (c) -> runShell(
-                          "ssh -l root@%s sed -i /etc/postgresql.conf s/PGPORT=.+/PGPORT=%s/g",
-                          component.<String>valueOf(Attr.HOSTNAME),
-                          component.<Integer>valueOf(Attr.PORTNUMBER)
-                      )),
-                      simple("Update data dir", (c) -> runShell(
-                          "ssh -l root@%s sed -i /etc/postgresql.conf s/DATADIR=.+/DATADIR=%s/g",
-                          component.<String>valueOf(Attr.HOSTNAME),
-                          component.<String>valueOf(Attr.DATADIR)))
-                  )
-              )
-          )
-      )
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.START,
-          component -> simple(
-              "pg_ctl start",
-              (c) -> runShell("ssh -l postgres@%s pg_ctl start")
-          )
-      )
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.STOP,
-          component -> simple(
-              "pg_ctl stop",
-              (c) -> runShell("ssh -l postgres@%s pg_ctl stop")
-          )
-      )
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.NUKE,
-          component -> simple(
-              "send kill -9",
-              (c) -> runShell("ssh -l root@%s pkill -9 postgres", component.valueOf(Attr.HOSTNAME)))
-      )
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.UNINSTALL,
-          component -> sequential(
-              simple("remove basedir", (c) -> runShell(
-                  "rm -fr %s", component.<String>valueOf(Attr.BASEDIR))),
-              simple("remove datadir", (c) -> runShell(
-                  "rm -fr %s", component.<String>valueOf(Attr.DATADIR))))
-      )
-  ).build();
+  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
 }

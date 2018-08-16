@@ -12,8 +12,6 @@ import com.github.dakusui.floorplan.tdesc.junit4.runner.FloorPlanRunner.UseTestS
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
-
 @UseTestSuiteDescriptorFactory(SmokeTestDescFactory.class)
 @UseProfileFactory(BookstoreExample.ProfileFactory.class)
 public class BookstoreExample extends StandardTestBase {

@@ -128,7 +128,7 @@ public class InternalUtils {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A> A getStaticFieldValue(Field field) {
+  private static <A> A getStaticFieldValue(Field field) {
     try {
       boolean wasAccessible = field.isAccessible();
       field.setAccessible(true);
@@ -174,8 +174,8 @@ public class InternalUtils {
         addAll(Arrays.stream(attrType.getFields())
             .filter(field -> Modifier.isStatic(field.getModifiers()))
             .filter(field -> Modifier.isFinal(field.getModifiers()))
+            .filter(field -> Attribute.class.isAssignableFrom(field.getType()))
             .filter(field -> Attribute.class.isAssignableFrom(attrType))
-            .filter(field -> field.getType().isAssignableFrom(field.getType()))
             .sorted(Comparator.comparing(Field::getName))
             .map(InternalUtils::getStaticFieldValue)
             .map(a -> (A) a)
@@ -184,7 +184,7 @@ public class InternalUtils {
     };
   }
 
-  public static <A extends Attribute> Collector<A, Map<String, A>, Map<String, A>> attributeCollector() {
+  private static <A extends Attribute> Collector<A, Map<String, A>, Map<String, A>> attributeCollector() {
     return Collector.of(
         LinkedHashMap::new,
         (map, attr) -> {
@@ -198,7 +198,7 @@ public class InternalUtils {
         }});
   }
 
-  public static <A extends Attribute> void updateMapWithGivenAttributeIfNecessary(Map<String, A> map, String key, A attr) {
+  private static <A extends Attribute> void updateMapWithGivenAttributeIfNecessary(Map<String, A> map, String key, A attr) {
     if (map.containsKey(key))
       map.put(key,
           attr.moreSpecialized(map.get(key)).orElseThrow(
