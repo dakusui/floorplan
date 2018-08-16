@@ -11,35 +11,6 @@ import java.util.NoSuchElementException;
 import static com.github.dakusui.crest.Crest.*;
 
 public class ExceptionsTest {
-  @Test(expected = ArrayIndexOutOfBoundsException.class)
-  public void givenArrayIndexOutOfBoundsExceptionNestedInRuntimeException$whenRethrow$thenUnwrapped() {
-    throw Exceptions.rethrow(new RuntimeException(new ArrayIndexOutOfBoundsException()));
-  }
-
-  @Test(expected = OutOfMemoryError.class)
-  public void givenOutOfMemoryErrorNestedInRuntimeException$whenRethrow$thenUnwrapped() {
-    throw Exceptions.rethrow(new RuntimeException(new OutOfMemoryError()));
-  }
-
-  @SuppressWarnings("ThrowableNotThrown")
-  @Test(expected = RuntimeException.class)
-  public void givenIOExceptionNestedInRuntimeException$whenRethrow$thenUnwrapped() {
-    try {
-      Exceptions.rethrow(new RuntimeException(new RuntimeException(new IOException())));
-    } catch (RuntimeException e) {
-      // Exception must be thrown, even if it's not thrown by a programmer
-      assertThat(
-          e,
-          allOf(
-              // Thrown Exception must be exactly a RuntimeException, not a subclass of it.
-              asObject("getClass").equalTo(RuntimeException.class).$(),
-              asObject(call("getCause").andThen("getClass").$()).equalTo(IOException.class).$()
-          )
-      );
-      throw e;
-    }
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void whenThrowExceptionForIllegalValue$thenThrown() {
     RuntimeException exception = Exceptions.throwExceptionForIllegalValue("");
@@ -69,5 +40,4 @@ public class ExceptionsTest {
     RuntimeException exception = Exceptions.incompatibleProfile(new SimpleProfile(), p -> false).get();
     exception.printStackTrace();
   }
-
 }

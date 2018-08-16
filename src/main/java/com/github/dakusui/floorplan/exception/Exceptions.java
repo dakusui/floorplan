@@ -93,8 +93,6 @@ public enum Exceptions {
   }
 
   public static RuntimeException rethrow(Throwable e) {
-    if (e.getCause() != null)
-      throw rethrow(e.getCause());
     if (e instanceof RuntimeException)
       throw (RuntimeException) e;
     if (e instanceof Error)
