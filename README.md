@@ -24,7 +24,7 @@ Following is maven coordinate.
   <dependency>
     <groupId>com.github.dakusui</groupId>
     <artifactId>floorplan</artifactId>
-    <version>[2.2.2)</version>
+    <version>[4.0.0)</version>
   </dependency>
 ```
 
