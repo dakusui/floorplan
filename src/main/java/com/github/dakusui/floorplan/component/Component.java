@@ -1,7 +1,5 @@
 package com.github.dakusui.floorplan.component;
 
-import com.github.dakusui.actionunit.core.Action;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,63 +17,6 @@ import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
  * @param <A> Attribute that characterizes an instance of this interface.
  */
 public interface Component<A extends Attribute> extends AttributeBundle<A> {
-  /**
-   * Returns an action which performs an operation specified by {@code op}.
-   *
-   * @param op A type of operation.
-   * @return an action that performs specified operation.
-   */
-  Action actionFor(Operator.Type op);
-
-  /**
-   * This method should return an {@code Action} to perform installation.
-   *
-   * @return an action that performs installation.
-   */
-  default Action install() {
-    return actionFor(Operator.Type.INSTALL);
-  }
-
-  /**
-   * This method should return an {@code Action} to start up a component
-   * represented by an instance of this interface.
-   *
-   * @return an action that starts up this component instance.
-   */
-  default Action start() {
-    return actionFor(Operator.Type.START);
-  }
-
-  /**
-   * This method should return an {@code Action} to stop a component
-   * represented by an instance of this interface.
-   *
-   * @return an action that stops this component instance.
-   */
-  default Action stop() {
-    return actionFor(Operator.Type.STOP);
-  }
-
-  /**
-   * This method should return an {@code Action} to kill a component
-   * represented by an instance of this interface.
-   *
-   * @return an action that kills this component instance.
-   */
-  default Action nuke() {
-    return actionFor(Operator.Type.NUKE);
-  }
-
-
-  /**
-   * This method should return an {@code Action} to perform uninstallation.
-   *
-   * @return an action that performs uninstallation.
-   */
-  default Action uninstall() {
-    return actionFor(Operator.Type.UNINSTALL);
-  }
-
   /**
    * Returns a value of a specified attribute.
    *
@@ -125,15 +66,13 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
         "MismatchedQueryAndUpdateOfCollection"/* This field is updated in its static block on assignment*/
     )
     private final Map<A, Object>                  values;
-    private final Map<Operator.Type, Operator<A>> operators;
     private final Map<Ref, Component<?>>          pool;
 
-    Impl(Ref ref, Map<A, Object> values, Map<Operator.Type, Operator<A>> operators, Map<Ref, Component<?>> pool) {
+    Impl(Ref ref, Map<A, Object> values, Map<Ref, Component<?>> pool) {
       this.ref = ref;
       this.values = new HashMap<A, Object>() {{
         putAll(requireNonNull(values));
       }};
-      this.operators = requireNonNull(operators);
       this.pool = pool;
       this.pool.put(this.ref, this);
     }
@@ -141,17 +80,6 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     @Override
     public Ref ref() {
       return ref;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Action actionFor(Operator.Type op) {
-      return this.operators.computeIfAbsent(
-          requireNonNull(op),
-          o -> (Operator<A>) Operator.Factory.unsupported(op).apply(spec())
-      ).apply(
-          this
-      );
     }
 
     @SuppressWarnings("unchecked")

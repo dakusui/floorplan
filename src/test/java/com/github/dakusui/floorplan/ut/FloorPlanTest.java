@@ -1,9 +1,6 @@
 package com.github.dakusui.floorplan.ut;
 
-import com.github.dakusui.actionunit.io.Writer;
-import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.floorplan.component.Component;
-import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
@@ -20,14 +17,9 @@ import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.github.dakusui.actionunit.core.ActionSupport.simple;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.components.ReferenceComponent.Attr.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE;
-import static com.github.dakusui.floorplan.ut.utils.UtUtils.assumeThatNotUnderPitest;
 import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
 import static java.util.Collections.singletonList;
 
@@ -116,52 +108,6 @@ public class FloorPlanTest extends UtBase {
                 .equalTo("slot(SimpleComponent#simple1, configured-instance-name-simple1)").$())
     );
   }
-
-  @Test
-  public void givenSimpleComponent$whenConfigureInstaller$thenIntendedOperatorIsUsed() {
-    Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-    List<String> out = new LinkedList<>();
-
-    Fixture fixture = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
-            .configureWithValue(simple1, SimpleComponent.Attr.INSTANCE_NAME, "configured-instance-name-simple1")
-            .addOperatorFactory(
-                simple1,
-                Operator.Factory.of(
-                    Operator.Type.INSTALL,
-                    c -> simple("simple", (context) -> out.add("hello"))))
-            .build()
-    );
-    ReportingActionPerformer.create(
-        Writer.Std.OUT
-    ).performAndReport(
-        fixture.lookUp(simple1).install()
-    );
-
-    assertThat(
-        out,
-        allOf(
-            asInteger("size").equalTo(1).$(),
-            asString("get", 0).equalTo("hello").$()));
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void givenSimpleComponent$whenInstallerIsNotConfigured$thenExceptionThrown() {
-    assumeThatNotUnderPitest();
-    Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
-
-    Fixture fixture = FloorPlanUtils.buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
-        .configure(simple1, SimpleComponent.Attr.INSTANCE_NAME, immediate("\"configured-instance-name-simple1\""))
-        .build()
-    );
-
-    ReportingActionPerformer.create(
-        Writer.Std.OUT
-    ).performAndReport(
-        fixture.lookUp(simple1).install()
-    );
-  }
-
 
   @Test
   public void givenReferencingAttribute$whenConfiguredWithReference$thenAttributeIsResolvedCorrectly() {

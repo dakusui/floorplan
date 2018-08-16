@@ -2,9 +2,7 @@ package com.github.dakusui.floorplan.component;
 
 import com.github.dakusui.floorplan.utils.InternalUtils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.github.dakusui.floorplan.utils.InternalUtils.*;
 import static java.util.Objects.requireNonNull;
@@ -32,14 +30,6 @@ public interface ComponentSpec<A extends Attribute> {
    * @return A class of an attribute.
    */
   Class<A> attributeType();
-
-  /**
-   * Returns mappings from a type operator type to a factory of a corresponding
-   * operator.
-   *
-   * @return A map from an operator type to a factory of an operator.
-   */
-  Map<Operator.Type, Operator.Factory<A>> operatorFactories();
 
   /**
    * Returns a list of all attributes to describe the component.
@@ -108,12 +98,10 @@ public interface ComponentSpec<A extends Attribute> {
   class Impl<A extends Attribute> implements ComponentSpec<A> {
     private final Class<A>                                attributeType;
     private final String                                  specName;
-    private final Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
-    Impl(String specName, Class<A> attributeType, Map<Operator.Type, Operator.Factory<A>> operatorFactories) {
+    Impl(String specName, Class<A> attributeType) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);
-      this.operatorFactories = operatorFactories;
     }
 
     @Override
@@ -124,11 +112,6 @@ public interface ComponentSpec<A extends Attribute> {
     @Override
     public Class<A> attributeType() {
       return this.attributeType;
-    }
-
-    @Override
-    public Map<Operator.Type, Operator.Factory<A>> operatorFactories() {
-      return this.operatorFactories;
     }
 
     @Override
@@ -146,7 +129,6 @@ public interface ComponentSpec<A extends Attribute> {
   class Builder<A extends Attribute> {
     private final Class<A>                                attributeType;
     private final String                                  specName;
-    private       Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
     /**
      * Creates a new instance of this class with given {@code specName} and {@code attributeType}.
@@ -158,20 +140,14 @@ public interface ComponentSpec<A extends Attribute> {
     public Builder(String specName, Class<A> attributeType) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);
-      this.operatorFactories = new HashMap<>();
     }
 
     public Builder(Class<A> attributeType) {
       this(requireNonNull(requireNonNull(attributeType).getEnclosingClass()).getSimpleName(), attributeType);
     }
 
-    public Builder<A> addOperatorFactory(Operator.Factory<A> operatorFactory) {
-      this.operatorFactories.put(requireNonNull(operatorFactory.type()), requireNonNull(operatorFactory));
-      return this;
-    }
-
     public ComponentSpec<A> build() {
-      return new Impl<>(this.specName, this.attributeType, this.operatorFactories);
+      return new Impl<>(this.specName, this.attributeType);
     }
   }
 }

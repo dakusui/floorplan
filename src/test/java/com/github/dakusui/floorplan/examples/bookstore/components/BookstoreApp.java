@@ -1,6 +1,10 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
-import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.actionunit.core.Action;
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Component;
+import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
@@ -13,14 +17,17 @@ import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
  * application.
  */
 public class BookstoreApp {
-  public enum Attr implements Attribute {
-    APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    WEBSERVER(SPEC.property(Apache.SPEC).required().$()),
-    WEBSERVER_HOST(SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()),
-    WEBSERVER_PORT(SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()),
-    DBSERVER(SPEC.property(PostgreSQL.SPEC).required().$()),
+  public interface Attr extends Attribute {
+    ComponentSpec<Attr> SPEC           = new ComponentSpec.Builder<>(
+        Attr.class
+    ).build();
+    Attr                APPNAME        = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$());
+    Attr                WEBSERVER      = Attribute.create((SPEC.property(Apache.SPEC).required().$()));
+    Attr                WEBSERVER_HOST = Attribute.create((SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()));
+    Attr                WEBSERVER_PORT = Attribute.create((SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()));
+    Attr                DBSERVER       = Attribute.create((SPEC.property(PostgreSQL.SPEC).required().$()));
     @SuppressWarnings("unchecked")
-    DBSERVER_ENDPOINT(SPEC.property(String.class).defaultsTo(
+    Attr DBSERVER_ENDPOINT = Attribute.create((SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
@@ -33,8 +40,8 @@ public class BookstoreApp {
             },
             () -> "An endpoint to access a database server where data of this application is stored."
         )
-    ).$()),
-    ENDPOINT(SPEC.property(String.class).defaultsTo(
+    ).$()));
+    Attr ENDPOINT  = Attribute.create((SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
@@ -47,43 +54,27 @@ public class BookstoreApp {
             },
             () -> "An endpoint to access this application"
         )
+    ).$()));
+    Attr INSTALL   = Attribute.create(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.<BookstoreApp.Attr>of(
+            (component) -> sequential(
+                simple("Deploy files under apache httpd", (c) -> runShell(
+                    "scp -r ~/apps/%s root@%s:%s/%s",
+                    component.valueOf(APPNAME),
+                    component.valueOf(WEBSERVER_HOST),
+                    component.<Component<Apache.Attr>>valueOf(WEBSERVER).valueOf(Apache.Attr.DATADIR),
+                    component.valueOf(APPNAME)
+                )),
+                simple("Modify database server location", (c) -> runShell(
+                    "ssh -l root@%s sed -i /etc/bookstoreapp.conf 's!dbms=__DBMS__!dbms=%s!g'",
+                    component.valueOf(WEBSERVER_HOST),
+                    component.valueOf(DBSERVER_ENDPOINT)
+                )))))
     ).$());
-    private final Bean<Attr> bean;
-
-    Attr(Bean<Attr> bean) {
-      this.bean = bean;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Bean<Attr> bean() {
-      return this.bean;
-    }
-
+    Attr UNINSTALL = Attribute.create(SPEC.property(ActionFactory.class).defaultsTo(
+        immediate(ActionFactory.<BookstoreApp.Attr>of(
+            attrComponent -> named("Do something for uninstallation", nop())
+        ))
+    ).$());
   }
-
-  public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(
-      Attr.class
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.INSTALL,
-          component -> sequential(
-              simple("Deploy files under apache httpd", (c) -> runShell(
-                  "scp -r ~/apps/%s root@%s:%s/%s",
-                  component.valueOf(Attr.APPNAME),
-                  component.valueOf(Attr.WEBSERVER_HOST),
-                  component.<Component<Apache.Attr>>valueOf(Attr.WEBSERVER).valueOf(Apache.Attr.DATADIR),
-                  component.valueOf(Attr.APPNAME)
-              )),
-              simple("Modify database server location", (c) -> runShell(
-                  "ssh -l root@%s sed -i /etc/bookstoreapp.conf 's!dbms=__DBMS__!dbms=%s!g'",
-                  component.valueOf(Attr.WEBSERVER_HOST),
-                  component.valueOf(Attr.DBSERVER_ENDPOINT)
-              ))))
-  ).addOperatorFactory(
-      Operator.Factory.of(
-          Operator.Type.UNINSTALL,
-          attrComponent -> named("Do something for uninstallation", nop())
-      )
-  ).build();
 }

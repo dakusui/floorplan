@@ -2,7 +2,6 @@ package com.github.dakusui.floorplan.core;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Operator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.resolver.Resolver;
@@ -119,16 +118,6 @@ public interface FixtureDescriptor {
         Object value
     ) {
       return configure(from, as, immediate(value));
-    }
-
-    public Builder addOperatorFactory(Ref ref, Operator.Factory<? extends Attribute> operatorFactory) {
-      requireNonNull(ref);
-      requireNonNull(operatorFactory);
-      this.add(ref);
-      this.operatorFactoryAdders.add(
-          fixtureConfigurator -> fixtureConfigurator.addOperatorFactory(ref, operatorFactory)
-      );
-      return this;
     }
 
     public FixtureDescriptor build() {

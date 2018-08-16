@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.github.dakusui.floorplan.utils.Checks.require;
-import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * A {@code onfigurator} is created from a 'spec' (a {@code ComponentSpec} instance),
@@ -34,15 +32,6 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @return This object
    */
   Configurator<A> configure(A attr, Resolver<A, ?> resolver);
-
-  /**
-   * Adds a specified operator factory to this object. The operator will be added
-   * to a component built by this object.
-   *
-   * @param operator An operator to be added.
-   * @return This object
-   */
-  Configurator<A> addOperatorFactory(Operator.Factory<A> operator);
 
   /**
    * Builds a component instance using resolvers set to attributes of this object.
@@ -88,13 +77,10 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     private final ComponentSpec<A>                        spec;
     private final Map<A, Resolver<A, ?>>                  resolvers = new LinkedHashMap<>();
     private final Ref                                     ref;
-    private final Map<Operator.Type, Operator.Factory<A>> operatorFactories;
 
     Impl(ComponentSpec<A> spec, String id) {
       this.spec = spec;
       this.ref = Ref.ref(this.spec, id);
-      this.operatorFactories = this.spec.operatorFactories();
-
     }
 
     @Override
@@ -119,13 +105,6 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public Configurator<A> addOperatorFactory(Operator.Factory<A> operatorFactory) {
-      this.operatorFactories.put(requireNonNull(operatorFactory.type()), requireNonNull(operatorFactory));
-      return this;
-    }
-
     @Override
     public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
       return new Component.Impl<>(
@@ -142,34 +121,9 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
                       ));
                 });
           }},
-          operatorFactories.entrySet().stream().map(this::convertEntry
-          ).collect(toMap(Map.Entry::getKey, Map.Entry::getValue)),
           pool
       );
     }
-
-    Map.Entry<Operator.Type, Operator<A>> convertEntry(Map.Entry<Operator.Type, Operator.Factory<A>> inEntry) {
-      return new Map.Entry<Operator.Type, Operator<A>>() {
-        Operator<A> value = inEntry.getValue().apply(spec());
-
-        @Override
-        public Operator.Type getKey() {
-          return inEntry.getKey();
-        }
-
-        @Override
-        public Operator<A> getValue() {
-          return value;
-        }
-
-        @Override
-        public Operator<A> setValue(Operator<A> value) {
-          this.value = value;
-          return value;
-        }
-      };
-    }
-
 
     @Override
     public String toString() {
