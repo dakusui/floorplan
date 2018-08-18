@@ -4,11 +4,14 @@ import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
+import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
 import static com.github.dakusui.floorplan.utils.Checks.require;
 
 /**
@@ -40,7 +43,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    * @param pool   A pool that stores mappings from {@code ref} objects to {@code component} objects.
    * @return A built component.
    */
-  Component<A> build(Policy policy, Map<Ref, Component<?>> pool);
+  <C extends Component<A>> C build(Policy policy, Map<Ref, Component<?>> pool);
 
   /**
    * Returns a resolver for a specified attribute {@code attr} set to this object
@@ -74,9 +77,9 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   }
 
   class Impl<A extends Attribute> implements Configurator<A> {
-    private final ComponentSpec<A>                        spec;
-    private final Map<A, Resolver<A, ?>>                  resolvers = new LinkedHashMap<>();
-    private final Ref                                     ref;
+    private final ComponentSpec<A>       spec;
+    private final Map<A, Resolver<A, ?>> resolvers = new LinkedHashMap<>();
+    private final Ref                    ref;
 
     Impl(ComponentSpec<A> spec, String id) {
       this.spec = spec;
@@ -105,24 +108,43 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this;
     }
 
+    @SuppressWarnings({ "unchecked", "JavaReflectionMemberAccess" })
     @Override
-    public Component<A> build(Policy policy, Map<Ref, Component<?>> pool) {
-      return new Component.Impl<>(
-          this.ref,
-          new LinkedHashMap<A, Object>() {{
-            spec.attributes().forEach(
-                (A attr) -> {
-                  Object u;
-                  put(attr,
-                      require(
-                          u = FloorPlanUtils.resolve(attr, Impl.this, policy),
-                          attr::test,
-                          Exceptions.typeMismatch(attr, u)
-                      ));
-                });
-          }},
-          pool
-      );
+    public <C extends Component<A>> C build(Policy policy, Map<Ref, Component<?>> pool) {
+      LinkedHashMap<A, Object> values = composeValues(policy);
+      Component<A> ret;
+      Class<Component<A>> componentType = this.spec.componentType();
+      if (componentType.equals(Component.class))
+        ret = new Component.Impl<>(this.ref, values, pool);
+      else if (componentType.isInterface())
+        ret = ObjectSynthesizer.builder(componentType)
+            .fallbackTo(new Component.Impl<>(this.ref, values, pool))
+            .build()
+            .synthesize();
+      else {
+        try {
+          ret = componentType.getConstructor(Ref.class, Map.class, Map.class).newInstance(this.ref, values, pool);
+        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+          throw rethrow(e);
+        }
+      }
+      pool.put(this.ref, ret);
+      return (C) ret;
+    }
+
+    public LinkedHashMap<A, Object> composeValues(Policy policy) {
+      return new LinkedHashMap<A, Object>() {{
+        spec.attributes().forEach(
+            (A attr) -> {
+              Object u;
+              put(attr,
+                  require(
+                      u = FloorPlanUtils.resolve(attr, Impl.this, policy),
+                      attr::test,
+                      Exceptions.typeMismatch(attr, u)
+                  ));
+            });
+      }};
     }
 
     @Override
