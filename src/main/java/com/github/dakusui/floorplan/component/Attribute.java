@@ -149,6 +149,7 @@ public interface Attribute {
             return attrName;
           }
         })
+        .build()
         .synthesize();
   }
 

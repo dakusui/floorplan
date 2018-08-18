@@ -68,13 +68,12 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     private final Map<A, Object>                  values;
     private final Map<Ref, Component<?>>          pool;
 
-    Impl(Ref ref, Map<A, Object> values, Map<Ref, Component<?>> pool) {
+    public Impl(Ref ref, Map<A, Object> values, Map<Ref, Component<?>> pool) {
       this.ref = ref;
       this.values = new HashMap<A, Object>() {{
         putAll(requireNonNull(values));
       }};
       this.pool = pool;
-      this.pool.put(this.ref, this);
     }
 
     @Override

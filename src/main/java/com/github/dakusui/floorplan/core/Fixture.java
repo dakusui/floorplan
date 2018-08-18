@@ -13,7 +13,7 @@ import java.util.Objects;
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
 
 public interface Fixture {
-  <A extends Attribute> Component<A> lookUp(Ref ref);
+  <A extends Attribute, C extends Component<A>> C lookUp(Ref ref);
 
   interface Factory {
     Fixture create(Policy policy, FixtureConfigurator fixtureConfigurator);
@@ -37,9 +37,10 @@ public interface Fixture {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends Attribute> Component<A> lookUp(Ref ref) {
-      return requireState(
-          (Component<A>) this.components.get(ref), ret -> Objects.equals(ret.spec().attributeType(), ref.spec().attributeType())
+    public <A extends Attribute, C extends Component<A>> C lookUp(Ref ref) {
+      return (C) requireState(
+          (Component<A>) this.components.get(ref),
+          ret -> Objects.equals(ret.spec().attributeType(), ref.spec().attributeType())
       );
     }
   }

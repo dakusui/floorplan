@@ -15,6 +15,8 @@ import static java.util.Objects.requireNonNull;
  * @see Attribute
  */
 public interface ComponentSpec<A extends Attribute> {
+  <C extends Component<A>> Class<C> componentType();
+
   /**
    * Creates a new {@code Configurator} instance with specified {@code id} of a
    * component described by this object.
@@ -95,13 +97,27 @@ public interface ComponentSpec<A extends Attribute> {
     );
   }
 
-  class Impl<A extends Attribute> implements ComponentSpec<A> {
-    private final Class<A> attributeType;
-    private final String   specName;
+  static <A extends Attribute> ComponentSpec<A> create(
+      Class<? extends Component<A>> componentType,
+      Class<A> attributeType) {
+    return new ComponentSpec.Impl<>(componentType.getSimpleName(), attributeType, componentType);
+  }
 
-    Impl(String specName, Class<A> attributeType) {
+  class Impl<A extends Attribute> implements ComponentSpec<A> {
+    private final Class<A>                      attributeType;
+    private final String                        specName;
+    private final Class<? extends Component<A>> componentType;
+
+    Impl(String specName, Class<A> attributeType, Class<? extends Component<A>> componentType) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);
+      this.componentType = componentType;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <C extends Component<A>> Class<C> componentType() {
+      return (Class<C>) componentType;
     }
 
     @Override
@@ -127,8 +143,10 @@ public interface ComponentSpec<A extends Attribute> {
    * @param <A> A type of attribute that characterizes an instance of the component spec.
    */
   class Builder<A extends Attribute> {
-    private final Class<A> attributeType;
-    private final String   specName;
+    private final Class<A>                      attributeType;
+    private final String                        specName;
+    @SuppressWarnings("unchecked")
+    private       Class<? extends Component<A>> componentType = Class.class.cast(Component.class);
 
     /**
      * Creates a new instance of this class with given {@code specName} and {@code attributeType}.
@@ -146,8 +164,14 @@ public interface ComponentSpec<A extends Attribute> {
       this(attributeType.getSimpleName(), attributeType);
     }
 
+    public Builder componentType(Class<? extends Component<A>> componentType) {
+      this.componentType = requireNonNull(componentType);
+      return this;
+    }
+
+    @SuppressWarnings("unchecked")
     public ComponentSpec<A> build() {
-      return new Impl<>(this.specName, this.attributeType);
+      return new Impl<>(this.specName, this.attributeType, this.componentType);
     }
   }
 }

@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.utils;
 
-import com.github.dakusui.floorplan.exception.Exceptions;
-
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -10,20 +10,62 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
+
 /**
  * A factory class to synthesize an implementation of a given interface (semi-)automatically.
  *
  * @param <T> A class of an interface for which an implementation is to be synthesized.
  */
-public abstract class ObjectSynthesizer<T> {
-  private final Class<T> anInterface;
+public class ObjectSynthesizer<T> {
+  private final Class<T>                anInterface;
+  private final List<? extends Handler> handlers;
+  private final Object                  fallbackObject;
+  private final MethodHandles.Lookup    lookup;
 
-  ObjectSynthesizer(Class<T> anInterface) {
+  public static <T> ObjectSynthesizer.Builder<T> builder(Class<T> anInterface) {
+    return new Builder<>(anInterface);
+  }
+
+  public static Handler.Builder methodCall(String methodName, Class<?>... parameterTypes) {
+    return methodCall(method -> {
+      AtomicInteger i = new AtomicInteger(-1);
+      return Objects.equals(
+          methodName, method.getName()) &&
+          parameterTypes.length == method.getParameterCount() &&
+          Arrays.stream(
+              parameterTypes
+          ).peek(
+              type -> i.getAndIncrement()
+          ).allMatch(
+              type -> type.isAssignableFrom(method.getParameterTypes()[i.get()])
+          );
+    });
+  }
+
+  public T synthesize() {
+    return createProxy();
+  }
+
+  private ObjectSynthesizer(Class<T> anInterface, List<? extends Handler> handlers, Object fallbackObject) {
     this.anInterface = Objects.requireNonNull(anInterface);
+    this.handlers = handlers;
+    this.fallbackObject = fallbackObject;
+    this.lookup = createLookup(anInterface);
+  }
+
+  private static MethodHandles.Lookup createLookup(Class anInterface) {
+    try {
+      Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
+      constructor.setAccessible(true);
+      return constructor.newInstance(anInterface);
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw rethrow(e);
+    }
   }
 
   @SuppressWarnings({ "unchecked", "Convert2MethodRef" })
-  private T synthesize() {
+  private T createProxy() {
     return (T) Proxy.newProxyInstance(
         anInterface.getClassLoader(),
         new Class[] { anInterface },
@@ -31,108 +73,73 @@ public abstract class ObjectSynthesizer<T> {
     );
   }
 
-  private Object handleMethodCall(Object self, Method method, Object[] args) {
-    return lookUpMethodCallHandler(method).orElseThrow(UnsupportedOperationException::new).apply(self, args);
+  private Object handleMethodCall(Object proxy, Method method, Object[] args) {
+    return lookUpMethodCallHandler(method).orElseThrow(UnsupportedOperationException::new).apply(proxy, args);
   }
 
-  public static <T> ObjectSynthesizer.Default.Builder<T> builder(Class<T> anInterface) {
-    return new Default.Builder<>(anInterface);
+  private Optional<? extends BiFunction<Object, Object[], Object>> lookUpMethodCallHandler(Method method) {
+    Optional<? extends BiFunction<Object, Object[], Object>> ret = handlers.stream().filter(handler -> handler.test(method)).findFirst();
+    return ret.isPresent() ?
+        ret :
+        Optional.of(_lookUpMethodCallHandler(method));
   }
 
-  abstract protected Optional<? extends BiFunction<Object, Object[], Object>> lookUpMethodCallHandler(Method method);
+  private BiFunction<Object, Object[], Object> _lookUpMethodCallHandler(Method method) {
+    return (self, args) -> invokeMethod(self, fallbackObject, method, args);
+  }
 
-  public static class Default<T> extends ObjectSynthesizer<T> {
-
-    private final List<? extends Handler> handlers;
-    private final Object                  fallbackObject;
-
-    Default(Class<T> anInterface, List<? extends Handler> handlers, Object fallbackObject) {
-      super(anInterface);
-      this.handlers = handlers;
-      this.fallbackObject = fallbackObject;
-    }
-
-    @Override
-    protected Optional<? extends BiFunction<Object, Object[], Object>> lookUpMethodCallHandler(Method method) {
-      Optional<? extends BiFunction<Object, Object[], Object>> ret = handlers.stream().filter(handler -> handler.test(method)).findFirst();
-      return ret.isPresent() ?
-          ret :
-          Optional.of(_lookUpMethodCallHandler(method));
-    }
-
-    private BiFunction<Object, Object[], Object> _lookUpMethodCallHandler(Method method) {
-      return (self, args) -> invokeMethod(fallbackObject, method, args);
-    }
-
-    private Object invokeMethod(Object self, Method method, Object[] args) {
+  private Object invokeMethod(Object proxy, Object fallbackObject, Method method, Object[] args) {
+    try {
+      boolean wasAccessible = method.isAccessible();
       try {
-        boolean wasAccessible = method.isAccessible();
-        try {
-          method.setAccessible(true);
-          return method.invoke(self, args);
-        } finally {
-          method.setAccessible(wasAccessible);
+        method.setAccessible(true);
+        if (method.isDefault() && method.getDeclaringClass().equals(anInterface)) {
+          return lookup
+              .in(anInterface)
+              .unreflectSpecial(method, anInterface)
+              .bindTo(proxy)
+              .invokeWithArguments(args);
         }
-      } catch (IllegalAccessException | InvocationTargetException e) {
-        throw Exceptions.rethrow(e);
+        return method.invoke(fallbackObject, args);
+      } finally {
+        method.setAccessible(wasAccessible);
       }
+    } catch (Throwable e) {
+      throw rethrow(e);
+    }
+  }
+
+  public static class Builder<T> {
+    private final Class<T>      anInterface;
+    private       Object        fallbackObject;
+    private       List<Handler> handlers = new LinkedList<>();
+
+    public Builder(Class<T> anInterface) {
+      this.anInterface = anInterface;
     }
 
-    public static Handler.Builder methodCall(String methodName, Class<?>... parameterTypes) {
-      return methodCall(method -> {
-        AtomicInteger i = new AtomicInteger(-1);
-        return Objects.equals(
-            methodName, method.getName()) &&
-            parameterTypes.length == method.getParameterCount() &&
-            Arrays.stream(
-                parameterTypes
-            ).peek(
-                type -> i.getAndIncrement()
-            ).allMatch(
-                type -> type.isAssignableFrom(method.getParameterTypes()[i.get()])
-            );
-      });
+    public Builder<T> fallbackTo(Object fallbackObject) {
+      this.fallbackObject = fallbackObject;
+      return this;
     }
 
-    static Handler.Builder methodCall(Predicate<Method> predicate) {
-      return new Handler.Builder(predicate);
+    public Builder<T> handle(Handler handler) {
+      handlers.add(handler);
+      return this;
     }
 
-    public static class Builder<T> {
-      private final Class<T>      anInterface;
-      private       Object        fallbackObject;
-      private       List<Handler> handlers = new LinkedList<>();
-
-      public Builder(Class<T> anInterface) {
-        this.anInterface = anInterface;
-      }
-
-      public Builder<T> fallbackTo(Object fallbackObject) {
-        this.fallbackObject = fallbackObject;
-        return this;
-      }
-
-      public Builder<T> handle(Handler handler) {
-        handlers.add(handler);
-        return this;
-      }
-
-      public ObjectSynthesizer<T> build() {
-        return new Default<>(this.anInterface, new ArrayList<>(handlers), fallbackObject);
-      }
-
-      public T synthesize() {
-        return this
-            .handle(
-                // a default for 'equals' method. If and only if given args is the same object
-                // as itself ('this'), true will be returned.
-                methodCall("equals", Object.class).with(
-                    (self, objects) -> self == objects[0] || fallbackObject.equals(objects[0])
-                ))
-            .build()
-            .synthesize();
-      }
+    public ObjectSynthesizer<T> build() {
+      this.handle(
+          // a default for 'equals' method.
+          methodCall("equals", Object.class).with(
+              (self, objects) -> self == objects[0] || fallbackObject.equals(objects[0])
+          ));
+      return new ObjectSynthesizer<>(this.anInterface, new ArrayList<>(handlers), fallbackObject);
     }
+  }
+
+  private static Handler.Builder methodCall(Predicate<Method> predicate) {
+    return new Handler.Builder(predicate);
   }
 
   interface Handler extends BiFunction<Object, Object[], Object>, Predicate<Method> {
