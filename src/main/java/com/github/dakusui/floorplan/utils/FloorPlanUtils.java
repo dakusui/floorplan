@@ -34,9 +34,6 @@ public enum FloorPlanUtils {
             each.resolver
         )
     );
-    fixtureDescriptor.operatorFactoryAdders().forEach(
-        each -> each.accept(fixtureConfigurator)
-    );
     return fixtureConfigurator.build();
   }
 

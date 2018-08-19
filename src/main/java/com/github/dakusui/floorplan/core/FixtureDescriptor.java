@@ -9,10 +9,11 @@ import com.github.dakusui.floorplan.resolver.Resolver;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
+import static com.github.dakusui.floorplan.utils.Checks.requireArgument;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static com.github.dakusui.floorplan.utils.InternalUtils.shortenedClassName;
 import static java.util.Collections.unmodifiableList;
 
 public interface FixtureDescriptor {
@@ -25,8 +26,6 @@ public interface FixtureDescriptor {
   List<Wire> wires();
 
   List<AttributeConfigurator> attributes();
-
-  List<Consumer<FixtureConfigurator>> operatorFactoryAdders();
 
   class Wire {
     public final Ref       from;
@@ -53,13 +52,11 @@ public interface FixtureDescriptor {
   }
 
   class Builder {
-    private       List<ComponentSpec>                 specs                 = new LinkedList<>();
-    private       List<Ref>                           refs                  = new LinkedList<>();
-    private       List<Wire>                          wires                 = new LinkedList<>();
-    private       List<AttributeConfigurator>         configs               = new LinkedList<>();
-    private final Profile                             profile;
-    private       List<Consumer<FixtureConfigurator>> operatorFactoryAdders = new LinkedList<>();
-
+    private       List<ComponentSpec>         specs   = new LinkedList<>();
+    private       List<Ref>                   refs    = new LinkedList<>();
+    private       List<Wire>                  wires   = new LinkedList<>();
+    private       List<AttributeConfigurator> configs = new LinkedList<>();
+    private final Profile                     profile;
 
     public Builder(Profile profile) {
       this.profile = requireNonNull(profile);
@@ -108,6 +105,12 @@ public interface FixtureDescriptor {
         A as,
         Resolver<A, ?> value
     ) {
+      requireArgument(
+          as,
+          a -> a.spec().attributeType().isAssignableFrom(from.spec().attributeType()),
+          () -> String.format(
+              "Attribute '%s'('%s' held by spec:[%s]) is not compatible with ref:[%s](attrType=%s)",
+              as, shortenedClassName(as.spec().attributeType()), as.spec(), from, shortenedClassName(from.spec().attributeType())));
       this.add(from);
       this.configs.add(new AttributeConfigurator<>(from, as, value));
       return this;
@@ -145,11 +148,6 @@ public interface FixtureDescriptor {
         @Override
         public List<AttributeConfigurator> attributes() {
           return unmodifiableList(configs);
-        }
-
-        @Override
-        public List<Consumer<FixtureConfigurator>> operatorFactoryAdders() {
-          return unmodifiableList(operatorFactoryAdders);
         }
       };
     }

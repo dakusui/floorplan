@@ -1,4 +1,4 @@
-package com.github.dakusui.floorplan.ut.style;
+package com.github.dakusui.floorplan.ut.style.models;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;

@@ -112,11 +112,11 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     @SuppressWarnings({ "unchecked", "JavaReflectionMemberAccess" })
     @Override
     public <C extends Component<A>> C build(Policy policy, Map<Ref, Component<?>> pool) {
-      LinkedHashMap<A, Object> values = composeValues(policy);
+      LinkedHashMap<Attribute, Object> values = composeValues(policy);
       Component<A> ret;
       Class<Component<A>> componentType = this.spec.componentType();
       if (componentType.equals(Component.class))
-        ret = new Component.Impl<>(this.ref, values, pool);
+        ret = new Component.Impl<>(this.ref, (Map<A, Object>)values, pool);
       else if (componentType.isInterface())
         ret = ObjectSynthesizer.builder(componentType)
             .fallbackTo(new Component.Impl<>(this.ref, values, pool))
@@ -138,14 +138,14 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return String.format("configurator(%s)", this.ref);
     }
 
-    LinkedHashMap<A, Object> composeValues(Policy policy) {
-      return new LinkedHashMap<A, Object>() {{
+    LinkedHashMap<Attribute, Object> composeValues(Policy policy) {
+      return new LinkedHashMap<Attribute, Object>() {{
         spec.attributes().forEach(
-            (A attr) -> {
+            (Attribute attr) -> {
               Object u;
               put(attr,
                   require(
-                      u = FloorPlanUtils.resolve(attr, Impl.this, policy),
+                      u = FloorPlanUtils.resolve((A) attr, Impl.this, policy),
                       attr::test,
                       Exceptions.typeMismatch(attr, u)
                   ));

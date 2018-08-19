@@ -8,6 +8,7 @@ import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
 import com.github.dakusui.floorplan.resolver.Resolvers;
+import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -129,8 +130,11 @@ public interface FloorPlan {
     public List<? extends ResolverEntry> allWires() {
       return this.wires.entrySet().stream().map(
           entry -> new ResolverEntry(
-              (ref, attribute) ->
-                  entry.getKey().equals(Connector.connector(ref, attribute)),
+              InternalUtils.printableBiPredicate(
+                  () -> String.format("equalTo(%s)", (Object) entry.getValue()),
+                  (ref, attribute) ->
+                      entry.getKey().equals(Connector.connector(ref, attribute))
+              ),
               Resolver.of(
                   (c -> p -> entry.getKey().fromAttr.valueType().equals(List.class) ?
                       Resolvers.listOf(
