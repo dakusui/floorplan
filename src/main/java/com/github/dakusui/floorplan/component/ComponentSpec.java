@@ -38,7 +38,7 @@ public interface ComponentSpec<A extends Attribute> {
    *
    * @return A list of attributes.
    */
-  default List<A> attributes() {
+  default List<Attribute> attributes() {
     return InternalUtils.attributes(attributeType());
   }
 

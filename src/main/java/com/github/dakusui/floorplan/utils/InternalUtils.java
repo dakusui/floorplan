@@ -12,6 +12,7 @@ import com.github.dakusui.floorplan.exception.Exceptions;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -168,18 +169,20 @@ public class InternalUtils {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A extends Attribute> List<A> attributes(Class<A> attrType) {
-    return new LinkedList<A>() {
+  public static List<Attribute> attributes(Class<? extends Attribute> attrType) {
+    return new LinkedList<Attribute>() {
       {
-        addAll(Arrays.stream(attrType.getFields())
-            .filter(field -> Modifier.isStatic(field.getModifiers()))
-            .filter(field -> Modifier.isFinal(field.getModifiers()))
-            .filter(field -> Attribute.class.isAssignableFrom(field.getType()))
-            .filter(field -> Attribute.class.isAssignableFrom(attrType))
-            .sorted(Comparator.comparing(Field::getName))
-            .map(InternalUtils::getStaticFieldValue)
-            .map(a -> (A) a)
-            .collect(attributeCollector()).values());
+        addAll(
+            Arrays.stream(attrType.getFields())
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .filter(field -> Modifier.isFinal(field.getModifiers()))
+                .filter(field -> Attribute.class.isAssignableFrom(field.getType()))
+                .filter(field -> Attribute.class.isAssignableFrom(attrType))
+                .sorted(Comparator.comparing(Field::getName))
+                .map(field -> (Attribute) getStaticFieldValue(field))
+                .collect((Collector<Attribute, Map<String, Attribute>, Map<String, Attribute>>) Collector.class.cast(attributeCollector())
+                ).values()
+        );
       }
     };
   }
@@ -208,4 +211,40 @@ public class InternalUtils {
       map.put(key, attr);
   }
 
+  public static String shortenedClassName(Class klass) {
+    if (klass.getEnclosingClass() == null)
+      return klass.getCanonicalName().replaceAll("[a-zA-Z0-9]+\\.", "");
+    return shortenedClassName(klass.getEnclosingClass()) + "." + klass.getSimpleName();
+
+  }
+
+  public static <T, U> BiPredicate<T, U> printableBiPredicate(Supplier<String> formatter, BiPredicate<T, U> biPredicate) {
+    return new BiPredicate<T, U>() {
+      @Override
+      public boolean test(T t, U u) {
+        return biPredicate.test(t, u);
+      }
+
+      @Override
+      public String toString() {
+        return formatter.get();
+      }
+
+      @Override
+      public BiPredicate<T, U> and(BiPredicate<? super T, ? super U> other) {
+        Objects.requireNonNull(other);
+        return new BiPredicate<T, U>() {
+          @Override
+          public boolean test(T t, U u) {
+            return biPredicate.test(t, u) && other.test(t, u);
+          }
+
+          @Override
+          public String toString() {
+            return String.format("(%s)&&(%s)", formatter.get(), other.toString());
+          }
+        };
+      }
+    };
+  }
 }

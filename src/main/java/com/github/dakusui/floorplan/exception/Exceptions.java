@@ -2,9 +2,7 @@ package com.github.dakusui.floorplan.exception;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.policy.Profile;
-import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
@@ -25,10 +23,6 @@ public enum Exceptions {
 
   public static RuntimeException throwExceptionForNullValue(String message) {
     throw new NullPointerException(message);
-  }
-
-  public static RuntimeException throwUnsupportedOperation(String message) {
-    throw new UnsupportedOperationException(message);
   }
 
   public static Supplier<RuntimeException> noSuchElement() {

@@ -19,6 +19,8 @@ import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
 import static com.github.dakusui.floorplan.utils.Checks.*;
+import static com.github.dakusui.floorplan.utils.InternalUtils.printableBiPredicate;
+import static com.github.dakusui.floorplan.utils.InternalUtils.shortenedClassName;
 import static java.util.Collections.reverse;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -66,8 +68,9 @@ public interface Policy {
       ).map(
           resolverEntry -> (Resolver<A, T>) resolverEntry.resolver
       ).orElseThrow(
-          noSuchElement("Fall back resolver for '%s' of '%s' was not found.", attr, ref)
-      );
+          noSuchElement(
+              "Fallback resolver for '%s'(%s) of '%s' was not found. Known resolvers are %s",
+              attr, attr.spec(), ref, resolvers));
     }
 
     @Override
@@ -143,9 +146,14 @@ public interface Policy {
         spec.attributes().stream(
         ).map(
             attribute -> new ResolverEntry(
-                (ref, a) ->
-                    attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()) &&
-                        Objects.equals(attribute, a),
+                printableBiPredicate(
+                    () -> String.format("attributeOfRefSpecIsAssignableTo[%s]", shortenedClassName(attribute.spec().attributeType())),
+                    (Ref ref, Attribute a) ->
+                        attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()))
+                    .and(
+                        printableBiPredicate(
+                            () -> String.format("equalTo[%s(%s)]", attribute, attribute.spec()),
+                            (ref, a) -> Objects.equals(attribute, a))),
                 (Resolver<Attribute, ?>) attribute.defaultValueResolver()
             )
         ).forEach(

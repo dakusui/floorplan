@@ -13,4 +13,8 @@ public class ResolverEntry {
     this.cond = cond;
     this.resolver = resolver;
   }
+
+  public String toString() {
+    return String.format("when:%s resolveTo:%s", this.cond, this.resolver);
+  }
 }

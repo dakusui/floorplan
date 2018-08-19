@@ -127,28 +127,33 @@ public interface Attribute {
    * @return Created attribute.
    */
   static <A extends Attribute> A create(Bean<A> bean) {
+    class Attr implements Attribute {
+      String attrName = null;
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public <AA extends Attribute, B extends Bean<AA>> B bean() {
+        return (B) bean;
+      }
+
+      public synchronized String toString() {
+        return attrName == null
+            ? String.format("%s.(noname)@%d", spec().attributeType().getSimpleName(), System.identityHashCode(this))
+            : attrName;
+      }
+
+      public synchronized String name() {
+        if (attrName == null)
+          attrName = InternalUtils.determineAttributeName(bean.spec.attributeType(), this);
+        return attrName;
+      }
+    }
+    Attr fallback = new Attr();
     return ObjectSynthesizer.builder(bean.spec.attributeType())
-        .fallbackTo(new Attribute() {
-          String attrName = null;
-
-          @SuppressWarnings("unchecked")
-          @Override
-          public <AA extends Attribute, B extends Bean<AA>> B bean() {
-            return (B) bean;
-          }
-
-          public synchronized String toString() {
-            return attrName == null
-                ? String.format("%s.(noname)@%d", spec().attributeType().getSimpleName(), System.identityHashCode(this))
-                : attrName;
-          }
-
-          public synchronized String name() {
-            if (attrName == null)
-              attrName = InternalUtils.determineAttributeName(bean.spec.attributeType(), this);
-            return attrName;
-          }
-        })
+        .handle(new ObjectSynthesizer.Handler.Builder(
+            method -> method.getName().equals("name") && method.getParameterCount() == 0)
+            .with((o, args) -> fallback.name()))
+        .fallbackTo(fallback)
         .build()
         .synthesize();
   }

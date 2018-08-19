@@ -18,10 +18,10 @@ import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
  * @param <T> A class of an interface for which an implementation is to be synthesized.
  */
 public class ObjectSynthesizer<T> {
-  private final Class<T>                anInterface;
-  private final List<? extends Handler> handlers;
-  private final Object                  fallbackObject;
-  private final MethodHandles.Lookup    lookup;
+  private final Class<T>                         anInterface;
+  private final List<? extends Handler>          handlers;
+  private final Object                           fallbackObject;
+  private final Map<Class, MethodHandles.Lookup> lookups;
 
   public static <T> ObjectSynthesizer.Builder<T> builder(Class<T> anInterface) {
     return new Builder<>(anInterface);
@@ -51,7 +51,12 @@ public class ObjectSynthesizer<T> {
     this.anInterface = Objects.requireNonNull(anInterface);
     this.handlers = handlers;
     this.fallbackObject = fallbackObject;
-    this.lookup = createLookup(anInterface);
+    this.lookups = new HashMap<>();
+    this.lookup(anInterface);
+  }
+
+  private MethodHandles.Lookup lookup(Class<? extends T> anInterface) {
+    return this.lookups.computeIfAbsent(anInterface, ObjectSynthesizer::createLookup);
   }
 
   private static MethodHandles.Lookup createLookup(Class anInterface) {
@@ -88,15 +93,17 @@ public class ObjectSynthesizer<T> {
     return (self, args) -> invokeMethod(self, fallbackObject, method, args);
   }
 
+  @SuppressWarnings("unchecked")
   private Object invokeMethod(Object proxy, Object fallbackObject, Method method, Object[] args) {
     try {
       boolean wasAccessible = method.isAccessible();
+      method.setAccessible(true);
       try {
-        method.setAccessible(true);
-        if (method.isDefault() && method.getDeclaringClass().equals(anInterface)) {
-          return lookup
-              .in(anInterface)
-              .unreflectSpecial(method, anInterface)
+        Class<?> declaringClass = method.getDeclaringClass();
+        if (method.isDefault()) {
+          return lookup((Class<? extends T>) declaringClass)
+              .in(declaringClass)
+              .unreflectSpecial(method, declaringClass)
               .bindTo(proxy)
               .invokeWithArguments(args);
         }
@@ -142,7 +149,7 @@ public class ObjectSynthesizer<T> {
     return new Handler.Builder(predicate);
   }
 
-  interface Handler extends BiFunction<Object, Object[], Object>, Predicate<Method> {
+  public interface Handler extends BiFunction<Object, Object[], Object>, Predicate<Method> {
     class Builder {
       private final Predicate<Method>                    matcher;
       private       BiFunction<Object, Object[], Object> function;
