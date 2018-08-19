@@ -15,7 +15,7 @@ import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
 import static com.github.dakusui.floorplan.utils.Checks.require;
 
 /**
- * A {@code onfigurator} is created from a 'spec' (a {@code ComponentSpec} instance),
+ * A {@code configurator} is created from a 'spec' (a {@code ComponentSpec} instance),
  * which defines a specification of a certain component.
  * <p>
  * And through this interface, users can 'configure' components under test before
@@ -41,6 +41,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
    *
    * @param policy A policy object
    * @param pool   A pool that stores mappings from {@code ref} objects to {@code component} objects.
+   * @param <C>    A type of component built by this configurator object.
    * @return A built component.
    */
   <C extends Component<A>> C build(Policy policy, Map<Ref, Component<?>> pool);
@@ -132,7 +133,12 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return (C) ret;
     }
 
-    public LinkedHashMap<A, Object> composeValues(Policy policy) {
+    @Override
+    public String toString() {
+      return String.format("configurator(%s)", this.ref);
+    }
+
+    LinkedHashMap<A, Object> composeValues(Policy policy) {
       return new LinkedHashMap<A, Object>() {{
         spec.attributes().forEach(
             (A attr) -> {
@@ -145,11 +151,6 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
                   ));
             });
       }};
-    }
-
-    @Override
-    public String toString() {
-      return String.format("configurator(%s)", this.ref);
     }
   }
 }

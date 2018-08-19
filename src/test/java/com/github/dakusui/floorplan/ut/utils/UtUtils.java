@@ -68,7 +68,7 @@ public enum UtUtils {
    */
   public static void restoreStdOutErr() {
     System.setOut(STDOUT);
-    System.setOut(STDERR);
+    System.setErr(STDERR);
   }
 
   public static boolean isRunUnderSurefire() {
