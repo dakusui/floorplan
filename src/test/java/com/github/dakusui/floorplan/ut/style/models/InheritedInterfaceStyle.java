@@ -20,7 +20,7 @@ public interface InheritedInterfaceStyle extends InterfaceStyle<InheritedInterfa
 
   @Override
   default String name() {
-    return "<name>";
+    return "{" + InterfaceStyle.super.name() + "}";
   }
 
   default String url() {
