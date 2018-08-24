@@ -136,7 +136,7 @@ public class StyleTest extends UtBase {
     assertThat(
         sandbox,
         allOf(
-            asString("name").equalTo("<name>").$(),
+            asString("name").equalTo("{helloWorld}").$(),
             asString("url").equalTo("http://localhost:8080/helloWorld").$()
         ));
   }

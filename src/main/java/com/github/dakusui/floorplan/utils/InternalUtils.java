@@ -247,4 +247,8 @@ public class InternalUtils {
       }
     };
   }
+
+  public static Predicate<Object> isEqualTo(Object value) {
+    return toPrintablePredicate(() -> String.format("isEqualTo[%s]", value), v -> Objects.equals(v, value));
+  }
 }

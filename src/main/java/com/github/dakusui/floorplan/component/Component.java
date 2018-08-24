@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
 import static com.github.dakusui.floorplan.utils.Checks.require;
 import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * An instance of this interface represents an actual component; "Component Instance".
@@ -61,12 +62,12 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
   }
 
   class Impl<A extends Attribute> implements Component<A> {
-    private final Ref                             ref;
+    private final Ref                    ref;
     @SuppressWarnings(
         "MismatchedQueryAndUpdateOfCollection"/* This field is updated in its static block on assignment*/
     )
-    private final Map<A, Object>                  values;
-    private final Map<Ref, Component<?>>          pool;
+    private final Map<A, Object>         values;
+    private final Map<Ref, Component<?>> pool;
 
     public Impl(Ref ref, Map<A, Object> values, Map<Ref, Component<?>> pool) {
       this.ref = ref;
@@ -104,6 +105,13 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     private <T> T lookUpIfReference(Object obj) {
+      return obj instanceof List
+          ? (T) List.class.cast(obj).stream().map(this::lookUpIfReference_).collect(toList())
+          : lookUpIfReference_(obj);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T lookUpIfReference_(Object obj) {
       return (T) (obj instanceof Ref ?
           require(
               this.pool.get(obj),

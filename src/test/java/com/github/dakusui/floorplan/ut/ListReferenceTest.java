@@ -5,84 +5,133 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
+import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.floorplan.component.Ref.ref;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
+import static com.github.dakusui.floorplan.utils.InternalUtils.isEqualTo;
+import static com.github.dakusui.floorplan.utils.InternalUtils.isInstanceOf;
 
+@RunWith(Enclosed.class)
 public class ListReferenceTest {
-  /**
-   * Component under test
-   */
-  public static class Cut {
-    enum Attr implements Attribute {
-      LIST_REF_ATTR(SPEC.property(List.class).required().$());
+  public static class Basic {
+    /**
+     * Component under test
+     */
+    public static class Cut {
+      enum Attr implements Attribute {
+        LIST_REF_ATTR(SPEC.property(List.class).required().$());
 
-      final private Bean<Attr> bean;
+        final private Bean<Attr> bean;
 
-      Attr(Bean<Attr> bean) {
-        this.bean = bean;
+        Attr(Bean<Attr> bean) {
+          this.bean = bean;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Bean<Attr> bean() {
+          return bean;
+        }
       }
 
-      @SuppressWarnings("unchecked")
-      @Override
-      public Bean<Attr> bean() {
-        return bean;
+      public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+    }
+
+    @Test
+    public void givenListAttribute$whenConfiguredThroughFloorPlan$thenResolvedToCorrectValue() {
+      Ref simple1 = ref(SimpleComponent.SPEC, "1");
+      Ref simple2 = ref(SimpleComponent.SPEC, "2");
+      Ref cut = ref(Cut.SPEC, "1");
+
+      Fixture fixture = UtUtils.buildPolicy(
+          UtUtils.createUtFloorPlan()
+              .add(simple1, simple2, cut)
+              .wire(cut, Cut.Attr.LIST_REF_ATTR, simple1, simple2),
+          Cut.SPEC,
+          SimpleComponent.SPEC
+      ).fixtureConfigurator(
+      ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
+      ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
+      ).build();
+
+      assertThat(
+          fixture.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0),
+          asString("valueOf", SimpleComponent.INSTANCE_NAME).equalTo("ins01").$()
+      );
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void givenListAttribute$whenConfiguredThroughConfigurator$thenResolvedToCorrectValue() {
+      Ref simple1 = ref(SimpleComponent.SPEC, "1");
+      Ref simple2 = ref(SimpleComponent.SPEC, "2");
+      Ref cut = ref(Cut.SPEC, "1");
+
+      Fixture fixture = UtUtils.buildPolicy(
+          UtUtils.createUtFloorPlan()
+              .add(simple1, simple2, cut),
+          Cut.SPEC,
+          SimpleComponent.SPEC
+      ).fixtureConfigurator(
+      ).configure(cut, Cut.Attr.LIST_REF_ATTR, listOf(Ref.class, referenceTo(simple1), referenceTo(simple2))
+      ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
+      ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
+      ).build();
+
+      assertThat(
+          fixture.lookUp(cut).<Component<SimpleComponent>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
+          asString("valueOf", SimpleComponent.INSTANCE_NAME).eq("ins02").$()
+      );
+    }
+  }
+
+  public static class Issue36 {
+    public interface Child extends Component<Child.Attr> {
+      ComponentSpec<Attr> SPEC = ComponentSpec.create(Child.class, Attr.class);
+
+      interface Attr extends Attribute {
       }
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
-  }
+    public interface Parent extends Component<Parent.Attr> {
+      ComponentSpec<Attr> SPEC = ComponentSpec.create(Parent.class, Attr.class);
 
-  @Test
-  public void givenListAttribute$whenConfiguredThroughFloorPlan$thenResolvedToCorrectValue() {
-    Ref simple1 = Ref.ref(SimpleComponent.SPEC, "1");
-    Ref simple2 = Ref.ref(SimpleComponent.SPEC, "2");
-    Ref cut = Ref.ref(Cut.SPEC, "1");
+      interface Attr extends Attribute {
+        Attr LIST_REF = Attribute.create(SPEC.listPropertyOf(Child.SPEC).required().$());
+      }
 
-    Fixture fixture = UtUtils.buildPolicy(
-        UtUtils.createUtFloorPlan()
-            .add(simple1, simple2, cut)
-            .wire(cut, Cut.Attr.LIST_REF_ATTR, simple1, simple2),
-        Cut.SPEC,
-        SimpleComponent.SPEC
-    ).fixtureConfigurator(
-    ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
-    ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
-    ).build();
+      default List<Child> children() {
+        return this.valueOf(Attr.LIST_REF);
+      }
+    }
 
-    assertThat(
-        fixture.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0),
-        asString("valueOf", SimpleComponent.INSTANCE_NAME).equalTo("ins01").$()
-    );
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void givenListAttribute$whenConfiguredThroughConfigurator$thenResolvedToCorrectValue() {
-    Ref simple1 = Ref.ref(SimpleComponent.SPEC, "1");
-    Ref simple2 = Ref.ref(SimpleComponent.SPEC, "2");
-    Ref cut = Ref.ref(Cut.SPEC, "1");
-
-    Fixture fixture = UtUtils.buildPolicy(
-        UtUtils.createUtFloorPlan()
-            .add(simple1, simple2, cut),
-        Cut.SPEC,
-        SimpleComponent.SPEC
-    ).fixtureConfigurator(
-    ).configure(cut, Cut.Attr.LIST_REF_ATTR, listOf(Ref.class, referenceTo(simple1), referenceTo(simple2))
-    ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
-    ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
-    ).build();
-
-    assertThat(
-        fixture.lookUp(cut).<Component<SimpleComponent>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
-        asString("valueOf", SimpleComponent.INSTANCE_NAME).eq("ins02").$()
-    );
+    @Test
+    public void given$when$then() {
+      Ref refChild = ref(Child.SPEC, "1");
+      Ref refParent = ref(Parent.SPEC, "1");
+      Fixture fixture = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+          .add(refChild)
+          .wire(refParent, Parent.Attr.LIST_REF, refChild)
+          .build());
+      Parent parent = fixture.lookUp(refParent);
+      assertThat(
+          parent.children(),
+          allOf(
+              asListOf(Child.class).check(call("size").$(), isEqualTo(1)).$(),
+              asListOf(Child.class).check(call("get", 0).$(), isInstanceOf(Child.class)).$()
+          )
+      );
+    }
   }
 }
