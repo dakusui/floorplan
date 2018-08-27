@@ -19,12 +19,12 @@ import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public interface FloorPlan {
-  <A extends Attribute> FloorPlan add(ComponentSpec<A> spec, String name);
+public interface FloorPlanGraph {
+  <A extends Attribute> FloorPlanGraph add(ComponentSpec<A> spec, String name);
 
-  FloorPlan add(Ref... refs);
+  FloorPlanGraph add(Ref... refs);
 
-  FloorPlan wire(Ref from,
+  FloorPlanGraph wire(Ref from,
       Attribute as,
       Ref... tos
   );
@@ -35,7 +35,7 @@ public interface FloorPlan {
    * @param requirement A requirement that describes profile on which this floor can be deployed
    * @return This object.
    */
-  FloorPlan requireProfile(Predicate<Profile> requirement);
+  FloorPlanGraph requireProfile(Predicate<Profile> requirement);
 
   Set<Ref> allReferences();
 
@@ -45,11 +45,11 @@ public interface FloorPlan {
 
   boolean isCompatibleWith(Profile profile);
 
-  static FloorPlan create() {
+  static FloorPlanGraph create() {
     return new Impl();
   }
 
-  final class Impl implements FloorPlan {
+  final class Impl implements FloorPlanGraph {
     private final Set<Ref>              refs  = new LinkedHashSet<>();
     private final Map<Connector, Ref[]> wires = new LinkedHashMap<>();
     private       Predicate<Profile>    requirements;
@@ -66,18 +66,18 @@ public interface FloorPlan {
      * @return this object.
      */
     @SuppressWarnings("unchecked")
-    public <A extends Attribute> FloorPlan add(ComponentSpec<A> spec, String name) {
+    public <A extends Attribute> FloorPlanGraph add(ComponentSpec<A> spec, String name) {
       return this.add(ref(spec, name));
     }
 
     @SuppressWarnings("unchecked")
-    public FloorPlan add(Ref... refs) {
+    public FloorPlanGraph add(Ref... refs) {
       this.refs.addAll(asList(refs));
       return this;
     }
 
     @SuppressWarnings("unchecked")
-    public FloorPlan wire(
+    public FloorPlanGraph wire(
         Ref from,
         Attribute as,
         Ref... tos
@@ -112,7 +112,7 @@ public interface FloorPlan {
     }
 
     @Override
-    public FloorPlan requireProfile(Predicate<Profile> requirement) {
+    public FloorPlanGraph requireProfile(Predicate<Profile> requirement) {
       this.requirements = this.requirements == null ?
           requirement :
           this.requirements.and(requirement);

@@ -43,7 +43,7 @@ public class ListOfResolverTest {
   @Test
   public void test() {
     Ref cut = Ref.ref(Cut.SPEC, "1");
-    Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(cut), Cut.SPEC).fixtureConfigurator().build();
+    Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
     assertThat(
         fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR),

@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.ut.utils;
 
 import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.core.FloorPlan;
+import com.github.dakusui.floorplan.core.FloorPlanGraph;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import org.hamcrest.CoreMatchers;
@@ -37,16 +37,16 @@ public enum UtUtils {
     System.out.println(String.format(fmt, args));
   }
 
-  public static Policy buildPolicy(FloorPlan floorPlan, ComponentSpec<?>... specs) {
+  public static Policy buildPolicy(FloorPlanGraph floorPlanGraph, ComponentSpec<?>... specs) {
     Policy.Builder builder = new Policy.Builder();
     for (ComponentSpec<?> each : specs) {
       builder = builder.addComponentSpec(each);
     }
-    return builder.setFloorPlan(floorPlan).setProfile(new SimpleProfile()).build();
+    return builder.setFloorPlanGraph(floorPlanGraph).setProfile(new SimpleProfile()).build();
   }
 
-  public static FloorPlan createUtFloorPlan() {
-    return FloorPlan.create();// .add(ref(UtComponent.SPEC, "1"))
+  public static FloorPlanGraph createUtFloorPlanGraph() {
+    return FloorPlanGraph.create();// .add(ref(UtComponent.SPEC, "1"))
   }
 
   /**

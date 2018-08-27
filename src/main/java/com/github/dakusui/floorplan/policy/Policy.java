@@ -6,7 +6,7 @@ import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FloorPlan;
+import com.github.dakusui.floorplan.core.FloorPlanGraph;
 import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
@@ -44,17 +44,17 @@ public interface Policy {
     private final FixtureConfigurator fixtureConfigurator;
     private final Profile             profile;
 
-    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlan floorPlan, Profile profile, Fixture.Factory fixtureFactory) {
+    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlanGraph floorPlanGraph, Profile profile, Fixture.Factory fixtureFactory) {
       requireArgument(
-          floorPlan,
+          floorPlanGraph,
           f -> f.allReferences().stream().allMatch((Ref ref) -> specs.contains(ref.spec())),
           () -> String.format(
               "References using unknown specs are found.: %s",
-              floorPlan.allReferences().stream().filter((Ref ref) -> !specs.contains(ref.spec())).collect(toList())
+              floorPlanGraph.allReferences().stream().filter((Ref ref) -> !specs.contains(ref.spec())).collect(toList())
           )
       );
       this.resolvers = unmodifiableList(requireNonNull(resolvers));
-      this.fixtureConfigurator = requireNonNull(floorPlan).configurator(this, fixtureFactory);
+      this.fixtureConfigurator = requireNonNull(floorPlanGraph).configurator(this, fixtureFactory);
       this.profile = requireNonNull(profile);
     }
 
@@ -93,7 +93,7 @@ public interface Policy {
   class Builder {
     private final List<ResolverEntry>    resolvers      = new LinkedList<>();
     private final List<ComponentSpec<?>> specs          = new LinkedList<>();
-    private       FloorPlan              floorPlan      = null;
+    private       FloorPlanGraph         floorPlanGraph = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
     private       Fixture.Factory        fixtureFactory = Fixture.Impl::new;
@@ -101,10 +101,10 @@ public interface Policy {
     public Builder() {
     }
 
-    public Builder setFloorPlan(FloorPlan floorPlan) {
-      requireState(this, v -> v.floorPlan == null);
-      this.resolvers.addAll(createResolversForFloorPlan(requireNonNull(floorPlan)));
-      this.floorPlan = requireNonNull(floorPlan);
+    public Builder setFloorPlanGraph(FloorPlanGraph floorPlanGraph) {
+      requireState(this, v -> v.floorPlanGraph == null);
+      this.resolvers.addAll(createResolversForFloorPlan(requireNonNull(floorPlanGraph)));
+      this.floorPlanGraph = requireNonNull(floorPlanGraph);
       return this;
     }
 
@@ -122,7 +122,7 @@ public interface Policy {
 
     @SuppressWarnings("unchecked")
     public Policy build() {
-      Predicate<Profile> req = p -> requireNonNull(this.floorPlan).isCompatibleWith(p);
+      Predicate<Profile> req = p -> requireNonNull(this.floorPlanGraph).isCompatibleWith(p);
       require(
           requireNonNull(this.profile),
           req,
@@ -131,13 +131,13 @@ public interface Policy {
       return new Impl(new LinkedList<ResolverEntry>(resolvers) {{
         reverse(this);
       }}, this.specs,
-          this.floorPlan,
+          this.floorPlanGraph,
           this.profile,
           requireNonNull(this.fixtureFactory));
     }
 
-    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlan floorPlan) {
-      return floorPlan.allWires();
+    private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlanGraph floorPlanGraph) {
+      return floorPlanGraph.allWires();
     }
 
     @SuppressWarnings("unchecked")

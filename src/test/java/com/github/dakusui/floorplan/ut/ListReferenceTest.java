@@ -55,7 +55,7 @@ public class ListReferenceTest {
       Ref cut = ref(Cut.SPEC, "1");
 
       Fixture fixture = UtUtils.buildPolicy(
-          UtUtils.createUtFloorPlan()
+          UtUtils.createUtFloorPlanGraph()
               .add(simple1, simple2, cut)
               .wire(cut, Cut.Attr.LIST_REF_ATTR, simple1, simple2),
           Cut.SPEC,
@@ -79,7 +79,7 @@ public class ListReferenceTest {
       Ref cut = ref(Cut.SPEC, "1");
 
       Fixture fixture = UtUtils.buildPolicy(
-          UtUtils.createUtFloorPlan()
+          UtUtils.createUtFloorPlanGraph()
               .add(simple1, simple2, cut),
           Cut.SPEC,
           SimpleComponent.SPEC

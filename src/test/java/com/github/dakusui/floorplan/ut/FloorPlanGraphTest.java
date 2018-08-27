@@ -24,7 +24,7 @@ import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
 import static java.util.Collections.singletonList;
 
 
-public class FloorPlanTest extends UtBase {
+public class FloorPlanGraphTest extends UtBase {
   @Test
   public void givenSimpleAttribute$whenConfiguredWithImmediate$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
@@ -114,7 +114,7 @@ public class FloorPlanTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
     Policy policy = UtUtils.buildPolicy(
-        UtUtils.createUtFloorPlan().add(simple1).add(ref1.spec(), ref1.id()),
+        UtUtils.createUtFloorPlanGraph().add(simple1).add(ref1.spec(), ref1.id()),
         SimpleComponent.SPEC,
         ReferenceComponent.SPEC
     );
@@ -268,7 +268,7 @@ public class FloorPlanTest extends UtBase {
   public void unknownSpec() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1)/*, SimpleComponent.SPEC*/);
+      UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(simple1)/*, SimpleComponent.SPEC*/);
     } catch (IllegalArgumentException e) {
       assertThat(
           e,
@@ -286,7 +286,7 @@ public class FloorPlanTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
       UtUtils.buildPolicy(
-          UtUtils.createUtFloorPlan().add(simple1),
+          UtUtils.createUtFloorPlanGraph().add(simple1),
           SimpleComponent.SPEC
       ).fixtureConfigurator().build();
     } catch (MissingValueException e) {
@@ -307,7 +307,7 @@ public class FloorPlanTest extends UtBase {
   public void typeMismatch() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlan().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
+      Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
           .configure(simple1, SimpleComponent.INSTANCE_NAME, immediate(123))
           .build();
       System.out.println(String.format("value='%s'", fixture.lookUp(simple1).valueOf(SimpleComponent.INSTANCE_NAME)));
@@ -329,7 +329,7 @@ public class FloorPlanTest extends UtBase {
   public void givenIncompatibleProfile$whenPolicyIsBuilt$thenExceptionIsThrown() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     System.out.println(UtUtils.buildPolicy(
-        UtUtils.createUtFloorPlan()
+        UtUtils.createUtFloorPlanGraph()
             .add(simple1)
             .requireProfile(p -> false), // Give a requirement that is never met.
         SimpleComponent.SPEC));

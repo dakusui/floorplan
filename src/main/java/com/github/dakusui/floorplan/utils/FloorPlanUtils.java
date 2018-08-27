@@ -5,7 +5,7 @@ import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.core.Fixture;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
-import com.github.dakusui.floorplan.core.FloorPlan;
+import com.github.dakusui.floorplan.core.FloorPlanGraph;
 import com.github.dakusui.floorplan.policy.Policy;
 
 import java.util.function.Function;
@@ -42,14 +42,14 @@ public enum FloorPlanUtils {
         fixtureDescriptor.profile()
     );
     fixtureDescriptor.specs().forEach(policyBuilder::addComponentSpec);
-    policyBuilder.setFloorPlan(createFloorPlan(fixtureDescriptor));
+    policyBuilder.setFloorPlanGraph(createFloorPlanGraph(fixtureDescriptor));
     return policyBuilder.build();
   }
 
-  private static FloorPlan createFloorPlan(FixtureDescriptor fixtureDescriptor) {
-    FloorPlan floorPlan = new FloorPlan.Impl();
-    fixtureDescriptor.refs().forEach(floorPlan::add);
-    fixtureDescriptor.wires().forEach(each -> floorPlan.wire(each.from, each.as, each.tos));
-    return floorPlan;
+  private static FloorPlanGraph createFloorPlanGraph(FixtureDescriptor fixtureDescriptor) {
+    FloorPlanGraph floorPlanGraph = new FloorPlanGraph.Impl();
+    fixtureDescriptor.refs().forEach(floorPlanGraph::add);
+    fixtureDescriptor.wires().forEach(each -> floorPlanGraph.wire(each.from, each.as, each.tos));
+    return floorPlanGraph;
   }
 }
