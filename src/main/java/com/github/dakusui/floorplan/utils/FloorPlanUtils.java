@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.utils;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlanConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.core.FloorPlanGraph;
 import com.github.dakusui.floorplan.policy.Policy;
@@ -26,15 +26,15 @@ public enum FloorPlanUtils {
 
   @SuppressWarnings("unchecked")
   private static FloorPlan createFixture(FloorPlanDescriptor floorPlanDescriptor, Policy policy) {
-    FixtureConfigurator fixtureConfigurator = policy.fixtureConfigurator();
+    FloorPlanConfigurator floorPlanConfigurator = policy.fixtureConfigurator();
     floorPlanDescriptor.attributes().forEach(
-        each -> fixtureConfigurator.configure(
+        each -> floorPlanConfigurator.configure(
             each.target,
             each.attribute,
             each.resolver
         )
     );
-    return fixtureConfigurator.build();
+    return floorPlanConfigurator.build();
   }
 
   private static Policy createPolicy(FloorPlanDescriptor floorPlanDescriptor) {

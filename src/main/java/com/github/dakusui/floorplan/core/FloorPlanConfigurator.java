@@ -19,19 +19,19 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface FixtureConfigurator {
+public interface FloorPlanConfigurator {
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
   Set<Ref> allReferences();
 
   FloorPlan build();
 
-  default <A extends Attribute> FixtureConfigurator configure(Ref ref, A attr, Resolver<A, ?> resolver) {
+  default <A extends Attribute> FloorPlanConfigurator configure(Ref ref, A attr, Resolver<A, ?> resolver) {
     this.<A>lookUp(ref).configure(attr, resolver);
     return this;
   }
 
-  class Impl implements FixtureConfigurator {
+  class Impl implements FloorPlanConfigurator {
     private final Set<Ref>              refs;
     private final List<Configurator<?>> configurators;
     private final Policy                policy;

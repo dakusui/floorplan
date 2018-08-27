@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.ut;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlanConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.exception.IncompatibleProfile;
 import com.github.dakusui.floorplan.exception.MissingValueException;
@@ -119,7 +119,7 @@ public class FloorPlanGraphTest extends UtBase {
         ReferenceComponent.SPEC
     );
 
-    FixtureConfigurator fixtureConfigurator = policy.fixtureConfigurator()
+    FloorPlanConfigurator floorPlanConfigurator = policy.fixtureConfigurator()
         .configure(
             simple1,
             SimpleComponent.INSTANCE_NAME,
@@ -130,12 +130,12 @@ public class FloorPlanGraphTest extends UtBase {
             referenceTo(simple1));
 
     assertThat(
-        fixtureConfigurator.lookUp(ref1),
+        floorPlanConfigurator.lookUp(ref1),
         allOf(
             asObject(
                 call("resolverFor", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE)
                     .andThen("get")
-                    .andThen("apply", fixtureConfigurator.lookUp(ref1), policy)
+                    .andThen("apply", floorPlanConfigurator.lookUp(ref1), policy)
                     .$()
             ).isInstanceOf(
                 Ref.class

@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureConfigurator;
+import com.github.dakusui.floorplan.core.FloorPlanConfigurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.InternalUtils;
@@ -108,15 +108,15 @@ public class InheritanceTest {
   @Test
   public void testL3$whenConfiguredAndBuilt() {
     Ref cut = Ref.ref(L3.SPEC, "1");
-    FixtureConfigurator fixtureConfigurator = buildPolicy(
+    FloorPlanConfigurator floorPlanConfigurator = buildPolicy(
         UtUtils.createUtFloorPlanGraph().add(cut),
         L1.SPEC, L2.SPEC, L3.SPEC
     ).fixtureConfigurator();
-    fixtureConfigurator.lookUp(cut)
+    floorPlanConfigurator.lookUp(cut)
         .configure(L3.Attr.NAME, Resolver.of(c -> p -> "configured-1"))
         .configure(L3.Attr.NAME2, Resolver.of(c -> p -> "configured-2"))
         .configure(L3.Attr.NAME3, Resolver.of(c -> p -> "configured-3"));
-    FloorPlan floorPlan = fixtureConfigurator.build();
+    FloorPlan floorPlan = floorPlanConfigurator.build();
 
     assertThat(
         floorPlan.lookUp(cut),

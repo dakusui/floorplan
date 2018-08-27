@@ -16,17 +16,17 @@ public interface FloorPlan {
   <A extends Attribute, C extends Component<A>> C lookUp(Ref ref);
 
   interface Factory {
-    FloorPlan create(Policy policy, FixtureConfigurator fixtureConfigurator);
+    FloorPlan create(Policy policy, FloorPlanConfigurator floorPlanConfigurator);
   }
 
   final class Impl implements FloorPlan {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<Ref, Component<?>> components;
 
-    public Impl(Policy policy, FixtureConfigurator fixtureConfigurator) {
+    public Impl(Policy policy, FloorPlanConfigurator floorPlanConfigurator) {
       this.components = new LinkedHashMap<Ref, Component<?>>() {{
-        fixtureConfigurator.allReferences().stream().map(
-            ref -> (Configurator<?>) fixtureConfigurator.lookUp(ref)
+        floorPlanConfigurator.allReferences().stream().map(
+            ref -> (Configurator<?>) floorPlanConfigurator.lookUp(ref)
         ).filter(
             configurator -> !this.containsKey(configurator.ref())
         ).forEach(
