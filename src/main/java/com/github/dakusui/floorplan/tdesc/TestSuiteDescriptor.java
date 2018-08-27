@@ -40,7 +40,7 @@ public interface TestSuiteDescriptor {
     abstract class Base implements Factory {
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
-        FloorPlan floorPlan = FloorPlanUtils.buildFixture(
+        FloorPlan floorPlan = FloorPlanUtils.buildFloorPlan(
             buildFixtureDescriptor(createFixtureDescriptorBuilder(profile))
         );
 

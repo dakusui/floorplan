@@ -20,7 +20,7 @@ import org.junit.Test;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.components.ReferenceComponent.REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE;
-import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
+import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFloorPlan;
 import static java.util.Collections.singletonList;
 
 
@@ -29,7 +29,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenSimpleAttribute$whenConfiguredWithImmediate$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
@@ -55,7 +55,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenSimpleAttribute$whenConfiguredWithProfileAttribute$thenResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(simple1, SimpleComponent.INSTANCE_NAME, profileValue(String.class, "configured-instance-name-simple1"))
             .build()
@@ -85,7 +85,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenSimpleAttribute$whenConfiguredWithSlotAttribute$thenResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
@@ -149,7 +149,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(simple1, ref1)
             .configureWithValue(simple1, SimpleComponent.INSTANCE_NAME, "configured-instance-name-simple1")
@@ -175,7 +175,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenReferencingAttribute$whenConfiguredWithReferenceAndBuilt$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
-    FloorPlan floorPlan = FloorPlanUtils.buildFixture(
+    FloorPlan floorPlan = FloorPlanUtils.buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
@@ -207,7 +207,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    FloorPlan floorPlan = buildFixture(new FloorPlanDescriptor.Builder(new SimpleProfile())
+    FloorPlan floorPlan = buildFloorPlan(new FloorPlanDescriptor.Builder(new SimpleProfile())
         .wire(
             singletonList(ref1),
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
@@ -238,7 +238,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    FloorPlan floorPlan = buildFixture(new FloorPlanDescriptor.Builder(new SimpleProfile())
+    FloorPlan floorPlan = buildFloorPlan(new FloorPlanDescriptor.Builder(new SimpleProfile())
         .wire(
             ref1,
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,

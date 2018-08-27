@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
-import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
+import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFloorPlan;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
@@ -21,7 +21,7 @@ public class StyleTest extends UtBase {
   @Test
   public void classStyle() {
     Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, ClassStyle.Attr.NAME, immediate("helloWorld"))
@@ -40,7 +40,7 @@ public class StyleTest extends UtBase {
   @Test
   public void inheritedClassStyle() {
     Ref sandboxRef = Ref.ref(InheritedClassStyle.SPEC, "1");
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, ClassStyle.Attr.NAME, immediate("helloWorld"))
@@ -63,7 +63,7 @@ public class StyleTest extends UtBase {
   public void brokenModel() {
     try {
       Ref sandboxRef = Ref.ref(BrokenModel.SPEC, "1");
-      buildFixture(
+      buildFloorPlan(
           new FloorPlanDescriptor.Builder(new SimpleProfile())
               .add(sandboxRef)
               .configure(sandboxRef, BrokenModel.Attr.NAME, immediate("helloWorld"))
@@ -82,7 +82,7 @@ public class StyleTest extends UtBase {
   public void illegalArgument() {
     try {
       Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
-      buildFixture(
+      buildFloorPlan(
           new FloorPlanDescriptor.Builder(new SimpleProfile())
               .add(sandboxRef)
               .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
@@ -101,7 +101,7 @@ public class StyleTest extends UtBase {
   @Test
   public void interfaceStyle() {
     Ref sandboxRef = Ref.ref(InterfaceStyle.SPEC, "1");
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
@@ -122,7 +122,7 @@ public class StyleTest extends UtBase {
     InterfaceStyle.SPEC.attributes().forEach(System.out::println);
     InheritedInterfaceStyle.SPEC.attributes().forEach(System.out::println);
     Ref sandboxRef = Ref.ref(InheritedInterfaceStyle.SPEC, "1");
-    FloorPlan floorPlan = buildFixture(
+    FloorPlan floorPlan = buildFloorPlan(
         new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))

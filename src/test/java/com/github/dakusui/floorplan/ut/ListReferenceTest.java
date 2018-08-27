@@ -18,7 +18,7 @@ import java.util.List;
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.component.Ref.ref;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
-import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFixture;
+import static com.github.dakusui.floorplan.utils.FloorPlanUtils.buildFloorPlan;
 import static com.github.dakusui.floorplan.utils.InternalUtils.isEqualTo;
 import static com.github.dakusui.floorplan.utils.InternalUtils.isInstanceOf;
 
@@ -120,7 +120,7 @@ public class ListReferenceTest {
     public void given$when$then() {
       Ref refChild = ref(Child.SPEC, "1");
       Ref refParent = ref(Parent.SPEC, "1");
-      FloorPlan floorPlan = buildFixture(new FloorPlanDescriptor.Builder(new SimpleProfile())
+      FloorPlan floorPlan = buildFloorPlan(new FloorPlanDescriptor.Builder(new SimpleProfile())
           .add(refChild)
           .wire(refParent, Parent.Attr.LIST_REF, refChild)
           .build());

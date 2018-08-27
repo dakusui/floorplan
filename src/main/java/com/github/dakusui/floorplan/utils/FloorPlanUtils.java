@@ -20,12 +20,12 @@ public enum FloorPlanUtils {
     return (T) Function.class.cast(Function.class.cast(configurator.resolverFor(attr, policy).apply(configurator))).apply(policy);
   }
 
-  public static FloorPlan buildFixture(FloorPlanDescriptor floorPlanDescriptor) {
-    return createFixture(floorPlanDescriptor, createPolicy(floorPlanDescriptor));
+  public static FloorPlan buildFloorPlan(FloorPlanDescriptor floorPlanDescriptor) {
+    return createFloorPlan(floorPlanDescriptor, createPolicy(floorPlanDescriptor));
   }
 
   @SuppressWarnings("unchecked")
-  private static FloorPlan createFixture(FloorPlanDescriptor floorPlanDescriptor, Policy policy) {
+  private static FloorPlan createFloorPlan(FloorPlanDescriptor floorPlanDescriptor, Policy policy) {
     FloorPlanConfigurator floorPlanConfigurator = policy.fixtureConfigurator();
     floorPlanDescriptor.attributes().forEach(
         each -> floorPlanConfigurator.configure(
