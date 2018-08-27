@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.tdesc;
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
@@ -124,11 +124,11 @@ public interface TestSuiteDescriptor {
         };
       }
 
-      private FixtureDescriptor.Builder createFixtureDescriptorBuilder(Profile profile) {
-        return new FixtureDescriptor.Builder(profile);
+      private FloorPlanDescriptor.Builder createFixtureDescriptorBuilder(Profile profile) {
+        return new FloorPlanDescriptor.Builder(profile);
       }
 
-      protected abstract FixtureDescriptor buildFixtureDescriptor(FixtureDescriptor.Builder fixtureDescriptorBuilder);
+      protected abstract FloorPlanDescriptor buildFixtureDescriptor(FloorPlanDescriptor.Builder fixtureDescriptorBuilder);
 
       protected abstract Predicate<Profile> profileRequirement();
 

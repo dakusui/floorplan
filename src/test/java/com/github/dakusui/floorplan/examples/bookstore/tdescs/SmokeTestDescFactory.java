@@ -4,7 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.examples.bookstore.components.*;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
 import com.github.dakusui.floorplan.policy.Profile;
@@ -79,7 +79,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected FixtureDescriptor buildFixtureDescriptor(FixtureDescriptor.Builder builder) {
+  protected FloorPlanDescriptor buildFixtureDescriptor(FloorPlanDescriptor.Builder builder) {
     return builder
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)

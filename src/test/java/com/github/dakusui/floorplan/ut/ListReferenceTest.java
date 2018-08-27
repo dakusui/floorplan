@@ -5,7 +5,7 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
@@ -120,7 +120,7 @@ public class ListReferenceTest {
     public void given$when$then() {
       Ref refChild = ref(Child.SPEC, "1");
       Ref refParent = ref(Parent.SPEC, "1");
-      FloorPlan floorPlan = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+      FloorPlan floorPlan = buildFixture(new FloorPlanDescriptor.Builder(new SimpleProfile())
           .add(refChild)
           .wire(refParent, Parent.Attr.LIST_REF, refChild)
           .build());

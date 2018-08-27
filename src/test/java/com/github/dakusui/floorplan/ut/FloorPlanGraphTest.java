@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.exception.IncompatibleProfile;
 import com.github.dakusui.floorplan.exception.MissingValueException;
 import com.github.dakusui.floorplan.exception.TypeMismatch;
@@ -30,7 +30,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
                 SimpleComponent.INSTANCE_NAME,
@@ -56,7 +56,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(simple1, SimpleComponent.INSTANCE_NAME, profileValue(String.class, "configured-instance-name-simple1"))
             .build()
     );
@@ -86,7 +86,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
                 SimpleComponent.INSTANCE_NAME,
@@ -150,7 +150,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(simple1, ref1)
             .configureWithValue(simple1, SimpleComponent.INSTANCE_NAME, "configured-instance-name-simple1")
             .configure(ref1, REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE, referenceTo(simple1))
@@ -176,7 +176,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
     FloorPlan floorPlan = FloorPlanUtils.buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
                 SimpleComponent.INSTANCE_NAME,
@@ -207,7 +207,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    FloorPlan floorPlan = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+    FloorPlan floorPlan = buildFixture(new FloorPlanDescriptor.Builder(new SimpleProfile())
         .wire(
             singletonList(ref1),
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
@@ -238,7 +238,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    FloorPlan floorPlan = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+    FloorPlan floorPlan = buildFixture(new FloorPlanDescriptor.Builder(new SimpleProfile())
         .wire(
             ref1,
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,

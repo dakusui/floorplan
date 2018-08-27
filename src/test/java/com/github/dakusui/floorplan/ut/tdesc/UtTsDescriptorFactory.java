@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.ut.tdesc;
 
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
@@ -65,7 +65,7 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected FixtureDescriptor buildFixtureDescriptor(FixtureDescriptor.Builder fixtureDescriptorBuilder) {
+  protected FloorPlanDescriptor buildFixtureDescriptor(FloorPlanDescriptor.Builder fixtureDescriptorBuilder) {
     return fixtureDescriptorBuilder.add(ref(UtComponent.SPEC, "1")).build();
   }
 

@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.ut.style;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import com.github.dakusui.floorplan.ut.style.models.*;
 import com.github.dakusui.floorplan.ut.utils.UtBase;
@@ -22,7 +22,7 @@ public class StyleTest extends UtBase {
   public void classStyle() {
     Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, ClassStyle.Attr.NAME, immediate("helloWorld"))
             .build()
@@ -41,7 +41,7 @@ public class StyleTest extends UtBase {
   public void inheritedClassStyle() {
     Ref sandboxRef = Ref.ref(InheritedClassStyle.SPEC, "1");
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, ClassStyle.Attr.NAME, immediate("helloWorld"))
             .build()
@@ -64,7 +64,7 @@ public class StyleTest extends UtBase {
     try {
       Ref sandboxRef = Ref.ref(BrokenModel.SPEC, "1");
       buildFixture(
-          new FixtureDescriptor.Builder(new SimpleProfile())
+          new FloorPlanDescriptor.Builder(new SimpleProfile())
               .add(sandboxRef)
               .configure(sandboxRef, BrokenModel.Attr.NAME, immediate("helloWorld"))
               .build()
@@ -83,7 +83,7 @@ public class StyleTest extends UtBase {
     try {
       Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
       buildFixture(
-          new FixtureDescriptor.Builder(new SimpleProfile())
+          new FloorPlanDescriptor.Builder(new SimpleProfile())
               .add(sandboxRef)
               .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
               .build()
@@ -102,7 +102,7 @@ public class StyleTest extends UtBase {
   public void interfaceStyle() {
     Ref sandboxRef = Ref.ref(InterfaceStyle.SPEC, "1");
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
             .build()
@@ -123,7 +123,7 @@ public class StyleTest extends UtBase {
     InheritedInterfaceStyle.SPEC.attributes().forEach(System.out::println);
     Ref sandboxRef = Ref.ref(InheritedInterfaceStyle.SPEC, "1");
     FloorPlan floorPlan = buildFixture(
-        new FixtureDescriptor.Builder(new SimpleProfile())
+        new FloorPlanDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
             .build()

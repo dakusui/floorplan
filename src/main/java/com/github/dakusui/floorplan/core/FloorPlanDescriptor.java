@@ -16,7 +16,7 @@ import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
 import static com.github.dakusui.floorplan.utils.InternalUtils.shortenedClassName;
 import static java.util.Collections.unmodifiableList;
 
-public interface FixtureDescriptor {
+public interface FloorPlanDescriptor {
   Profile profile();
 
   List<ComponentSpec> specs();
@@ -123,8 +123,8 @@ public interface FixtureDescriptor {
       return configure(from, as, immediate(value));
     }
 
-    public FixtureDescriptor build() {
-      return new FixtureDescriptor() {
+    public FloorPlanDescriptor build() {
+      return new FloorPlanDescriptor() {
         @Override
         public Profile profile() {
           return profile;

@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
-import com.github.dakusui.floorplan.core.FixtureDescriptor;
+import com.github.dakusui.floorplan.core.FloorPlanDescriptor;
 import com.github.dakusui.floorplan.core.FloorPlanGraph;
 import com.github.dakusui.floorplan.policy.Policy;
 
@@ -20,14 +20,14 @@ public enum FloorPlanUtils {
     return (T) Function.class.cast(Function.class.cast(configurator.resolverFor(attr, policy).apply(configurator))).apply(policy);
   }
 
-  public static FloorPlan buildFixture(FixtureDescriptor fixtureDescriptor) {
-    return createFixture(fixtureDescriptor, createPolicy(fixtureDescriptor));
+  public static FloorPlan buildFixture(FloorPlanDescriptor floorPlanDescriptor) {
+    return createFixture(floorPlanDescriptor, createPolicy(floorPlanDescriptor));
   }
 
   @SuppressWarnings("unchecked")
-  private static FloorPlan createFixture(FixtureDescriptor fixtureDescriptor, Policy policy) {
+  private static FloorPlan createFixture(FloorPlanDescriptor floorPlanDescriptor, Policy policy) {
     FixtureConfigurator fixtureConfigurator = policy.fixtureConfigurator();
-    fixtureDescriptor.attributes().forEach(
+    floorPlanDescriptor.attributes().forEach(
         each -> fixtureConfigurator.configure(
             each.target,
             each.attribute,
@@ -37,19 +37,19 @@ public enum FloorPlanUtils {
     return fixtureConfigurator.build();
   }
 
-  private static Policy createPolicy(FixtureDescriptor fixtureDescriptor) {
+  private static Policy createPolicy(FloorPlanDescriptor floorPlanDescriptor) {
     Policy.Builder policyBuilder = new Policy.Builder().setProfile(
-        fixtureDescriptor.profile()
+        floorPlanDescriptor.profile()
     );
-    fixtureDescriptor.specs().forEach(policyBuilder::addComponentSpec);
-    policyBuilder.setFloorPlanGraph(createFloorPlanGraph(fixtureDescriptor));
+    floorPlanDescriptor.specs().forEach(policyBuilder::addComponentSpec);
+    policyBuilder.setFloorPlanGraph(createFloorPlanGraph(floorPlanDescriptor));
     return policyBuilder.build();
   }
 
-  private static FloorPlanGraph createFloorPlanGraph(FixtureDescriptor fixtureDescriptor) {
+  private static FloorPlanGraph createFloorPlanGraph(FloorPlanDescriptor floorPlanDescriptor) {
     FloorPlanGraph floorPlanGraph = new FloorPlanGraph.Impl();
-    fixtureDescriptor.refs().forEach(floorPlanGraph::add);
-    fixtureDescriptor.wires().forEach(each -> floorPlanGraph.wire(each.from, each.as, each.tos));
+    floorPlanDescriptor.refs().forEach(floorPlanGraph::add);
+    floorPlanDescriptor.wires().forEach(each -> floorPlanGraph.wire(each.from, each.as, each.tos));
     return floorPlanGraph;
   }
 }
