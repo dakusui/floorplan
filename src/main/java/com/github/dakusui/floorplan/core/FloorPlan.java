@@ -12,14 +12,14 @@ import java.util.Objects;
 
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
 
-public interface Fixture {
+public interface FloorPlan {
   <A extends Attribute, C extends Component<A>> C lookUp(Ref ref);
 
   interface Factory {
-    Fixture create(Policy policy, FixtureConfigurator fixtureConfigurator);
+    FloorPlan create(Policy policy, FixtureConfigurator fixtureConfigurator);
   }
 
-  final class Impl implements Fixture {
+  final class Impl implements FloorPlan {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<Ref, Component<?>> components;
 

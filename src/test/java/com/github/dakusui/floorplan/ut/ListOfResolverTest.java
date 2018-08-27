@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.ut;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
 
@@ -43,10 +43,10 @@ public class ListOfResolverTest {
   @Test
   public void test() {
     Ref cut = Ref.ref(Cut.SPEC, "1");
-    Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
     assertThat(
-        fixture.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR),
+        floorPlan.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR),
         allOf(
             asInteger("size").equalTo(3).$(),
             asString("get", 0).equalTo("hello").$(),

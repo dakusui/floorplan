@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.ut.tdesc;
 
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
@@ -40,27 +40,27 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected Action createActionForSetUp(int testCaseId, Fixture fixture) {
+  protected Action createActionForSetUp(int testCaseId, FloorPlan floorPlan) {
     return nop();
   }
 
   @Override
-  protected Action createActionForSetUpFirstTime(Fixture fixture) {
+  protected Action createActionForSetUpFirstTime(FloorPlan floorPlan) {
     return nop();
   }
 
   @Override
-  protected Action createActionForTest(int testCaseId, int testOracleId, Fixture fixture) {
+  protected Action createActionForTest(int testCaseId, int testOracleId, FloorPlan floorPlan) {
     return nop();
   }
 
   @Override
-  protected Action createActionForTearDown(int testCaseId, Fixture fixture) {
+  protected Action createActionForTearDown(int testCaseId, FloorPlan floorPlan) {
     return nop();
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Fixture fixture) {
+  protected Action createActionForTearDownLastTime(FloorPlan floorPlan) {
     return nop();
   }
 

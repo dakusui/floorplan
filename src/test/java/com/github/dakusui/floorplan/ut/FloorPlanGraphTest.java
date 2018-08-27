@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.exception.IncompatibleProfile;
@@ -29,7 +29,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenSimpleAttribute$whenConfiguredWithImmediate$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
@@ -39,7 +39,7 @@ public class FloorPlanGraphTest extends UtBase {
     );
 
     assertThat(
-        fixture.lookUp(simple1),
+        floorPlan.lookUp(simple1),
         allOf(
             asObject(
                 (Component<SimpleComponent> c) -> c.valueOf(SimpleComponent.INSTANCE_NAME)
@@ -55,14 +55,14 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenSimpleAttribute$whenConfiguredWithProfileAttribute$thenResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(simple1, SimpleComponent.INSTANCE_NAME, profileValue(String.class, "configured-instance-name-simple1"))
             .build()
     );
 
     assertThat(
-        fixture.lookUp(simple1),
+        floorPlan.lookUp(simple1),
         allOf(
             asObject(
                 (Component<SimpleComponent> c) -> c.valueOf(SimpleComponent.INSTANCE_NAME))
@@ -85,7 +85,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenSimpleAttribute$whenConfiguredWithSlotAttribute$thenResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
 
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
@@ -95,7 +95,7 @@ public class FloorPlanGraphTest extends UtBase {
     );
 
     assertThat(
-        fixture.lookUp(simple1),
+        floorPlan.lookUp(simple1),
         allOf(
             asObject(
                 (Component<SimpleComponent> c) -> c.valueOf(SimpleComponent.INSTANCE_NAME))
@@ -149,7 +149,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .add(simple1, ref1)
             .configureWithValue(simple1, SimpleComponent.INSTANCE_NAME, "configured-instance-name-simple1")
@@ -158,14 +158,14 @@ public class FloorPlanGraphTest extends UtBase {
     );
 
     assertThat(
-        fixture,
+        floorPlan,
         allOf(
             asObject(
                 call("lookUp", ref1).andThen("valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE).$()
             ).isInstanceOf(
                 Component.class
             ).equalTo(
-                fixture.lookUp(simple1)
+                floorPlan.lookUp(simple1)
             ).$()
         )
     );
@@ -175,7 +175,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void givenReferencingAttribute$whenConfiguredWithReferenceAndBuilt$thenAttributeIsResolvedCorrectly() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
-    Fixture fixture = FloorPlanUtils.buildFixture(
+    FloorPlan floorPlan = FloorPlanUtils.buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .configure(
                 simple1,
@@ -188,7 +188,7 @@ public class FloorPlanGraphTest extends UtBase {
             .build());
 
     assertThat(
-        fixture.lookUp(ref1),
+        floorPlan.lookUp(ref1),
         allOf(
             asObject(
                 "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
@@ -207,7 +207,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    Fixture fixture = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+    FloorPlan floorPlan = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
         .wire(
             singletonList(ref1),
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
@@ -219,7 +219,7 @@ public class FloorPlanGraphTest extends UtBase {
         .build());
 
     assertThat(
-        fixture.lookUp(ref1),
+        floorPlan.lookUp(ref1),
         allOf(
             asObject(
                 "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
@@ -238,7 +238,7 @@ public class FloorPlanGraphTest extends UtBase {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     Ref ref1 = Ref.ref(ReferenceComponent.SPEC, "ref1");
 
-    Fixture fixture = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+    FloorPlan floorPlan = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
         .wire(
             ref1,
             REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE,
@@ -250,7 +250,7 @@ public class FloorPlanGraphTest extends UtBase {
         .build());
 
     assertThat(
-        fixture.lookUp(ref1),
+        floorPlan.lookUp(ref1),
         allOf(
             asObject(
                 "valueOf", REFERENCE_TO_ANOTHER_COMPONENT_INSTANCE
@@ -307,10 +307,10 @@ public class FloorPlanGraphTest extends UtBase {
   public void typeMismatch() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      Fixture fixture = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
+      FloorPlan floorPlan = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
           .configure(simple1, SimpleComponent.INSTANCE_NAME, immediate(123))
           .build();
-      System.out.println(String.format("value='%s'", fixture.lookUp(simple1).valueOf(SimpleComponent.INSTANCE_NAME)));
+      System.out.println(String.format("value='%s'", floorPlan.lookUp(simple1).valueOf(SimpleComponent.INSTANCE_NAME)));
     } catch (TypeMismatch e) {
       assertThat(
           e,

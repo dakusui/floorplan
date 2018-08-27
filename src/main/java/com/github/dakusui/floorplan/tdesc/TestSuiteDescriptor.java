@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.tdesc;
 
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.policy.Profile;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
@@ -40,7 +40,7 @@ public interface TestSuiteDescriptor {
     abstract class Base implements Factory {
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
-        Fixture fixture = FloorPlanUtils.buildFixture(
+        FloorPlan floorPlan = FloorPlanUtils.buildFixture(
             buildFixtureDescriptor(createFixtureDescriptorBuilder(profile))
         );
 
@@ -53,7 +53,7 @@ public interface TestSuiteDescriptor {
           public Named setUpFirstTime() {
             return (Named) named(
                 "BEFORE ALL",
-                createActionForSetUpFirstTime(fixture)
+                createActionForSetUpFirstTime(floorPlan)
             );
           }
 
@@ -61,7 +61,7 @@ public interface TestSuiteDescriptor {
           public Named setUp(int testCaseId) {
             return (Named) named(
                 String.format("BEFORE:%s", getTestCaseNameFor(testCaseId)),
-                createActionForSetUp(testCaseId, fixture)
+                createActionForSetUp(testCaseId, floorPlan)
             );
           }
 
@@ -69,7 +69,7 @@ public interface TestSuiteDescriptor {
           public Named test(int testCaseId, int testOracleId) {
             return (Named) named(
                 String.format("TEST:%s.%s", getTestOracleNameFor(testOracleId), getTestCaseNameFor(testCaseId)),
-                createActionForTest(testCaseId, testOracleId, fixture)
+                createActionForTest(testCaseId, testOracleId, floorPlan)
             );
           }
 
@@ -102,14 +102,14 @@ public interface TestSuiteDescriptor {
           public Named tearDown(int testCaseId) {
             return (Named) named(
                 String.format("AFTER:%s", getTestCaseNameFor(testCaseId)),
-                createActionForTearDown(testCaseId, fixture)
+                createActionForTearDown(testCaseId, floorPlan)
             );
           }
 
           @Override
           public Named tearDownLastTime() {
             return (Named) named("AFTER ALL",
-                createActionForTearDownLastTime(fixture)
+                createActionForTearDownLastTime(floorPlan)
             );
           }
 
@@ -142,15 +142,15 @@ public interface TestSuiteDescriptor {
 
       protected abstract int numTestOracles();
 
-      protected abstract Action createActionForSetUp(int testCaseId, Fixture fixture);
+      protected abstract Action createActionForSetUp(int testCaseId, FloorPlan floorPlan);
 
-      protected abstract Action createActionForSetUpFirstTime(Fixture fixture);
+      protected abstract Action createActionForSetUpFirstTime(FloorPlan floorPlan);
 
-      protected abstract Action createActionForTest(int testCaseId, int testOracleId, Fixture fixture);
+      protected abstract Action createActionForTest(int testCaseId, int testOracleId, FloorPlan floorPlan);
 
-      protected abstract Action createActionForTearDown(int testCaseId, Fixture fixture);
+      protected abstract Action createActionForTearDown(int testCaseId, FloorPlan floorPlan);
 
-      protected abstract Action createActionForTearDownLastTime(Fixture fixture);
+      protected abstract Action createActionForTearDownLastTime(FloorPlan floorPlan);
     }
   }
 }

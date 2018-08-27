@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.ut;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import org.junit.Test;
@@ -44,10 +44,10 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      Fixture fixture = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
       assertThat(
-          fixture.lookUp(cut).valueOf(Cut.Attr.TRANSFORM),
+          floorPlan.lookUp(cut).valueOf(Cut.Attr.TRANSFORM),
           asInteger().equalTo(5).$()
       );
     }
@@ -79,10 +79,10 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      Fixture fixture = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
       assertThat(
-          fixture.lookUp(cut).valueOf(Cut.Attr.TRANSFORM_LIST),
+          floorPlan.lookUp(cut).valueOf(Cut.Attr.TRANSFORM_LIST),
           allOf(
               asInteger("size").equalTo(2).$(),
               asInteger("get", 0).equalTo(5).$(),
@@ -118,10 +118,10 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      Fixture fixture = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
 
       assertThat(
-          fixture.lookUp(cut).valueOf(Cut.Attr.SIZE_OF),
+          floorPlan.lookUp(cut).valueOf(Cut.Attr.SIZE_OF),
           asInteger().equalTo(2).$()
       );
     }

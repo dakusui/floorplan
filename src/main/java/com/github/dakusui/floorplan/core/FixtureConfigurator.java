@@ -24,7 +24,7 @@ public interface FixtureConfigurator {
 
   Set<Ref> allReferences();
 
-  Fixture build();
+  FloorPlan build();
 
   default <A extends Attribute> FixtureConfigurator configure(Ref ref, A attr, Resolver<A, ?> resolver) {
     this.<A>lookUp(ref).configure(attr, resolver);
@@ -35,9 +35,9 @@ public interface FixtureConfigurator {
     private final Set<Ref>              refs;
     private final List<Configurator<?>> configurators;
     private final Policy                policy;
-    private final Fixture.Factory       fixtureFactory;
+    private final FloorPlan.Factory     fixtureFactory;
 
-    Impl(Policy policy, Set<Ref> refs, Fixture.Factory fixtureFactory) {
+    Impl(Policy policy, Set<Ref> refs, FloorPlan.Factory fixtureFactory) {
       this.policy = requireNonNull(policy);
       this.refs = unmodifiableSet(requireNonNull(refs));
       this.configurators = unmodifiableList(
@@ -68,7 +68,7 @@ public interface FixtureConfigurator {
     }
 
     @Override
-    public Fixture build() {
+    public FloorPlan build() {
       return this.fixtureFactory.create(this.policy, this);
     }
   }

@@ -1,7 +1,7 @@
 package com.github.dakusui.floorplan.examples.bookstore.tdescs;
 
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.examples.bookstore.components.Apache;
 import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.examples.bookstore.components.Nginx;
@@ -14,7 +14,7 @@ public abstract class BasicTestDescFactory extends TestSuiteDescriptor.Factory.B
   static final Ref DBMS  = Ref.ref(PostgreSQL.SPEC, "1");
   static final Ref PROXY = Ref.ref(Nginx.SPEC, "1");
 
-  public abstract String applicationEndpoint(Fixture fixture);
+  public abstract String applicationEndpoint(FloorPlan floorPlan);
 
   @Override
   protected String testCaseNameFor(int testCaseId) {

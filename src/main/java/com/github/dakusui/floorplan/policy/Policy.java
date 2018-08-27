@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.core.FloorPlanGraph;
 import com.github.dakusui.floorplan.exception.Exceptions;
@@ -44,7 +44,7 @@ public interface Policy {
     private final FixtureConfigurator fixtureConfigurator;
     private final Profile             profile;
 
-    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlanGraph floorPlanGraph, Profile profile, Fixture.Factory fixtureFactory) {
+    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlanGraph floorPlanGraph, Profile profile, FloorPlan.Factory fixtureFactory) {
       requireArgument(
           floorPlanGraph,
           f -> f.allReferences().stream().allMatch((Ref ref) -> specs.contains(ref.spec())),
@@ -96,7 +96,7 @@ public interface Policy {
     private       FloorPlanGraph         floorPlanGraph = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
-    private       Fixture.Factory        fixtureFactory = Fixture.Impl::new;
+    private       FloorPlan.Factory      fixtureFactory = FloorPlan.Impl::new;
 
     public Builder() {
     }

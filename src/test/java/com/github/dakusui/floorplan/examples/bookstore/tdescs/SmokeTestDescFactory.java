@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.examples.bookstore.tdescs;
 import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.examples.bookstore.components.*;
 import com.github.dakusui.floorplan.examples.bookstore.floorplan.BookstoreProfile;
@@ -34,7 +34,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected Action createActionForSetUp(int testCaseId, Fixture fixture) {
+  protected Action createActionForSetUp(int testCaseId, FloorPlan floorPlan) {
     return nop();
   }
 
@@ -44,37 +44,37 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
 
 
   @Override
-  protected Action createActionForSetUpFirstTime(Fixture fixture) {
+  protected Action createActionForSetUpFirstTime(FloorPlan floorPlan) {
     return sequential(
         parallel(
-            toAction(fixture.lookUp(HTTPD), Apache.Attr.UNINSTALL),
-            toAction(fixture.lookUp(DBMS), PostgreSQL.Attr.UNINSTALL),
-            toAction(fixture.lookUp(APP), BookstoreApp.Attr.UNINSTALL),
-            toAction(fixture.lookUp(PROXY), Nginx.Attr.UNINSTALL)
+            toAction(floorPlan.lookUp(HTTPD), Apache.Attr.UNINSTALL),
+            toAction(floorPlan.lookUp(DBMS), PostgreSQL.Attr.UNINSTALL),
+            toAction(floorPlan.lookUp(APP), BookstoreApp.Attr.UNINSTALL),
+            toAction(floorPlan.lookUp(PROXY), Nginx.Attr.UNINSTALL)
         ),
         parallel(
-            toAction(fixture.lookUp(HTTPD), Apache.Attr.INSTALL),
-            toAction(fixture.lookUp(DBMS), PostgreSQL.Attr.INSTALL),
-            toAction(fixture.lookUp(APP), BookstoreApp.Attr.INSTALL),
-            toAction(fixture.lookUp(PROXY), Nginx.Attr.INSTALL)
+            toAction(floorPlan.lookUp(HTTPD), Apache.Attr.INSTALL),
+            toAction(floorPlan.lookUp(DBMS), PostgreSQL.Attr.INSTALL),
+            toAction(floorPlan.lookUp(APP), BookstoreApp.Attr.INSTALL),
+            toAction(floorPlan.lookUp(PROXY), Nginx.Attr.INSTALL)
         )
     );
   }
 
   @Override
-  protected Action createActionForTest(int testCaseId, int testOracleId, Fixture fixture) {
+  protected Action createActionForTest(int testCaseId, int testOracleId, FloorPlan floorPlan) {
     return simple(String.format("Issue a request to end point[%s,%s]", testCaseId, testOracleId),
-        (c) -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", applicationEndpoint(fixture))
+        (c) -> UtUtils.runShell("ssh -l myuser@%s curl '%s'", "localhost", applicationEndpoint(floorPlan))
     );
   }
 
   @Override
-  protected Action createActionForTearDown(int testCaseId, Fixture fixture) {
+  protected Action createActionForTearDown(int testCaseId, FloorPlan floorPlan) {
     return named("Collect log files", nop());
   }
 
   @Override
-  protected Action createActionForTearDownLastTime(Fixture fixture) {
+  protected Action createActionForTearDownLastTime(FloorPlan floorPlan) {
     return nop();
   }
 
@@ -104,7 +104,7 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  public String applicationEndpoint(Fixture fixture) {
-    return requireNonNull(fixture).lookUp(PROXY).valueOf(Nginx.Attr.ENDPOINT);
+  public String applicationEndpoint(FloorPlan floorPlan) {
+    return requireNonNull(floorPlan).lookUp(PROXY).valueOf(Nginx.Attr.ENDPOINT);
   }
 }

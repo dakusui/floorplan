@@ -4,7 +4,7 @@ import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
@@ -54,7 +54,7 @@ public class ListReferenceTest {
       Ref simple2 = ref(SimpleComponent.SPEC, "2");
       Ref cut = ref(Cut.SPEC, "1");
 
-      Fixture fixture = UtUtils.buildPolicy(
+      FloorPlan floorPlan = UtUtils.buildPolicy(
           UtUtils.createUtFloorPlanGraph()
               .add(simple1, simple2, cut)
               .wire(cut, Cut.Attr.LIST_REF_ATTR, simple1, simple2),
@@ -66,7 +66,7 @@ public class ListReferenceTest {
       ).build();
 
       assertThat(
-          fixture.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0),
+          floorPlan.lookUp(cut).<Component>valueOf(Cut.Attr.LIST_REF_ATTR, 0),
           asString("valueOf", SimpleComponent.INSTANCE_NAME).equalTo("ins01").$()
       );
     }
@@ -78,7 +78,7 @@ public class ListReferenceTest {
       Ref simple2 = ref(SimpleComponent.SPEC, "2");
       Ref cut = ref(Cut.SPEC, "1");
 
-      Fixture fixture = UtUtils.buildPolicy(
+      FloorPlan floorPlan = UtUtils.buildPolicy(
           UtUtils.createUtFloorPlanGraph()
               .add(simple1, simple2, cut),
           Cut.SPEC,
@@ -90,7 +90,7 @@ public class ListReferenceTest {
       ).build();
 
       assertThat(
-          fixture.lookUp(cut).<Component<SimpleComponent>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
+          floorPlan.lookUp(cut).<Component<SimpleComponent>>valueOf(Cut.Attr.LIST_REF_ATTR, 1),
           asString("valueOf", SimpleComponent.INSTANCE_NAME).eq("ins02").$()
       );
     }
@@ -120,11 +120,11 @@ public class ListReferenceTest {
     public void given$when$then() {
       Ref refChild = ref(Child.SPEC, "1");
       Ref refParent = ref(Parent.SPEC, "1");
-      Fixture fixture = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
+      FloorPlan floorPlan = buildFixture(new FixtureDescriptor.Builder(new SimpleProfile())
           .add(refChild)
           .wire(refParent, Parent.Attr.LIST_REF, refChild)
           .build());
-      Parent parent = fixture.lookUp(refParent);
+      Parent parent = floorPlan.lookUp(refParent);
       assertThat(
           parent.children(),
           allOf(

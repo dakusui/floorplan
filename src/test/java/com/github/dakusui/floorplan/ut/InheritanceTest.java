@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.ut;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureConfigurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
@@ -67,10 +67,10 @@ public class InheritanceTest {
   @Test
   public void testL1$whenBuilt() {
     Ref cut = Ref.ref(L1.SPEC, "1");
-    Fixture fixture = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC).fixtureConfigurator().build();
 
     assertThat(
-        fixture.lookUp(cut).valueOf(L1.Attr.NAME),
+        floorPlan.lookUp(cut).valueOf(L1.Attr.NAME),
         asString().equalTo("defaultName").$()
     );
   }
@@ -78,10 +78,10 @@ public class InheritanceTest {
   @Test
   public void testL2$whenBuilt() {
     Ref cut = Ref.ref(L2.SPEC, "1");
-    Fixture fixture = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC).fixtureConfigurator().build();
 
     assertThat(
-        fixture.lookUp(cut),
+        floorPlan.lookUp(cut),
         allOf(
             asString("valueOf", L2.Attr.NAME).equalTo("defaultName").$(),
             asString("valueOf", L2.Attr.NAME2).equalTo("defaultName").$(),
@@ -93,10 +93,10 @@ public class InheritanceTest {
   @Test
   public void testL3$whenBuilt() {
     Ref cut = Ref.ref(L3.SPEC, "1");
-    Fixture fixture = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC, L3.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC, L3.SPEC).fixtureConfigurator().build();
 
     assertThat(
-        fixture.lookUp(cut),
+        floorPlan.lookUp(cut),
         allOf(
             asString("valueOf", L3.Attr.NAME).equalTo("defaultName").$(),
             asString("valueOf", L3.Attr.NAME2).equalTo("defaultName").$(),
@@ -116,10 +116,10 @@ public class InheritanceTest {
         .configure(L3.Attr.NAME, Resolver.of(c -> p -> "configured-1"))
         .configure(L3.Attr.NAME2, Resolver.of(c -> p -> "configured-2"))
         .configure(L3.Attr.NAME3, Resolver.of(c -> p -> "configured-3"));
-    Fixture fixture = fixtureConfigurator.build();
+    FloorPlan floorPlan = fixtureConfigurator.build();
 
     assertThat(
-        fixture.lookUp(cut),
+        floorPlan.lookUp(cut),
         allOf(
             asString("valueOf", L3.Attr.NAME).equalTo("configured-1").$(),
             asString("valueOf", L3.Attr.NAME2).equalTo("configured-2").$(),

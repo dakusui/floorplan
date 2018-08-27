@@ -2,7 +2,7 @@ package com.github.dakusui.floorplan.ut.style;
 
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.core.Fixture;
+import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FixtureDescriptor;
 import com.github.dakusui.floorplan.ut.profile.SimpleProfile;
 import com.github.dakusui.floorplan.ut.style.models.*;
@@ -21,14 +21,14 @@ public class StyleTest extends UtBase {
   @Test
   public void classStyle() {
     Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, ClassStyle.Attr.NAME, immediate("helloWorld"))
             .build()
     );
 
-    ClassStyle<ClassStyle.Attr> sandbox = fixture.lookUp(sandboxRef);
+    ClassStyle<ClassStyle.Attr> sandbox = floorPlan.lookUp(sandboxRef);
     System.out.println(sandbox.getClass().getCanonicalName());
     System.out.println(sandbox.name());
     assertThat(
@@ -40,14 +40,14 @@ public class StyleTest extends UtBase {
   @Test
   public void inheritedClassStyle() {
     Ref sandboxRef = Ref.ref(InheritedClassStyle.SPEC, "1");
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, ClassStyle.Attr.NAME, immediate("helloWorld"))
             .build()
     );
 
-    InheritedClassStyle sandbox = fixture.lookUp(sandboxRef);
+    InheritedClassStyle sandbox = floorPlan.lookUp(sandboxRef);
     System.out.println(sandbox.getClass().getCanonicalName());
     System.out.println(sandbox.name());
     System.out.println(sandbox.url());
@@ -101,14 +101,14 @@ public class StyleTest extends UtBase {
   @Test
   public void interfaceStyle() {
     Ref sandboxRef = Ref.ref(InterfaceStyle.SPEC, "1");
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
             .build()
     );
 
-    InterfaceStyle<InterfaceStyle.Attr> sandbox = fixture.lookUp(sandboxRef);
+    InterfaceStyle<InterfaceStyle.Attr> sandbox = floorPlan.lookUp(sandboxRef);
     System.out.println(sandbox.getClass().getCanonicalName());
     System.out.println(sandbox.name());
     assertThat(
@@ -122,14 +122,14 @@ public class StyleTest extends UtBase {
     InterfaceStyle.SPEC.attributes().forEach(System.out::println);
     InheritedInterfaceStyle.SPEC.attributes().forEach(System.out::println);
     Ref sandboxRef = Ref.ref(InheritedInterfaceStyle.SPEC, "1");
-    Fixture fixture = buildFixture(
+    FloorPlan floorPlan = buildFixture(
         new FixtureDescriptor.Builder(new SimpleProfile())
             .add(sandboxRef)
             .configure(sandboxRef, InterfaceStyle.Attr.NAME, immediate("helloWorld"))
             .build()
     );
 
-    InheritedInterfaceStyle sandbox = fixture.lookUp(sandboxRef);
+    InheritedInterfaceStyle sandbox = floorPlan.lookUp(sandboxRef);
     System.out.println(sandbox.getClass().getCanonicalName());
     System.out.println(sandbox.name());
     System.out.println(sandbox.url());
