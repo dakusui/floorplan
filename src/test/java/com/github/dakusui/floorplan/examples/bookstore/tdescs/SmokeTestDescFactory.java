@@ -79,8 +79,8 @@ public class SmokeTestDescFactory extends BasicTestDescFactory {
   }
 
   @Override
-  protected FloorPlanDescriptor buildFixtureDescriptor(FloorPlanDescriptor.Builder builder) {
-    return builder
+  protected FloorPlanDescriptor buildFloorPlanDescriptor(FloorPlanDescriptor.Builder floorPlanDescriptorBuilder) {
+    return floorPlanDescriptorBuilder
         .wire(APP, BookstoreApp.Attr.DBSERVER, DBMS)
         .wire(APP, BookstoreApp.Attr.WEBSERVER, HTTPD)
         .wire(PROXY, Nginx.Attr.UPSTREAM, APP)

@@ -67,7 +67,7 @@ public class InheritanceTest {
   @Test
   public void testL1$whenBuilt() {
     Ref cut = Ref.ref(L1.SPEC, "1");
-    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC).floorPlanConfigurator().build();
 
     assertThat(
         floorPlan.lookUp(cut).valueOf(L1.Attr.NAME),
@@ -78,7 +78,7 @@ public class InheritanceTest {
   @Test
   public void testL2$whenBuilt() {
     Ref cut = Ref.ref(L2.SPEC, "1");
-    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC).floorPlanConfigurator().build();
 
     assertThat(
         floorPlan.lookUp(cut),
@@ -93,7 +93,7 @@ public class InheritanceTest {
   @Test
   public void testL3$whenBuilt() {
     Ref cut = Ref.ref(L3.SPEC, "1");
-    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC, L3.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), L1.SPEC, L2.SPEC, L3.SPEC).floorPlanConfigurator().build();
 
     assertThat(
         floorPlan.lookUp(cut),
@@ -111,7 +111,7 @@ public class InheritanceTest {
     FloorPlanConfigurator floorPlanConfigurator = buildPolicy(
         UtUtils.createUtFloorPlanGraph().add(cut),
         L1.SPEC, L2.SPEC, L3.SPEC
-    ).fixtureConfigurator();
+    ).floorPlanConfigurator();
     floorPlanConfigurator.lookUp(cut)
         .configure(L3.Attr.NAME, Resolver.of(c -> p -> "configured-1"))
         .configure(L3.Attr.NAME2, Resolver.of(c -> p -> "configured-2"))

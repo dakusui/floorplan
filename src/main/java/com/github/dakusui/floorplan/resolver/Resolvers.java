@@ -98,7 +98,7 @@ public enum Resolvers {
   @SuppressWarnings("unchecked")
   public static <A extends Attribute, B extends Attribute, R> Resolver<A, R> attributeValueOf(B attr, Resolver<A, Ref> holder) {
     return Resolver.of(
-        c -> p -> FloorPlanUtils.resolve(attr, p.fixtureConfigurator().lookUp(holder.apply(c).apply(p)), p),
+        c -> p -> FloorPlanUtils.resolve(attr, p.floorPlanConfigurator().lookUp(holder.apply(c).apply(p)), p),
         () -> String.format("attributeValueOf(%s, %s)", attr, holder)
     );
   }

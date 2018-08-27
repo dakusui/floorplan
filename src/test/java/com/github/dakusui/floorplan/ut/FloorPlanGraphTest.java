@@ -119,7 +119,7 @@ public class FloorPlanGraphTest extends UtBase {
         ReferenceComponent.SPEC
     );
 
-    FloorPlanConfigurator floorPlanConfigurator = policy.fixtureConfigurator()
+    FloorPlanConfigurator floorPlanConfigurator = policy.floorPlanConfigurator()
         .configure(
             simple1,
             SimpleComponent.INSTANCE_NAME,
@@ -288,7 +288,7 @@ public class FloorPlanGraphTest extends UtBase {
       UtUtils.buildPolicy(
           UtUtils.createUtFloorPlanGraph().add(simple1),
           SimpleComponent.SPEC
-      ).fixtureConfigurator().build();
+      ).floorPlanConfigurator().build();
     } catch (MissingValueException e) {
       assertThat(
           e,
@@ -307,7 +307,7 @@ public class FloorPlanGraphTest extends UtBase {
   public void typeMismatch() {
     Ref simple1 = Ref.ref(SimpleComponent.SPEC, "simple1");
     try {
-      FloorPlan floorPlan = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(simple1), SimpleComponent.SPEC).fixtureConfigurator()
+      FloorPlan floorPlan = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(simple1), SimpleComponent.SPEC).floorPlanConfigurator()
           .configure(simple1, SimpleComponent.INSTANCE_NAME, immediate(123))
           .build();
       System.out.println(String.format("value='%s'", floorPlan.lookUp(simple1).valueOf(SimpleComponent.INSTANCE_NAME)));

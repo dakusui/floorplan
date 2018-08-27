@@ -39,7 +39,7 @@ public interface FloorPlanGraph {
 
   Set<Ref> allReferences();
 
-  FloorPlanConfigurator configurator(Policy policy, FloorPlan.Factory fixtureFactory);
+  FloorPlanConfigurator configurator(Policy policy, FloorPlan.Factory floorPlanFactory);
 
   List<? extends ResolverEntry> allWires();
 
@@ -123,8 +123,8 @@ public interface FloorPlanGraph {
       return Collections.unmodifiableSet(this.refs);
     }
 
-    public FloorPlanConfigurator configurator(Policy policy, FloorPlan.Factory fixtureFactory) {
-      return new FloorPlanConfigurator.Impl(policy, refs, fixtureFactory);
+    public FloorPlanConfigurator configurator(Policy policy, FloorPlan.Factory floorPlanFactory) {
+      return new FloorPlanConfigurator.Impl(policy, refs, floorPlanFactory);
     }
 
     public List<? extends ResolverEntry> allWires() {

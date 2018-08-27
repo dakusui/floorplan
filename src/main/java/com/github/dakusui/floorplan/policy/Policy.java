@@ -32,11 +32,11 @@ public interface Policy {
   Profile profile();
 
   /**
-   * Returns a {@code FixtureConfigurator} instance associated with this object.
+   * Returns a {@code FloorPlanConfigurator} instance associated with this object.
    *
-   * @return a {@code FixtureConfigurator} instance
+   * @return a {@code FloorPlanConfigurator} instance
    */
-  FloorPlanConfigurator fixtureConfigurator();
+  FloorPlanConfigurator floorPlanConfigurator();
 
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
@@ -44,7 +44,7 @@ public interface Policy {
     private final FloorPlanConfigurator floorPlanConfigurator;
     private final Profile               profile;
 
-    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlanGraph floorPlanGraph, Profile profile, FloorPlan.Factory fixtureFactory) {
+    Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlanGraph floorPlanGraph, Profile profile, FloorPlan.Factory floorPlanFactory) {
       requireArgument(
           floorPlanGraph,
           f -> f.allReferences().stream().allMatch((Ref ref) -> specs.contains(ref.spec())),
@@ -54,7 +54,7 @@ public interface Policy {
           )
       );
       this.resolvers = unmodifiableList(requireNonNull(resolvers));
-      this.floorPlanConfigurator = requireNonNull(floorPlanGraph).configurator(this, fixtureFactory);
+      this.floorPlanConfigurator = requireNonNull(floorPlanGraph).configurator(this, floorPlanFactory);
       this.profile = requireNonNull(profile);
     }
 
@@ -79,24 +79,24 @@ public interface Policy {
     }
 
     @Override
-    public FloorPlanConfigurator fixtureConfigurator() {
+    public FloorPlanConfigurator floorPlanConfigurator() {
       return this.floorPlanConfigurator;
     }
 
     @Override
     public <A extends Attribute> Configurator<A> lookUp(Ref ref) {
-      return this.fixtureConfigurator().lookUp(ref);
+      return this.floorPlanConfigurator().lookUp(ref);
     }
 
   }
 
   class Builder {
-    private final List<ResolverEntry>    resolvers      = new LinkedList<>();
-    private final List<ComponentSpec<?>> specs          = new LinkedList<>();
-    private       FloorPlanGraph         floorPlanGraph = null;
+    private final List<ResolverEntry>    resolvers        = new LinkedList<>();
+    private final List<ComponentSpec<?>> specs            = new LinkedList<>();
+    private       FloorPlanGraph         floorPlanGraph   = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
-    private       FloorPlan.Factory      fixtureFactory = FloorPlan.Impl::new;
+    private       FloorPlan.Factory      floorPlanFactory = FloorPlan.Impl::new;
 
     public Builder() {
     }
@@ -133,7 +133,7 @@ public interface Policy {
       }}, this.specs,
           this.floorPlanGraph,
           this.profile,
-          requireNonNull(this.fixtureFactory));
+          requireNonNull(this.floorPlanFactory));
     }
 
     private static List<? extends ResolverEntry> createResolversForFloorPlan(FloorPlanGraph floorPlanGraph) {

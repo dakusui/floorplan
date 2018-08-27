@@ -35,9 +35,9 @@ public interface FloorPlanConfigurator {
     private final Set<Ref>              refs;
     private final List<Configurator<?>> configurators;
     private final Policy                policy;
-    private final FloorPlan.Factory     fixtureFactory;
+    private final FloorPlan.Factory     floorPlanFactory;
 
-    Impl(Policy policy, Set<Ref> refs, FloorPlan.Factory fixtureFactory) {
+    Impl(Policy policy, Set<Ref> refs, FloorPlan.Factory floorPlanFactory) {
       this.policy = requireNonNull(policy);
       this.refs = unmodifiableSet(requireNonNull(refs));
       this.configurators = unmodifiableList(
@@ -46,7 +46,7 @@ public interface FloorPlanConfigurator {
               (Function<Ref, Configurator<?>>) ref -> ref.spec().configurator(ref.id())
           ).collect(toList())
       );
-      this.fixtureFactory = requireNonNull(fixtureFactory);
+      this.floorPlanFactory = requireNonNull(floorPlanFactory);
     }
 
     @SuppressWarnings("unchecked")
@@ -69,7 +69,7 @@ public interface FloorPlanConfigurator {
 
     @Override
     public FloorPlan build() {
-      return this.fixtureFactory.create(this.policy, this);
+      return this.floorPlanFactory.create(this.policy, this);
     }
   }
 }

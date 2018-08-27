@@ -41,7 +41,7 @@ public interface TestSuiteDescriptor {
       @SuppressWarnings("unchecked")
       public TestSuiteDescriptor create(Profile profile) {
         FloorPlan floorPlan = FloorPlanUtils.buildFloorPlan(
-            buildFixtureDescriptor(createFixtureDescriptorBuilder(profile))
+            buildFloorPlanDescriptor(createFloorPlanDescriptorBuilder(profile))
         );
 
         return new TestSuiteDescriptor() {
@@ -124,11 +124,11 @@ public interface TestSuiteDescriptor {
         };
       }
 
-      private FloorPlanDescriptor.Builder createFixtureDescriptorBuilder(Profile profile) {
+      private FloorPlanDescriptor.Builder createFloorPlanDescriptorBuilder(Profile profile) {
         return new FloorPlanDescriptor.Builder(profile);
       }
 
-      protected abstract FloorPlanDescriptor buildFixtureDescriptor(FloorPlanDescriptor.Builder fixtureDescriptorBuilder);
+      protected abstract FloorPlanDescriptor buildFloorPlanDescriptor(FloorPlanDescriptor.Builder floorPlanDescriptorBuilder);
 
       protected abstract Predicate<Profile> profileRequirement();
 

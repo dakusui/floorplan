@@ -1,6 +1,5 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
-import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
@@ -44,7 +43,7 @@ public class BookstoreApp {
     Attr ENDPOINT  = Attribute.create((SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
-              Configurator<Apache.Attr> webServer = p.fixtureConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
+              Configurator<Apache.Attr> webServer = p.floorPlanConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
               return String.format(
                   "http://%s:%s/%s",
                   FloorPlanUtils.resolve(Apache.Attr.HOSTNAME, webServer, p),

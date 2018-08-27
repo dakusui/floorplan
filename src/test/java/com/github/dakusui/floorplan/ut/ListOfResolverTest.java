@@ -43,7 +43,7 @@ public class ListOfResolverTest {
   @Test
   public void test() {
     Ref cut = Ref.ref(Cut.SPEC, "1");
-    FloorPlan floorPlan = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+    FloorPlan floorPlan = UtUtils.buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).floorPlanConfigurator().build();
 
     assertThat(
         floorPlan.lookUp(cut).valueOf(Cut.Attr.LIST_ATTR),

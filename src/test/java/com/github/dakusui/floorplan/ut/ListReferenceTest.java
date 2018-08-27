@@ -60,7 +60,7 @@ public class ListReferenceTest {
               .wire(cut, Cut.Attr.LIST_REF_ATTR, simple1, simple2),
           Cut.SPEC,
           SimpleComponent.SPEC
-      ).fixtureConfigurator(
+      ).floorPlanConfigurator(
       ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
       ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")
       ).build();
@@ -83,7 +83,7 @@ public class ListReferenceTest {
               .add(simple1, simple2, cut),
           Cut.SPEC,
           SimpleComponent.SPEC
-      ).fixtureConfigurator(
+      ).floorPlanConfigurator(
       ).configure(cut, Cut.Attr.LIST_REF_ATTR, listOf(Ref.class, referenceTo(simple1), referenceTo(simple2))
       ).configure(simple1, SimpleComponent.INSTANCE_NAME, immediate("ins01")
       ).configure(simple2, SimpleComponent.INSTANCE_NAME, immediate("ins02")

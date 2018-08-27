@@ -26,7 +26,7 @@ public enum FloorPlanUtils {
 
   @SuppressWarnings("unchecked")
   private static FloorPlan createFloorPlan(FloorPlanDescriptor floorPlanDescriptor, Policy policy) {
-    FloorPlanConfigurator floorPlanConfigurator = policy.fixtureConfigurator();
+    FloorPlanConfigurator floorPlanConfigurator = policy.floorPlanConfigurator();
     floorPlanDescriptor.attributes().forEach(
         each -> floorPlanConfigurator.configure(
             each.target,

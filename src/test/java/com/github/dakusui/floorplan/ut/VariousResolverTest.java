@@ -44,7 +44,7 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).floorPlanConfigurator().build();
 
       assertThat(
           floorPlan.lookUp(cut).valueOf(Cut.Attr.TRANSFORM),
@@ -79,7 +79,7 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).floorPlanConfigurator().build();
 
       assertThat(
           floorPlan.lookUp(cut).valueOf(Cut.Attr.TRANSFORM_LIST),
@@ -118,7 +118,7 @@ public class VariousResolverTest {
     @Test
     public void givenTransformAttribute$whenEvaluate$thenCorrect() {
       Ref cut = Ref.ref(Cut.SPEC, "1");
-      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).fixtureConfigurator().build();
+      FloorPlan floorPlan = buildPolicy(UtUtils.createUtFloorPlanGraph().add(cut), Cut.SPEC).floorPlanConfigurator().build();
 
       assertThat(
           floorPlan.lookUp(cut).valueOf(Cut.Attr.SIZE_OF),

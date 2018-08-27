@@ -65,8 +65,8 @@ public class UtTsDescriptorFactory extends TestSuiteDescriptor.Factory.Base
   }
 
   @Override
-  protected FloorPlanDescriptor buildFixtureDescriptor(FloorPlanDescriptor.Builder fixtureDescriptorBuilder) {
-    return fixtureDescriptorBuilder.add(ref(UtComponent.SPEC, "1")).build();
+  protected FloorPlanDescriptor buildFloorPlanDescriptor(FloorPlanDescriptor.Builder floorPlanDescriptorBuilder) {
+    return floorPlanDescriptorBuilder.add(ref(UtComponent.SPEC, "1")).build();
   }
 
   @Override
