@@ -1,12 +1,16 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
-import com.github.dakusui.floorplan.component.*;
+import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Component;
+import com.github.dakusui.floorplan.component.ComponentSpec;
+import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
+import static com.github.dakusui.floorplan.utils.FloorPlanUtils.resolve;
 
 /**
  * A class to define a deployment specification of an internet bookstore
@@ -25,12 +29,12 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
     Attr DBSERVER_ENDPOINT = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
-              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
+              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(resolve(DBSERVER, c, p));
               return String.format(
                   "jdbc:postgresql://%s:%s/%s",
-                  FloorPlanUtils.resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
-                  FloorPlanUtils.resolve(PostgreSQL.Attr.PORTNUMBER, dbServer, p),
-                  FloorPlanUtils.resolve(PostgreSQL.Attr.BOOKSTORE_DATABASE, dbServer, p)
+                  resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
+                  resolve(PostgreSQL.Attr.PORTNUMBER, dbServer, p),
+                  resolve(PostgreSQL.Attr.BOOKSTORE_DATABASE, dbServer, p)
               );
             },
             () -> "An endpoint to access a database server where data of this application is stored."
@@ -42,9 +46,9 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
               Configurator<Apache.Attr> webServer = p.floorPlanConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
               return String.format(
                   "http://%s:%s/%s",
-                  FloorPlanUtils.resolve(Apache.Attr.HOSTNAME, webServer, p),
-                  FloorPlanUtils.resolve(Apache.Attr.PORTNUMBER, webServer, p),
-                  FloorPlanUtils.resolve(APPNAME, c, p)
+                  resolve(Apache.Attr.HOSTNAME, webServer, p),
+                  resolve(Apache.Attr.PORTNUMBER, webServer, p),
+                  resolve(APPNAME, c, p)
               );
             },
             () -> "An endpoint to access this application"
