@@ -5,12 +5,14 @@ import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
 import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.exception.Exceptions;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -20,8 +22,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.inconsistentSpec;
-import static com.github.dakusui.floorplan.utils.Checks.require;
-import static com.github.dakusui.floorplan.utils.Checks.requireNonNull;
+import static com.github.dakusui.floorplan.utils.Checks.*;
 
 public class InternalUtils {
   ;
@@ -250,5 +251,23 @@ public class InternalUtils {
 
   public static Predicate<Object> isEqualTo(Object value) {
     return toPrintablePredicate(() -> String.format("isEqualTo[%s]", value), v -> Objects.equals(v, value));
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Attribute> Class<A> figureOutAttributeTypeFor(Class<? extends Component<A>> componentType) {
+    Supplier<String> messageSupplier = () -> String.format("Given class '%s' doesn't seem to be a valid component.", componentType.toGenericString());
+    return Class.class.cast(requireArgument(
+        ParameterizedType.class.cast(requireArgument(
+            requireArgument(
+                componentType.getGenericInterfaces(),
+                v -> v.length == 1,
+                messageSupplier
+            )[0],
+            v -> v instanceof ParameterizedType,
+            messageSupplier)
+        ).getActualTypeArguments(),
+        v -> v.length == 1,
+        messageSupplier)[0]
+    );
   }
 }

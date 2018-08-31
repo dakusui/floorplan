@@ -103,6 +103,13 @@ public interface ComponentSpec<A extends Attribute> {
     return new ComponentSpec.Impl<>(componentType.getSimpleName(), attributeType, componentType);
   }
 
+  static <A extends Attribute> ComponentSpec<A> create(
+      Class<? extends Component<A>> componentType
+  ) {
+    componentType.getGenericInterfaces();
+    return create(componentType, figureOutAttributeTypeFor(componentType));
+  }
+
   class Impl<A extends Attribute> implements ComponentSpec<A> {
     private final Class<A>                      attributeType;
     private final String                        specName;
@@ -162,11 +169,6 @@ public interface ComponentSpec<A extends Attribute> {
 
     public Builder(Class<A> attributeType) {
       this(attributeType.getSimpleName(), attributeType);
-    }
-
-    public Builder componentType(Class<? extends Component<A>> componentType) {
-      this.componentType = requireNonNull(componentType);
-      return this;
     }
 
     @SuppressWarnings("unchecked")

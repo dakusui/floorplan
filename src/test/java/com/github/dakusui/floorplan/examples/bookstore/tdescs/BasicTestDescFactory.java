@@ -9,7 +9,7 @@ import com.github.dakusui.floorplan.examples.bookstore.components.PostgreSQL;
 import com.github.dakusui.floorplan.tdesc.TestSuiteDescriptor;
 
 public abstract class BasicTestDescFactory extends TestSuiteDescriptor.Factory.Base {
-  static final Ref APP   = Ref.ref(BookstoreApp.Attr.SPEC, "1");
+  static final Ref APP   = Ref.ref(BookstoreApp.SPEC, "1");
   static final Ref HTTPD = Ref.ref(Apache.SPEC, "1");
   static final Ref DBMS  = Ref.ref(PostgreSQL.SPEC, "1");
   static final Ref PROXY = Ref.ref(Nginx.SPEC, "1");

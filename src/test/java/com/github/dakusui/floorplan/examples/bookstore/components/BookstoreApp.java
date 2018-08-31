@@ -7,6 +7,10 @@ import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 
+import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
+import java.util.function.Consumer;
+
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
@@ -15,11 +19,10 @@ import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
  * A class to define a deployment specification of an internet bookstore
  * application.
  */
-public class BookstoreApp {
-  public interface Attr extends Attribute {
-    ComponentSpec<Attr> SPEC           = new ComponentSpec.Builder<>(
-        Attr.class
-    ).build();
+public interface BookstoreApp extends Component<BookstoreApp.Attr> {
+  ComponentSpec<Attr> SPEC           = ComponentSpec.create(BookstoreApp.class);
+
+  interface Attr extends Attribute {
     Attr                APPNAME        = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$());
     Attr                WEBSERVER      = Attribute.create((SPEC.property(Apache.SPEC).required().$()));
     Attr                WEBSERVER_HOST = Attribute.create((SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()));
@@ -76,4 +79,14 @@ public class BookstoreApp {
         ))
     ).$());
   }
+
+  public static void main(String... args) {
+    Arrays.stream(BookstoreApp.class.getTypeParameters())
+        .peek((TypeVariable<?> x) -> System.out.println(x.getGenericDeclaration().getTypeParameters()[0].getGenericDeclaration()))
+        .peek((TypeVariable<?> x) -> System.out.println(Arrays.toString(x.getGenericDeclaration().getTypeParameters())))
+        .peek((TypeVariable<?> x) -> System.out.println(Arrays.toString(x.getBounds())))
+        .peek((TypeVariable<?> x) -> System.out.println(x.getAnnotatedBounds()[0].getType()))
+        .forEach((Consumer<TypeVariable>) System.out::println);
+  }
+
 }

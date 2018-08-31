@@ -1,5 +1,6 @@
 package com.github.dakusui.floorplan.ut;
 
+import com.github.dakusui.floorplan.examples.bookstore.components.BookstoreApp;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.Test;
 
@@ -100,4 +101,31 @@ public class InternalUtilsTest {
   public void givenPrivateConstructor$whenCreateWithNoParameterConstructor$thenFail() {
     InternalUtils.createWithNoParameterConstructor(ClassWithPrivateConstructor.class);
   }
+
+
+  @Test
+  public void givenBookstoreAppClass$whenFigureOutAttributeClass$thenItsAttrIsReturned() {
+    assertThat(
+        figureOutAttributeTypeFor(BookstoreApp.class),
+        asObject().equalTo(BookstoreApp.Attr.class).$()
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test(expected = IllegalArgumentException.class)
+  public void givenStringClass$whenFigureOutAttributeClass$thenExceptionThrown() {
+    try {
+      assertThat(
+          figureOutAttributeTypeFor(Class.class.cast(String.class)),
+          asObject().equalTo(BookstoreApp.Attr.class).$()
+      );
+    } catch (IllegalArgumentException e) {
+      assertThat(
+          e.getMessage(),
+          asString().matchesRegex("Given class .*").matchesRegex(".*doesn't seem to be a valid component\\.").$()
+      );
+      throw e;
+    }
+  }
+
 }
