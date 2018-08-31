@@ -1,15 +1,8 @@
 package com.github.dakusui.floorplan.examples.bookstore.components;
 
-import com.github.dakusui.floorplan.component.Attribute;
-import com.github.dakusui.floorplan.component.Component;
-import com.github.dakusui.floorplan.component.ComponentSpec;
-import com.github.dakusui.floorplan.component.Configurator;
+import com.github.dakusui.floorplan.component.*;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
-
-import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
-import java.util.function.Consumer;
 
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
@@ -20,16 +13,16 @@ import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
  * application.
  */
 public interface BookstoreApp extends Component<BookstoreApp.Attr> {
-  ComponentSpec<Attr> SPEC           = ComponentSpec.create(BookstoreApp.class);
+  ComponentSpec<Attr> SPEC = ComponentSpec.create(BookstoreApp.class);
 
   interface Attr extends Attribute {
-    Attr                APPNAME        = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$());
-    Attr                WEBSERVER      = Attribute.create((SPEC.property(Apache.SPEC).required().$()));
-    Attr                WEBSERVER_HOST = Attribute.create((SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()));
-    Attr                WEBSERVER_PORT = Attribute.create((SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()));
-    Attr                DBSERVER       = Attribute.create((SPEC.property(PostgreSQL.SPEC).required().$()));
+    Attr APPNAME        = SPEC.property(String.class).defaultsTo(immediate("bookstore")).define();
+    Attr WEBSERVER      = SPEC.property(Apache.SPEC).required().define();
+    Attr WEBSERVER_HOST = SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).define();
+    Attr WEBSERVER_PORT = SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).define();
+    Attr DBSERVER       = SPEC.property(PostgreSQL.SPEC).required().define();
     @SuppressWarnings("unchecked")
-    Attr DBSERVER_ENDPOINT = Attribute.create((SPEC.property(String.class).defaultsTo(
+    Attr DBSERVER_ENDPOINT = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
@@ -42,8 +35,8 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
             },
             () -> "An endpoint to access a database server where data of this application is stored."
         )
-    ).$()));
-    Attr ENDPOINT  = Attribute.create((SPEC.property(String.class).defaultsTo(
+    ).define();
+    Attr ENDPOINT  = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<Apache.Attr> webServer = p.floorPlanConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
@@ -56,8 +49,8 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
             },
             () -> "An endpoint to access this application"
         )
-    ).$()));
-    Attr INSTALL   = Attribute.create(SPEC.property(ActionFactory.class).defaultsTo(
+    ).define();
+    Attr INSTALL   = SPEC.property(ActionFactory.class).defaultsTo(
         immediate(ActionFactory.<BookstoreApp.Attr>of(
             (component) -> sequential(
                 simple("Deploy files under apache httpd", (c) -> runShell(
@@ -72,21 +65,11 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
                     component.valueOf(WEBSERVER_HOST),
                     component.valueOf(DBSERVER_ENDPOINT)
                 )))))
-    ).$());
-    Attr UNINSTALL = Attribute.create(SPEC.property(ActionFactory.class).defaultsTo(
+    ).define();
+    Attr UNINSTALL = SPEC.property(ActionFactory.class).defaultsTo(
         immediate(ActionFactory.<BookstoreApp.Attr>of(
             attrComponent -> named("Do something for uninstallation", nop())
         ))
-    ).$());
+    ).define();
   }
-
-  public static void main(String... args) {
-    Arrays.stream(BookstoreApp.class.getTypeParameters())
-        .peek((TypeVariable<?> x) -> System.out.println(x.getGenericDeclaration().getTypeParameters()[0].getGenericDeclaration()))
-        .peek((TypeVariable<?> x) -> System.out.println(Arrays.toString(x.getGenericDeclaration().getTypeParameters())))
-        .peek((TypeVariable<?> x) -> System.out.println(Arrays.toString(x.getBounds())))
-        .peek((TypeVariable<?> x) -> System.out.println(x.getAnnotatedBounds()[0].getType()))
-        .forEach((Consumer<TypeVariable>) System.out::println);
-  }
-
 }

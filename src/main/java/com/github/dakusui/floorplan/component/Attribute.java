@@ -240,6 +240,10 @@ public interface Attribute {
             this.constraint
         );
       }
+
+      public A define() {
+        return Attribute.create(this.$());
+      }
     }
   }
 }
