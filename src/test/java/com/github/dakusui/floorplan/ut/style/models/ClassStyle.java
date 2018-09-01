@@ -6,6 +6,7 @@ import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.floorplan.ut.style.models.ClassStyle.Attr.NAME;
 
@@ -18,8 +19,8 @@ public class ClassStyle<A extends ClassStyle.Attr> extends Component.Impl<A> {
   }
 
   @SuppressWarnings({ "unchecked", "WeakerAccess" })
-  public ClassStyle(Ref ref, Map<Attr, Object> values, Map<Ref, Component<?>> pool) {
-    super(ref, (Map<A, Object>) values, pool);
+  public ClassStyle(Ref ref, Map<Attr, Supplier<Object>> values, Map<Ref, Component<?>> pool) {
+    super(ref, (Map<A, Supplier<Object>>) values, pool);
   }
 
   @SuppressWarnings("unchecked")

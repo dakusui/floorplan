@@ -26,6 +26,8 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
     Attr WEBSERVER_PORT = SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).define();
     Attr DBSERVER       = SPEC.property(PostgreSQL.SPEC).required().define();
     @SuppressWarnings("unchecked")
+    Attr ADMIN_USER = SPEC.property(String.class).optional().define();
+    Attr ADMIN_MODE        = SPEC.property(Boolean.class).defaultsTo(immediate(false)).define();
     Attr DBSERVER_ENDPOINT = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
@@ -40,7 +42,7 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
             () -> "An endpoint to access a database server where data of this application is stored."
         )
     ).define();
-    Attr ENDPOINT  = SPEC.property(String.class).defaultsTo(
+    Attr ENDPOINT          = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<Apache.Attr> webServer = p.floorPlanConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
@@ -75,5 +77,11 @@ public interface BookstoreApp extends Component<BookstoreApp.Attr> {
             attrComponent -> named("Do something for uninstallation", nop())
         ))
     ).define();
+  }
+
+  default String adminUser() {
+    if (this.valueOf(Attr.ADMIN_MODE))
+      return this.valueOf(Attr.ADMIN_USER);
+    throw new IllegalStateException("Not in admin mode!");
   }
 }

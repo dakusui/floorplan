@@ -7,6 +7,7 @@ import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.floorplan.resolver.Mappers.mapper;
 import static com.github.dakusui.floorplan.resolver.Resolvers.transform;
@@ -14,7 +15,7 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.transform;
 public class BrokenModel extends ClassStyle<BrokenModel.Attr> {
   public static final ComponentSpec<Attr> SPEC = ComponentSpec.create(BrokenModel.class, Attr.class);
 
-  public BrokenModel(Ref ref, Map<ClassStyle.Attr, Object> values, Map<Ref, Component<?>> pool) {
+  public BrokenModel(Ref ref, Map<ClassStyle.Attr, Supplier<Object>> values, Map<Ref, Component<?>> pool) {
     super(ref, values, pool);
   }
 

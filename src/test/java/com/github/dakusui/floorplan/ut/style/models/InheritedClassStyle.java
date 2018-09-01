@@ -6,6 +6,7 @@ import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.floorplan.resolver.Mappers.mapper;
 import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
@@ -15,7 +16,7 @@ import static com.github.dakusui.floorplan.ut.style.models.InheritedClassStyle.A
 public class InheritedClassStyle extends ClassStyle<InheritedClassStyle.Attr> {
   public static final ComponentSpec<Attr> SPEC = ComponentSpec.create(InheritedClassStyle.class, Attr.class);
 
-  public InheritedClassStyle(Ref ref, Map<ClassStyle.Attr, Object> values, Map<Ref, Component<?>> pool) {
+  public InheritedClassStyle(Ref ref, Map<ClassStyle.Attr, Supplier<Object>> values, Map<Ref, Component<?>> pool) {
     super(ref, values, pool);
   }
 

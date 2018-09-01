@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
 import static com.github.dakusui.floorplan.utils.Checks.require;
@@ -112,11 +113,11 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
     @SuppressWarnings({ "unchecked", "JavaReflectionMemberAccess" })
     @Override
     public <C extends Component<A>> C build(Policy policy, Map<Ref, Component<?>> pool) {
-      LinkedHashMap<Attribute, Object> values = composeValues(policy);
+      LinkedHashMap<Attribute, Supplier<Object>> values = composeValues(policy);
       Component<A> ret;
       Class<Component<A>> componentType = this.spec.componentType();
       if (componentType.equals(Component.class))
-        ret = new Component.Impl<>(this.ref, (Map<A, Object>)values, pool);
+        ret = new Component.Impl<>(this.ref, (Map<A, Supplier<Object>>) values, pool);
       else if (componentType.isInterface())
         ret = ObjectSynthesizer.builder(componentType)
             .fallbackTo(new Component.Impl<>(this.ref, values, pool))
@@ -138,18 +139,35 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return String.format("configurator(%s)", this.ref);
     }
 
-    LinkedHashMap<Attribute, Object> composeValues(Policy policy) {
-      return new LinkedHashMap<Attribute, Object>() {{
-        spec.attributes().forEach(
-            (Attribute attr) -> {
-              Object u;
-              put(attr,
-                  require(
+    @SuppressWarnings("unchecked")
+    LinkedHashMap<Attribute, Supplier<Object>> composeValues(Policy policy) {
+      return new LinkedHashMap<Attribute, Supplier<Object>>() {{
+        spec.attributes().stream().peek((
+            (Attribute attr) -> put(attr,
+                () -> {
+                  Object u;
+                  return require(
                       u = FloorPlanUtils.resolve((A) attr, Impl.this, policy),
                       attr::test,
                       Exceptions.typeMismatch(attr, u)
-                  ));
-            });
+                  );
+                }))).forEach(
+            attribute -> {
+              ////
+              // If the attribute is non-optional, resolve it once, create
+              // a supplier from the resolved value, and create a new supplier,
+              // and put it back. Otherwise, the type check defined in the
+              // previous stage is not performed until a user accesses the
+              // attribute even if it is non-optional (required).
+              if (!attribute.isOptional()) {
+                Object value = get(attribute).get();
+                put(
+                    attribute,
+                    () -> value
+                );
+              }
+            }
+        );
       }};
     }
   }

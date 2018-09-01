@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -62,16 +63,16 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
   }
 
   class Impl<A extends Attribute> implements Component<A> {
-    private final Ref                    ref;
+    private final Ref                      ref;
     @SuppressWarnings(
         "MismatchedQueryAndUpdateOfCollection"/* This field is updated in its static block on assignment*/
     )
-    private final Map<A, Object>         values;
-    private final Map<Ref, Component<?>> pool;
+    private final Map<A, Supplier<Object>> values;
+    private final Map<Ref, Component<?>>   pool;
 
-    public Impl(Ref ref, Map<A, Object> values, Map<Ref, Component<?>> pool) {
+    public Impl(Ref ref, Map<A, Supplier<Object>> values, Map<Ref, Component<?>> pool) {
       this.ref = ref;
-      this.values = new HashMap<A, Object>() {{
+      this.values = new HashMap<A, Supplier<Object>>() {{
         putAll(requireNonNull(values));
       }};
       this.pool = pool;
@@ -85,7 +86,11 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T valueOf(A attr) {
-      return lookUpIfReference(this.values.get(requireNonNull(attr)));
+      return lookUpIfReference(resolve(attr));
+    }
+
+    public Object resolve(A attr) {
+      return this.values.get(requireNonNull(attr)).get();
     }
 
     @Override
