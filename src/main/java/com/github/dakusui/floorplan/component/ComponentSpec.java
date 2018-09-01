@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
  * An interface to describe a certain component's specification.
  *
  * @param <A> A type of attributes to describe the component.
- * @see Attribute.Bean
+ * @see Attribute.Definition
  * @see Attribute
  */
 public interface ComponentSpec<A extends Attribute> {
@@ -44,13 +44,13 @@ public interface ComponentSpec<A extends Attribute> {
 
 
   /**
-   * Returns a new builder of an attribute bean for a given type.
+   * Returns a new builder of an attribute definition for a given type.
    *
-   * @param type A type of an attribute value for which the bean works.
-   * @return A new attribute bean builder.
+   * @param type A type of an attribute value for which the definition works.
+   * @return A new attribute definition builder.
    */
-  default Attribute.Bean.Builder<A> property(Class<?> type) {
-    return new Attribute.Bean.Builder<>(this, type, isInstanceOf(type));
+  default Attribute.Definition.Builder<A> property(Class<?> type) {
+    return new Attribute.Definition.Builder<>(this, type, isInstanceOf(type));
   }
 
   /**
@@ -59,23 +59,23 @@ public interface ComponentSpec<A extends Attribute> {
    *
    * @param spec A type of a component referenced by an attribute built by returned
    *             builder.
-   * @return An new attribute bean builder.
+   * @return An new attribute definition builder.
    */
-  default Attribute.Bean.Builder<A> property(ComponentSpec<?> spec) {
-    return new Attribute.Bean.Builder<>(
+  default Attribute.Definition.Builder<A> property(ComponentSpec<?> spec) {
+    return new Attribute.Definition.Builder<>(
         this,
         Ref.class,
         isInstanceOf(Ref.class).and(hasSpecOf(spec)));
   }
 
   /**
-   * Returns a new builder of an attribute bean for a list of given type.
+   * Returns a new builder of an attribute definition for a list of given type.
    *
    * @param type A type of elements in a new attribute value.
-   * @return A new attribute bean builder.
+   * @return A new attribute definition builder.
    */
-  default Attribute.Bean.Builder<A> listPropertyOf(Class<?> type) {
-    return new Attribute.Bean.Builder<>(
+  default Attribute.Definition.Builder<A> listPropertyOf(Class<?> type) {
+    return new Attribute.Definition.Builder<>(
         this,
         List.class,
         isInstanceOf(List.class).and(forAll(isInstanceOf(type)))
@@ -83,14 +83,14 @@ public interface ComponentSpec<A extends Attribute> {
   }
 
   /**
-   * Returns a new builder of an attribute bean for a list of references to
+   * Returns a new builder of an attribute definition for a list of references to
    * component instances/configurators of a given {@code spec}.
    *
    * @param spec A spec of elements in a new attribute value reference to.
-   * @return A new attribute bean builder.
+   * @return A new attribute definition builder.
    */
-  default Attribute.Bean.Builder<A> listPropertyOf(ComponentSpec<?> spec) {
-    return new Attribute.Bean.Builder<>(
+  default Attribute.Definition.Builder<A> listPropertyOf(ComponentSpec<?> spec) {
+    return new Attribute.Definition.Builder<>(
         this,
         List.class,
         isInstanceOf(List.class).and(forAll(isInstanceOf(Ref.class).and(hasSpecOf(spec))))
@@ -101,6 +101,12 @@ public interface ComponentSpec<A extends Attribute> {
       Class<? extends Component<A>> componentType,
       Class<A> attributeType) {
     return new ComponentSpec.Impl<>(componentType.getSimpleName(), attributeType, componentType);
+  }
+
+  static <A extends Attribute> ComponentSpec<A> create(
+      Class<? extends Component<A>> componentType
+  ) {
+    return create(componentType, figureOutAttributeTypeFor(componentType));
   }
 
   class Impl<A extends Attribute> implements ComponentSpec<A> {
@@ -162,11 +168,6 @@ public interface ComponentSpec<A extends Attribute> {
 
     public Builder(Class<A> attributeType) {
       this(attributeType.getSimpleName(), attributeType);
-    }
-
-    public Builder componentType(Class<? extends Component<A>> componentType) {
-      this.componentType = requireNonNull(componentType);
-      return this;
     }
 
     @SuppressWarnings("unchecked")

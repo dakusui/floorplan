@@ -14,9 +14,10 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.component.Ref.ref;
-import static com.github.dakusui.floorplan.core.Connector.connector;
+import static com.github.dakusui.floorplan.core.FloorPlanGraph.Connector.connector;
 import static com.github.dakusui.floorplan.utils.Checks.*;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 public interface FloorPlanGraph {
@@ -170,6 +171,40 @@ public interface FloorPlanGraph {
      */
     public boolean isCompatibleWith(Profile profile) {
       return this.requirements == null || this.requirements.test(profile);
+    }
+  }
+
+  class Connector {
+    Attribute fromAttr;
+    private Ref       from;
+
+    private Connector(Ref from, Attribute fromAttr) {
+      requireArgument(fromAttr, attr -> from.spec() == attr.spec() || attr.spec().attributeType().isAssignableFrom(from.spec().attributeType()));
+      this.fromAttr = requireNonNull(fromAttr);
+      this.from = requireNonNull(from);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.from.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object anotherObject) {
+      if (anotherObject instanceof Connector) {
+        Connector another = Connector.class.cast(anotherObject);
+        return another.from.equals(this.from) && another.fromAttr.equals(this.fromAttr);
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s.%s", from, fromAttr);
+    }
+
+    static Connector connector(Ref from, Attribute fromAttr) {
+      return new Connector(from, fromAttr);
     }
   }
 }

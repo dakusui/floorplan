@@ -18,7 +18,7 @@ public class Nginx {
     HOSTNAME(SPEC.property(String.class).defaultsTo(slotValue("hostname")).$()),
     PORTNUMBER(SPEC.property(Integer.class).defaultsTo(slotValue("port")).$()),
     BOOKSTORE_APPNAME(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$()),
-    UPSTREAM(SPEC.listPropertyOf(BookstoreApp.Attr.SPEC).required().$()),
+    UPSTREAM(SPEC.listPropertyOf(BookstoreApp.SPEC).required().$()),
     @SuppressWarnings("unchecked") AUTHORS(SPEC.listPropertyOf(String.class).defaultsTo(listOf(
         String.class,
         immediate("mrx"),
@@ -89,16 +89,16 @@ public class Nginx {
         ))
     ).$());
 
-    private final Bean<Attr> bean;
+    private final Definition<Attr> definition;
 
-    Attr(Bean<Attr> bean) {
-      this.bean = bean;
+    Attr(Definition<Attr> definition) {
+      this.definition = definition;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Bean<Attr> bean() {
-      return this.bean;
+    public Definition<Attr> definition() {
+      return this.definition;
     }
   }
 

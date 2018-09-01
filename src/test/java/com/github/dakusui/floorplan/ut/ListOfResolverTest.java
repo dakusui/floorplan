@@ -24,16 +24,16 @@ public class ListOfResolverTest {
           SPEC.property(List.class).defaultsTo(listOf(String.class, immediate("hello"), immediate("world"), referenceTo(STR))).$()
       ),;
 
-      final private Bean<Attr> bean;
+      final private Definition<Attr> definition;
 
-      Attr(Bean<Attr> bean) {
-        this.bean = bean;
+      Attr(Definition<Attr> definition) {
+        this.definition = definition;
       }
 
       @SuppressWarnings("unchecked")
       @Override
-      public Bean<Attr> bean() {
-        return bean;
+      public Definition<Attr> definition() {
+        return definition;
       }
     }
 

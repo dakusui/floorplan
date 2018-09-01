@@ -10,51 +10,53 @@ import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import static com.github.dakusui.actionunit.core.ActionSupport.*;
 import static com.github.dakusui.floorplan.resolver.Resolvers.*;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.runShell;
+import static com.github.dakusui.floorplan.utils.FloorPlanUtils.resolve;
 
 /**
  * A class to define a deployment specification of an internet bookstore
  * application.
  */
-public class BookstoreApp {
-  public interface Attr extends Attribute {
-    ComponentSpec<Attr> SPEC           = new ComponentSpec.Builder<>(
-        Attr.class
-    ).build();
-    Attr                APPNAME        = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("bookstore")).$());
-    Attr                WEBSERVER      = Attribute.create((SPEC.property(Apache.SPEC).required().$()));
-    Attr                WEBSERVER_HOST = Attribute.create((SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).$()));
-    Attr                WEBSERVER_PORT = Attribute.create((SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).$()));
-    Attr                DBSERVER       = Attribute.create((SPEC.property(PostgreSQL.SPEC).required().$()));
+public interface BookstoreApp extends Component<BookstoreApp.Attr> {
+  ComponentSpec<Attr> SPEC = ComponentSpec.create(BookstoreApp.class);
+
+  interface Attr extends Attribute {
+    Attr APPNAME        = SPEC.property(String.class).defaultsTo(immediate("bookstore")).define();
+    Attr WEBSERVER      = SPEC.property(Apache.SPEC).required().define();
+    Attr WEBSERVER_HOST = SPEC.property(String.class).defaultsTo(attributeValueOf(Apache.Attr.HOSTNAME, referenceTo(WEBSERVER))).define();
+    Attr WEBSERVER_PORT = SPEC.property(Integer.class).defaultsTo(attributeValueOf(Apache.Attr.PORTNUMBER, referenceTo(WEBSERVER))).define();
+    Attr DBSERVER       = SPEC.property(PostgreSQL.SPEC).required().define();
     @SuppressWarnings("unchecked")
-    Attr DBSERVER_ENDPOINT = Attribute.create((SPEC.property(String.class).defaultsTo(
+    Attr ADMIN_USER = SPEC.property(String.class).optional().define();
+    Attr ADMIN_MODE        = SPEC.property(Boolean.class).defaultsTo(immediate(false)).define();
+    Attr DBSERVER_ENDPOINT = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
-              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(FloorPlanUtils.resolve(DBSERVER, c, p));
+              Configurator<PostgreSQL.Attr> dbServer = p.lookUp(resolve(DBSERVER, c, p));
               return String.format(
                   "jdbc:postgresql://%s:%s/%s",
-                  FloorPlanUtils.resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
-                  FloorPlanUtils.resolve(PostgreSQL.Attr.PORTNUMBER, dbServer, p),
-                  FloorPlanUtils.resolve(PostgreSQL.Attr.BOOKSTORE_DATABASE, dbServer, p)
+                  resolve(PostgreSQL.Attr.HOSTNAME, dbServer, p),
+                  resolve(PostgreSQL.Attr.PORTNUMBER, dbServer, p),
+                  resolve(PostgreSQL.Attr.BOOKSTORE_DATABASE, dbServer, p)
               );
             },
             () -> "An endpoint to access a database server where data of this application is stored."
         )
-    ).$()));
-    Attr ENDPOINT  = Attribute.create((SPEC.property(String.class).defaultsTo(
+    ).define();
+    Attr ENDPOINT          = SPEC.property(String.class).defaultsTo(
         Resolver.of(
             c -> p -> {
               Configurator<Apache.Attr> webServer = p.floorPlanConfigurator().lookUp(FloorPlanUtils.resolve(WEBSERVER, c, p));
               return String.format(
                   "http://%s:%s/%s",
-                  FloorPlanUtils.resolve(Apache.Attr.HOSTNAME, webServer, p),
-                  FloorPlanUtils.resolve(Apache.Attr.PORTNUMBER, webServer, p),
-                  FloorPlanUtils.resolve(APPNAME, c, p)
+                  resolve(Apache.Attr.HOSTNAME, webServer, p),
+                  resolve(Apache.Attr.PORTNUMBER, webServer, p),
+                  resolve(APPNAME, c, p)
               );
             },
             () -> "An endpoint to access this application"
         )
-    ).$()));
-    Attr INSTALL   = Attribute.create(SPEC.property(ActionFactory.class).defaultsTo(
+    ).define();
+    Attr INSTALL           = SPEC.property(ActionFactory.class).defaultsTo(
         immediate(ActionFactory.<BookstoreApp.Attr>of(
             (component) -> sequential(
                 simple("Deploy files under apache httpd", (c) -> runShell(
@@ -69,11 +71,17 @@ public class BookstoreApp {
                     component.valueOf(WEBSERVER_HOST),
                     component.valueOf(DBSERVER_ENDPOINT)
                 )))))
-    ).$());
-    Attr UNINSTALL = Attribute.create(SPEC.property(ActionFactory.class).defaultsTo(
+    ).define();
+    Attr UNINSTALL         = SPEC.property(ActionFactory.class).defaultsTo(
         immediate(ActionFactory.<BookstoreApp.Attr>of(
             attrComponent -> named("Do something for uninstallation", nop())
         ))
-    ).$());
+    ).define();
+  }
+
+  default String adminUser() {
+    if (this.valueOf(Attr.ADMIN_MODE))
+      return this.valueOf(Attr.ADMIN_USER);
+    throw new IllegalStateException("Not in admin mode!");
   }
 }
