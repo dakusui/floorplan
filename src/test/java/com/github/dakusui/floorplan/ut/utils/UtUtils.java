@@ -86,4 +86,10 @@ public enum UtUtils {
         CoreMatchers.equalTo(false)
     );
   }
+
+  public static Throwable rootCause(Throwable t) {
+    if (t.getCause() == null)
+      return t;
+    return rootCause(t.getCause());
+  }
 }

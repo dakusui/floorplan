@@ -25,16 +25,16 @@ public class VariousResolverTest {
         BASE(SPEC.property(String.class).defaultsTo(immediate("hello")).$()),
         TRANSFORM(SPEC.property(Integer.class).defaultsTo(transform(referenceTo(BASE), mapper(String::length))).$());
 
-        private final Bean<Attr> bean;
+        private final Definition<Attr> definition;
 
-        Attr(Bean<Attr> bean) {
-          this.bean = bean;
+        Attr(Definition<Attr> definition) {
+          this.definition = definition;
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Bean<Attr> bean() {
-          return this.bean;
+        public Definition<Attr> definition() {
+          return this.definition;
         }
       }
 
@@ -60,16 +60,16 @@ public class VariousResolverTest {
         BASE(SPEC.property(List.class).defaultsTo(listOf(String.class, immediate("hello"), immediate("world!"))).$()),
         TRANSFORM_LIST(SPEC.property(List.class).defaultsTo(Resolvers.transformList(referenceTo(BASE), mapper(String::length))).$());
 
-        private final Bean<Attr> bean;
+        private final Definition<Attr> definition;
 
-        Attr(Bean<Attr> bean) {
-          this.bean = bean;
+        Attr(Definition<Attr> definition) {
+          this.definition = definition;
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Bean<Attr> bean() {
-          return this.bean;
+        public Definition<Attr> definition() {
+          return this.definition;
         }
       }
 
@@ -99,16 +99,16 @@ public class VariousResolverTest {
         BASE(SPEC.property(List.class).defaultsTo(listOf(String.class, immediate("hello"), immediate("world!"))).$()),
         SIZE_OF(SPEC.property(Integer.class).defaultsTo(Resolvers.sizeOf(referenceTo(BASE))).$());
 
-        private final Bean<Attr> bean;
+        private final Definition<Attr> definition;
 
-        Attr(Bean<Attr> bean) {
-          this.bean = bean;
+        Attr(Definition<Attr> definition) {
+          this.definition = definition;
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Bean<Attr> bean() {
-          return this.bean;
+        public Definition<Attr> definition() {
+          return this.definition;
         }
       }
 

@@ -89,16 +89,16 @@ public class Nginx {
         ))
     ).$());
 
-    private final Bean<Attr> bean;
+    private final Definition<Attr> definition;
 
-    Attr(Bean<Attr> bean) {
-      this.bean = bean;
+    Attr(Definition<Attr> definition) {
+      this.definition = definition;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Bean<Attr> bean() {
-      return this.bean;
+    public Definition<Attr> definition() {
+      return this.definition;
     }
   }
 
