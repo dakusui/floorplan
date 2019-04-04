@@ -1,6 +1,7 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
@@ -10,9 +11,15 @@ import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.Test;
 
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.call;
 import static com.github.dakusui.floorplan.resolver.Mappers.mapper;
-import static com.github.dakusui.floorplan.resolver.Resolvers.*;
+import static com.github.dakusui.floorplan.resolver.Resolvers.immediate;
+import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
+import static com.github.dakusui.floorplan.resolver.Resolvers.transform;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.buildPolicy;
 
 public class InheritanceTest {
@@ -105,6 +112,7 @@ public class InheritanceTest {
     );
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testL3$whenConfiguredAndBuilt() {
     Ref cut = Ref.ref(L3.SPEC, "1");
@@ -118,26 +126,31 @@ public class InheritanceTest {
         .configure(L3.Attr.NAME3, Resolver.of(c -> p -> "configured-3"));
     FloorPlan floorPlan = floorPlanConfigurator.build();
 
+    L3 l3 = floorPlan.lookUp(cut);
+    System.out.println("L1.Attr.NAME=" + l3.valueOf(L3.Attr.NAME));
+    System.out.println("L2.Attr.NAME=" + l3.valueOf(L3.Attr.NAME2));
+    System.out.println("L3.Attr.NAME=" + l3.valueOf(L3.Attr.NAME3));
     assertThat(
-        floorPlan.lookUp(cut),
+        l3,
         allOf(
-            asString("valueOf", L3.Attr.NAME).equalTo("configured-1").$(),
-            asString("valueOf", L3.Attr.NAME2).equalTo("configured-2").$(),
-            asString("valueOf", L3.Attr.NAME3).equalTo("configured-3").$()
+            asString("valueOf", InheritanceTest.L3.Attr.NAME).equalTo("configured-1").$(),
+            asString("valueOf", InheritanceTest.L3.Attr.NAME2).equalTo("configured-2").$(),
+            asString("valueOf", InheritanceTest.L3.Attr.NAME3).equalTo("configured-3").$()
         )
     );
   }
 
-  public static class L1 {
-    public interface Attr extends Attribute {
+  public interface L1 extends Component {
+    interface Attr extends Attribute {
       Attr NAME = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L1.class).build();
+
   }
 
-  public static class L2 {
-    public interface Attr extends L1.Attr {
+  public interface L2 extends L1 {
+    interface Attr extends L1.Attr {
       Attr NAME2 = Attribute.create(
           SPEC.property(String.class).defaultsTo(referenceTo(L1.Attr.NAME)).$()
       );
@@ -149,15 +162,15 @@ public class InheritanceTest {
       );
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L2.class).build();
   }
 
-  public static class L3 {
-    public interface Attr extends L2.Attr {
+  public interface L3 extends L2 {
+    interface Attr extends L2.Attr {
       Attr NAME3 = Attribute.create(
           SPEC.property(String.class).defaultsTo(immediate("overridden")).$());
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L3.class).build();
   }
 }

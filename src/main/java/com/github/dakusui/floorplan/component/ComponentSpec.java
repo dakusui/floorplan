@@ -4,7 +4,10 @@ import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import java.util.List;
 
-import static com.github.dakusui.floorplan.utils.InternalUtils.*;
+import static com.github.dakusui.floorplan.utils.InternalUtils.figureOutAttributeTypeFor;
+import static com.github.dakusui.floorplan.utils.InternalUtils.forAll;
+import static com.github.dakusui.floorplan.utils.InternalUtils.hasSpecOf;
+import static com.github.dakusui.floorplan.utils.InternalUtils.isInstanceOf;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -152,7 +155,7 @@ public interface ComponentSpec<A extends Attribute> {
     private final Class<A>                      attributeType;
     private final String                        specName;
     @SuppressWarnings("unchecked")
-    private       Class<? extends Component<A>> componentType = Class.class.cast(Component.class);
+    private       Class<? extends Component> componentType = Component.class;
 
     /**
      * Creates a new instance of this class with given {@code specName} and {@code attributeType}.
@@ -170,9 +173,14 @@ public interface ComponentSpec<A extends Attribute> {
       this(attributeType.getSimpleName(), attributeType);
     }
 
+    public Builder<A> componentType(Class<? extends Component> klass) {
+      this.componentType = requireNonNull(klass);
+      return this;
+    }
+
     @SuppressWarnings("unchecked")
     public ComponentSpec<A> build() {
-      return new Impl<>(this.specName, this.attributeType, this.componentType);
+      return new Impl<>(this.specName, this.attributeType, (Class<? extends Component<A>>) this.componentType);
     }
   }
 }
