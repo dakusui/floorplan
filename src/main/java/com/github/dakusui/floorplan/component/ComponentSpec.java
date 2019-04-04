@@ -170,6 +170,11 @@ public interface ComponentSpec<A extends Attribute> {
       this(attributeType.getSimpleName(), attributeType);
     }
 
+    public Builder<A> componentType(Class<? extends Component<A>> type) {
+      this.componentType = requireNonNull(type);
+      return this;
+    }
+
     @SuppressWarnings("unchecked")
     public ComponentSpec<A> build() {
       return new Impl<>(this.specName, this.attributeType, this.componentType);

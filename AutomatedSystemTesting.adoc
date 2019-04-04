@@ -1,0 +1,26 @@
+= Automated System Testing
+
+
+== Heterogeneous Distributed System
+
+- Environment
+- Host
+- Attribute (resolver)
+- Component
+- ComponentCluster
+- End-point
+- Internal - External
+- Tenant
+- Schema
+- Version
+- Profile
+
+- Application
+- Client
+- CLI
+- GUI
+- Admin
+
+- Operating System
+- SSH
+

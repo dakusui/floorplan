@@ -1,6 +1,7 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.component.Attribute;
+import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
 import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
@@ -118,8 +119,12 @@ public class InheritanceTest {
         .configure(L3.Attr.NAME3, Resolver.of(c -> p -> "configured-3"));
     FloorPlan floorPlan = floorPlanConfigurator.build();
 
+    L3 l3 = floorPlan.lookUp(cut);
+    System.out.println("name1:" + l3.valueOf(L3.Attr.NAME));
+    System.out.println("name2:" + l3.valueOf(L3.Attr.NAME2));
+    System.out.println("name3:" + l3.valueOf(L3.Attr.NAME3));
     assertThat(
-        floorPlan.lookUp(cut),
+        l3,
         allOf(
             asString("valueOf", L3.Attr.NAME).equalTo("configured-1").$(),
             asString("valueOf", L3.Attr.NAME2).equalTo("configured-2").$(),
@@ -128,16 +133,17 @@ public class InheritanceTest {
     );
   }
 
-  public static class L1 {
-    public interface Attr extends Attribute {
+  public interface L1 extends Component<L3.Attr> {
+    interface Attr extends Attribute {
       Attr NAME = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType((Class<? extends Component<Attr>>) L1.class).build();
   }
 
-  public static class L2 {
-    public interface Attr extends L1.Attr {
+  public interface L2 extends L1 {
+    interface Attr extends L1.Attr {
       Attr NAME2 = Attribute.create(
           SPEC.property(String.class).defaultsTo(referenceTo(L1.Attr.NAME)).$()
       );
@@ -149,15 +155,24 @@ public class InheritanceTest {
       );
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType((Class<? extends Component<Attr>>) L2.class).build();
   }
 
-  public static class L3 {
-    public interface Attr extends L2.Attr {
+  public interface L3 extends L2, L1 {
+    interface Attr extends L2.Attr {
       Attr NAME3 = Attribute.create(
           SPEC.property(String.class).defaultsTo(immediate("overridden")).$());
     }
 
-    public static final ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).build();
+    default <T> T valueOf(L1.Attr l2attr) {
+      return null;
+    }
+
+    default <T> T valueOf(L2.Attr l2attr) {
+      return null;
+    }
+
+
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L3.class).build();
   }
 }
