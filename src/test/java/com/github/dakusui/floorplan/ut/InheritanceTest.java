@@ -127,9 +127,14 @@ public class InheritanceTest {
     FloorPlan floorPlan = floorPlanConfigurator.build();
 
     L3 l3 = floorPlan.lookUp(cut);
-    System.out.println("L1.Attr.NAME=" + l3.valueOf(L3.Attr.NAME));
-    System.out.println("L2.Attr.NAME=" + l3.valueOf(L3.Attr.NAME2));
-    System.out.println("L3.Attr.NAME=" + l3.valueOf(L3.Attr.NAME3));
+    String name = l3.valueOf(L3.Attr.NAME);
+    String name2 = l3.valueOf(L3.Attr.NAME2);
+    String name3 = l3.valueOf(L3.Attr.NAME3);
+
+    System.out.println("L1.Attr.NAME=" + name);
+    System.out.println("L2.Attr.NAME=" + name2);
+    System.out.println("L3.Attr.NAME=" + name3);
+
     assertThat(
         l3,
         allOf(
@@ -140,7 +145,7 @@ public class InheritanceTest {
     );
   }
 
-  public interface L1 extends Component {
+  public interface L1 extends Component<Attribute> {
     interface Attr extends Attribute {
       Attr NAME = Attribute.create(SPEC.property(String.class).defaultsTo(immediate("defaultName")).$());
     }
