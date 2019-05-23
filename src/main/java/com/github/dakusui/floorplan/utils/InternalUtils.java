@@ -115,13 +115,6 @@ public class InternalUtils {
     );
   }
 
-  public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
-    return InternalUtils.toPrintablePredicate(
-        () -> String.format("hasSpecOf[%s]", spec),
-        (Object v) -> Objects.equals(((Ref) v).spec(), spec)
-    );
-  }
-
   public static <A extends Attribute> Predicate<Object> hasCompatibleSpecWith(ComponentSpec<A> spec) {
     return InternalUtils.toPrintablePredicate(
         () -> String.format("hasCompatibleSpecWith[%s]", spec),

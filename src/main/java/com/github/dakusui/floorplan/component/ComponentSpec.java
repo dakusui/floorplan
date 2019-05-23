@@ -96,7 +96,7 @@ public interface ComponentSpec<A extends Attribute> {
     return new Attribute.Definition.Builder<>(
         this,
         List.class,
-        isInstanceOf(List.class).and(forAll(isInstanceOf(Ref.class).and(hasSpecOf(spec))))
+        isInstanceOf(List.class).and(forAll(isInstanceOf(Ref.class).and(hasCompatibleSpecWith(spec))))
     );
   }
 
