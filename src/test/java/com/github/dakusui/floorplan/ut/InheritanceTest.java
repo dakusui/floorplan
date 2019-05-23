@@ -162,7 +162,7 @@ public class InheritanceTest {
       );
     }
 
-    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L2.class).build();
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L2.class).inherit(L1.SPEC).build();
   }
 
   public interface L3 extends L2 {
@@ -171,6 +171,6 @@ public class InheritanceTest {
           SPEC.property(String.class).defaultsTo(immediate("overridden")).$());
     }
 
-    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L3.class).build();
+    ComponentSpec<Attr> SPEC = new ComponentSpec.Builder<>(Attr.class).componentType(L3.class).inherit(L1.SPEC).build();
   }
 }

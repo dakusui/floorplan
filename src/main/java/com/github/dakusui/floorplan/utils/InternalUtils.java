@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.core.Action;
 import com.github.dakusui.actionunit.core.Context;
 import com.github.dakusui.actionunit.io.Writer;
 import com.github.dakusui.actionunit.visitors.ReportingActionPerformer;
+import com.github.dakusui.crest.utils.printable.Predicates;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Component;
 import com.github.dakusui.floorplan.component.ComponentSpec;
@@ -117,9 +118,29 @@ public class InternalUtils {
   public static <A extends Attribute> Predicate<Object> hasSpecOf(ComponentSpec<A> spec) {
     return InternalUtils.toPrintablePredicate(
         () -> String.format("hasSpecOf[%s]", spec),
-        (Object v) -> Objects.equals((Ref.class.cast(v)).spec(), spec)
+        (Object v) -> Objects.equals(((Ref) v).spec(), spec)
     );
   }
+
+  public static <A extends Attribute> Predicate<Object> hasCompatibleSpecWith(ComponentSpec<A> spec) {
+    return InternalUtils.toPrintablePredicate(
+        () -> String.format("hasCompatibleSpecWith[%s]", spec),
+        (Object v) -> parentsOf(((Ref) v).spec()).contains(spec)
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<ComponentSpec> parentsOf(ComponentSpec spec) {
+    List<ComponentSpec> ret = new LinkedList<>();
+    ret.add(spec);
+    Optional<ComponentSpec> cur = spec.parentSpec();
+    while (cur.isPresent()) {
+      ret.add(cur.get());
+      cur = cur.get().parentSpec();
+    }
+    return ret;
+  }
+
 
   @SuppressWarnings({ "unchecked" })
   public static Predicate<Object> forAll(Predicate<Object> pred) {
