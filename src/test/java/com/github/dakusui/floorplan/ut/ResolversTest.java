@@ -32,6 +32,7 @@ public class ResolversTest {
 
   @Test
   public void givenAttributeReferenceResolver$whenToString$thenAppropriateMessageReturned() {
+    System.out.println(SimpleComponent.INSTANCE_NAME);
     assertThat(
         Resolvers.referenceTo(SimpleComponent.INSTANCE_NAME).toString(),
         allOf(

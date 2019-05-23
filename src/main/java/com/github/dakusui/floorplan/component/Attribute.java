@@ -141,9 +141,13 @@ public interface Attribute {
       }
 
       public synchronized String toString() {
+        /*
         return attrName == null
             ? String.format("%s.(noname)@%d", spec().attributeType().getSimpleName(), System.identityHashCode(this))
             : attrName;
+
+         */
+        return name();
       }
 
       public synchronized String name() {

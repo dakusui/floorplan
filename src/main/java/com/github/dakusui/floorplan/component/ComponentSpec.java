@@ -3,11 +3,9 @@ package com.github.dakusui.floorplan.component;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 
 import java.util.List;
+import java.util.Optional;
 
-import static com.github.dakusui.floorplan.utils.InternalUtils.figureOutAttributeTypeFor;
-import static com.github.dakusui.floorplan.utils.InternalUtils.forAll;
-import static com.github.dakusui.floorplan.utils.InternalUtils.hasSpecOf;
-import static com.github.dakusui.floorplan.utils.InternalUtils.isInstanceOf;
+import static com.github.dakusui.floorplan.utils.InternalUtils.*;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -35,6 +33,8 @@ public interface ComponentSpec<A extends Attribute> {
    * @return A class of an attribute.
    */
   Class<A> attributeType();
+
+  Optional<ComponentSpec> parentSpec();
 
   /**
    * Returns a list of all attributes to describe the component.
@@ -68,7 +68,7 @@ public interface ComponentSpec<A extends Attribute> {
     return new Attribute.Definition.Builder<>(
         this,
         Ref.class,
-        isInstanceOf(Ref.class).and(hasSpecOf(spec)));
+        isInstanceOf(Ref.class).and(hasCompatibleSpecWith(spec)));
   }
 
   /**
@@ -103,7 +103,7 @@ public interface ComponentSpec<A extends Attribute> {
   static <A extends Attribute> ComponentSpec<A> create(
       Class<? extends Component<A>> componentType,
       Class<A> attributeType) {
-    return new ComponentSpec.Impl<>(componentType.getSimpleName(), attributeType, componentType);
+    return new ComponentSpec.Impl<>(componentType.getSimpleName(), attributeType, componentType, null);
   }
 
   static <A extends Attribute> ComponentSpec<A> create(
@@ -116,11 +116,13 @@ public interface ComponentSpec<A extends Attribute> {
     private final Class<A>                      attributeType;
     private final String                        specName;
     private final Class<? extends Component<A>> componentType;
+    private final ComponentSpec                 parentSpec;
 
-    Impl(String specName, Class<A> attributeType, Class<? extends Component<A>> componentType) {
+    Impl(String specName, Class<A> attributeType, Class<? extends Component<A>> componentType, ComponentSpec parentSpec) {
       this.specName = requireNonNull(specName);
       this.attributeType = requireNonNull(attributeType);
       this.componentType = componentType;
+      this.parentSpec = parentSpec;
     }
 
     @SuppressWarnings("unchecked")
@@ -140,6 +142,11 @@ public interface ComponentSpec<A extends Attribute> {
     }
 
     @Override
+    public Optional<ComponentSpec> parentSpec() {
+      return Optional.ofNullable(this.parentSpec);
+    }
+
+    @Override
     public String toString() {
       return this.specName;
     }
@@ -152,10 +159,10 @@ public interface ComponentSpec<A extends Attribute> {
    * @param <A> A type of attribute that characterizes an instance of the component spec.
    */
   class Builder<A extends Attribute> {
-    private final Class<A>                      attributeType;
-    private final String                        specName;
-    @SuppressWarnings("unchecked")
+    private final Class<A>                   attributeType;
+    private final String                     specName;
     private       Class<? extends Component> componentType = Component.class;
+    private       ComponentSpec              parent;
 
     /**
      * Creates a new instance of this class with given {@code specName} and {@code attributeType}.
@@ -178,9 +185,14 @@ public interface ComponentSpec<A extends Attribute> {
       return this;
     }
 
+    public <B extends Attribute> Builder<A> inherit(ComponentSpec<B> parent) {
+      this.parent = requireNonNull(parent);
+      return this;
+    }
+
     @SuppressWarnings("unchecked")
     public ComponentSpec<A> build() {
-      return new Impl<>(this.specName, this.attributeType, (Class<? extends Component<A>>) this.componentType);
+      return new Impl<>(this.specName, this.attributeType, (Class<? extends Component<A>>) this.componentType, this.parent);
     }
   }
 }
