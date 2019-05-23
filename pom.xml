@@ -4,7 +4,7 @@
 
     <groupId>com.github.dakusui</groupId>
     <artifactId>floorplan</artifactId>
-    <version>5.0.3</version>
+    <version>5.0.3-SNAPSHOT</version>
     <description>A library to model a heterogeneous and distributed software
         system for testing
     </description>
@@ -25,7 +25,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/floorplan.git
         </developerConnection>
         <url>http://dakusui.github.io/floorplan</url>
-        <tag>floorplan-5.0.3</tag>
+        <tag>floorplan-5.0.x</tag>
     </scm>
 
     <developers>
