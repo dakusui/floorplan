@@ -5,10 +5,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
 
@@ -100,7 +108,7 @@ public class ObjectSynthesizer<T> {
       method.setAccessible(true);
       try {
         Class<?> declaringClass = method.getDeclaringClass();
-        if (method.isDefault()) {
+        if (method.isDefault() && !isOverriddenIn(method, fallbackObject.getClass())) {
           return lookup((Class<? extends T>) declaringClass)
               .in(declaringClass)
               .unreflectSpecial(method, declaringClass)
@@ -113,6 +121,20 @@ public class ObjectSynthesizer<T> {
       }
     } catch (Throwable e) {
       throw rethrow(e);
+    }
+  }
+
+  private static boolean isOverriddenIn(Method method, Class<?> aClass) {
+    if (method.getDeclaringClass() == aClass)
+      return false;
+    try {
+      return aClass.getDeclaredMethod(method.getName(), method.getParameterTypes()) != null;
+    } catch (NoSuchMethodException e) {
+      return Stream.concat(
+          Stream.of(aClass.getSuperclass()),
+          Stream.of(aClass.getInterfaces()))
+          .filter(Objects::nonNull)
+          .anyMatch(k -> isOverriddenIn(method, k));
     }
   }
 
