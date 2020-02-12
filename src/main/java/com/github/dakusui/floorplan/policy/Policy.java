@@ -19,7 +19,6 @@ import static com.github.dakusui.floorplan.utils.Checks.*;
 import static com.github.dakusui.floorplan.utils.InternalUtils.printableBiPredicate;
 import static com.github.dakusui.floorplan.utils.InternalUtils.shortenedClassName;
 import static java.util.Collections.reverse;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -38,8 +37,9 @@ public interface Policy {
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
 
   class Impl implements Policy {
-    private final FloorPlanConfigurator floorPlanConfigurator;
-    private final Profile               profile;
+    private final FloorPlanConfigurator               floorPlanConfigurator;
+    private final Profile                             profile;
+    final         Map<Attribute, List<ResolverEntry>> resolvers;
 
     Impl(List<ResolverEntry> resolvers, Collection<ComponentSpec<?>> specs, FloorPlanGraph floorPlanGraph, Profile profile, FloorPlan.Factory floorPlanFactory) {
       requireArgument(
@@ -50,16 +50,22 @@ public interface Policy {
               floorPlanGraph.allReferences().stream().filter((Ref ref) -> !specs.contains(ref.spec())).collect(toList())
           )
       );
-      this.resolvers = unmodifiableList(requireNonNull(resolvers));
+      this.resolvers = new HashMap<Attribute, List<ResolverEntry>>() {{
+        resolvers.forEach((ResolverEntry each) -> {
+          if (!containsKey(each.key()))
+            put(each.key(), new LinkedList<>());
+          get(each.key()).add(each);
+        });
+      }};
       this.floorPlanConfigurator = requireNonNull(floorPlanGraph).configurator(this, floorPlanFactory);
       this.profile = requireNonNull(profile);
     }
 
-    final List<ResolverEntry> resolvers;
-
     @SuppressWarnings("unchecked")
     public <A extends Attribute, T> Resolver<A, T> fallbackResolverFor(Ref ref, A attr) {
-      return resolvers.stream()
+      if (!resolvers.containsKey(attr))
+        throw noSuchElement("Fallback resolver for '%s'(%s) of '%s' was not found. Known resolvers are %s", attr, attr.spec(), ref, resolvers).get();
+      return resolvers.get(attr).stream()
           .filter(resolverEntry -> resolverEntry.cond.test(ref, attr))
           .findFirst()
           .map(resolverEntry -> (Resolver<A, T>) resolverEntry.resolver).orElseThrow(
@@ -91,7 +97,7 @@ public interface Policy {
     private       FloorPlanGraph         floorPlanGraph   = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
-    private       FloorPlan.Factory                   floorPlanFactory = FloorPlan.Impl::new;
+    private       FloorPlan.Factory      floorPlanFactory = FloorPlan.Impl::new;
 
     public Builder() {
     }
@@ -141,6 +147,7 @@ public interface Policy {
         spec.attributes().stream()
             .map(
                 attribute -> new ResolverEntry(
+                    attribute,
                     printableBiPredicate(
                         () -> String.format("attributeOfRefSpecIsAssignableTo[%s]", shortenedClassName(attribute.spec().attributeType())),
                         (Ref ref, Attribute a) ->

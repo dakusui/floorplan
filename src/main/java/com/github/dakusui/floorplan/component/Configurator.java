@@ -72,8 +72,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
         attr,
         (A a) -> a.spec().getClass().isAssignableFrom(this.spec().getClass()),
         n -> Exceptions.inconsistentSpec(
-            () ->
-                String.format("An attribute '%s' is not compatible with '%s'", n.name(), this.spec())
+            () -> String.format("An attribute '%s' is not compatible with '%s'", n.name(), this.spec())
         ));
     return this.<T>resolverFor(attr).orElseGet(() -> policy.fallbackResolverFor(this.ref(), attr));
   }
