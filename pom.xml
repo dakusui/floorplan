@@ -4,7 +4,7 @@
 
     <groupId>com.github.dakusui</groupId>
     <artifactId>floorplan</artifactId>
-    <version>5.0.6-SNAPSHOT</version>
+    <version>5.0.5-SNAPSHOT</version>
     <description>A library to model a heterogeneous and distributed software
         system for testing
     </description>
