@@ -11,10 +11,7 @@ import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.resolver.ResolverEntry;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
@@ -62,15 +59,13 @@ public interface Policy {
 
     @SuppressWarnings("unchecked")
     public <A extends Attribute, T> Resolver<A, T> fallbackResolverFor(Ref ref, A attr) {
-      return resolvers.stream().filter(
-          resolverEntry -> resolverEntry.cond.test(ref, attr)
-      ).findFirst(
-      ).map(
-          resolverEntry -> (Resolver<A, T>) resolverEntry.resolver
-      ).orElseThrow(
-          noSuchElement(
-              "Fallback resolver for '%s'(%s) of '%s' was not found. Known resolvers are %s",
-              attr, attr.spec(), ref, resolvers));
+      return resolvers.stream()
+          .filter(resolverEntry -> resolverEntry.cond.test(ref, attr))
+          .findFirst()
+          .map(resolverEntry -> (Resolver<A, T>) resolverEntry.resolver).orElseThrow(
+              noSuchElement(
+                  "Fallback resolver for '%s'(%s) of '%s' was not found. Known resolvers are %s",
+                  attr, attr.spec(), ref, resolvers));
     }
 
     @Override
@@ -96,7 +91,7 @@ public interface Policy {
     private       FloorPlanGraph         floorPlanGraph   = null;
     private       Profile                profile;
     @SuppressWarnings("unchecked")
-    private       FloorPlan.Factory      floorPlanFactory = FloorPlan.Impl::new;
+    private       FloorPlan.Factory                   floorPlanFactory = FloorPlan.Impl::new;
 
     public Builder() {
     }
@@ -143,22 +138,20 @@ public interface Policy {
     @SuppressWarnings("unchecked")
     private static List<ResolverEntry> createResolversForComponentSpec(ComponentSpec<?> spec) {
       return new LinkedList<ResolverEntry>() {{
-        spec.attributes().stream(
-        ).map(
-            attribute -> new ResolverEntry(
-                printableBiPredicate(
-                    () -> String.format("attributeOfRefSpecIsAssignableTo[%s]", shortenedClassName(attribute.spec().attributeType())),
-                    (Ref ref, Attribute a) ->
-                        attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()))
-                    .and(
-                        printableBiPredicate(
-                            () -> String.format("equalTo[%s(%s)]", attribute, attribute.spec()),
-                            (ref, a) -> Objects.equals(attribute, a))),
-                (Resolver<Attribute, ?>) attribute.defaultValueResolver()
-            )
-        ).forEach(
-            this::add
-        );
+        spec.attributes().stream()
+            .map(
+                attribute -> new ResolverEntry(
+                    printableBiPredicate(
+                        () -> String.format("attributeOfRefSpecIsAssignableTo[%s]", shortenedClassName(attribute.spec().attributeType())),
+                        (Ref ref, Attribute a) ->
+                            attribute.spec().attributeType().isAssignableFrom(ref.spec().attributeType()))
+                        .and(
+                            printableBiPredicate(
+                                () -> String.format("equalTo[%s(%s)]", attribute, attribute.spec()),
+                                (ref, a) -> Objects.equals(attribute, a))),
+                    (Resolver<Attribute, ?>) attribute.defaultValueResolver()
+                ))
+            .forEach(this::add);
       }};
     }
   }

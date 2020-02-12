@@ -69,6 +69,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
     )
     private final Map<A, Supplier<Object>> values;
     private final Map<Ref, Component<?>>   pool;
+    private final Map<Object, Object>      referenceCache;
 
     public Impl(Ref ref, Map<A, Supplier<Object>> values, Map<Ref, Component<?>> pool) {
       this.ref = ref;
@@ -76,6 +77,7 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
         putAll(requireNonNull(values));
       }};
       this.pool = pool;
+      this.referenceCache = new HashMap<>();
     }
 
     @Override
@@ -110,6 +112,13 @@ public interface Component<A extends Attribute> extends AttributeBundle<A> {
 
     @SuppressWarnings("unchecked")
     private <T> T lookUpIfReference(Object obj) {
+      if (!referenceCache.containsKey(obj)) {
+        referenceCache.put(obj, lookUpIfReferenceWithoutCaching(obj));
+      }
+      return (T) referenceCache.get(obj);
+    }
+
+    private <T> T lookUpIfReferenceWithoutCaching(Object obj) {
       return obj instanceof List
           ? (T) List.class.cast(obj).stream().map(this::lookUpIfReference_).collect(toList())
           : lookUpIfReference_(obj);
