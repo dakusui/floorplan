@@ -95,7 +95,6 @@ public enum Resolvers {
    * @param <R>    A type of an attribute value {@code attr}.
    * @return A new resolver.
    */
-  @SuppressWarnings("unchecked")
   public static <A extends Attribute, B extends Attribute, R> Resolver<A, R> attributeValueOf(B attr, Resolver<A, Ref> holder) {
     return Resolver.of(
         c -> p -> FloorPlanUtils.resolve(attr, p.floorPlanConfigurator().lookUp(holder.apply(c).apply(p)), p),

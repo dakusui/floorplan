@@ -131,6 +131,7 @@ public interface FloorPlanGraph {
     public List<? extends ResolverEntry> allWires() {
       return this.wires.entrySet().stream().map(
           entry -> new ResolverEntry(
+              entry.getKey().fromAttr,
               InternalUtils.printableBiPredicate(
                   () -> String.format("equalTo(%s)", (Object) entry.getValue()),
                   (ref, attribute) ->

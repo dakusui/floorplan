@@ -5,14 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -26,10 +19,11 @@ import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
  * @param <T> A class of an interface for which an implementation is to be synthesized.
  */
 public class ObjectSynthesizer<T> {
-  private final Class<T>                         anInterface;
-  private final List<? extends Handler>          handlers;
-  private final Object                           fallbackObject;
-  private final Map<Class, MethodHandles.Lookup> lookups;
+  private final Class<T>                                          anInterface;
+  private final List<? extends Handler>                           handlers;
+  private final Map<Method, BiFunction<Object, Object[], Object>> handlersCache;
+  private final Object                                            fallbackObject;
+  private final Map<Class, MethodHandles.Lookup>                  lookups;
 
   public static <T> ObjectSynthesizer.Builder<T> builder(Class<T> anInterface) {
     return new Builder<>(anInterface);
@@ -58,6 +52,7 @@ public class ObjectSynthesizer<T> {
   private ObjectSynthesizer(Class<T> anInterface, List<? extends Handler> handlers, Object fallbackObject) {
     this.anInterface = Objects.requireNonNull(anInterface);
     this.handlers = handlers;
+    this.handlersCache = new HashMap<>();
     this.fallbackObject = fallbackObject;
     this.lookups = new HashMap<>();
     this.lookup(anInterface);
@@ -91,13 +86,25 @@ public class ObjectSynthesizer<T> {
   }
 
   private Optional<? extends BiFunction<Object, Object[], Object>> lookUpMethodCallHandler(Method method) {
+    if (this.handlersCache.containsKey(method)) {
+      return Optional.of(this.handlersCache.get(method));
+    }
+    Optional<? extends BiFunction<Object, Object[], Object>> ret = createMethodCallingFunction(method);
+    if (ret.isPresent())
+      this.handlersCache.put(method, ret.get());
+    else
+      this.handlersCache.put(method, null);
+    return ret;
+  }
+
+  private Optional<? extends BiFunction<Object, Object[], Object>> createMethodCallingFunction(Method method) {
     Optional<? extends BiFunction<Object, Object[], Object>> ret = handlers.stream().filter(handler -> handler.test(method)).findFirst();
     return ret.isPresent() ?
         ret :
-        Optional.of(_lookUpMethodCallHandler(method));
+        Optional.of(createMethodCallingFunctionOnFallback(method));
   }
 
-  private BiFunction<Object, Object[], Object> _lookUpMethodCallHandler(Method method) {
+  private BiFunction<Object, Object[], Object> createMethodCallingFunctionOnFallback(Method method) {
     return (self, args) -> invokeMethod(self, fallbackObject, method, args);
   }
 

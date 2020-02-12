@@ -3,21 +3,18 @@ package com.github.dakusui.floorplan.core;
 import com.github.dakusui.floorplan.component.Attribute;
 import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.component.Ref;
-import com.github.dakusui.floorplan.exception.Exceptions;
 import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
+import java.util.function.Consumer;
 
+import static com.github.dakusui.floorplan.exception.Exceptions.noSuchElement;
 import static com.github.dakusui.floorplan.utils.Checks.requireState;
 import static com.github.dakusui.floorplan.utils.InternalUtils.singletonCollector;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 public interface FloorPlanConfigurator {
   <A extends Attribute> Configurator<A> lookUp(Ref ref);
@@ -32,19 +29,31 @@ public interface FloorPlanConfigurator {
   }
 
   class Impl implements FloorPlanConfigurator {
-    private final Set<Ref>              refs;
-    private final List<Configurator<?>> configurators;
-    private final Policy                policy;
-    private final FloorPlan.Factory     floorPlanFactory;
+    private final Set<Ref>                        refs;
+    private final Map<Ref, List<Configurator<?>>> configurators;
+    private final Policy                          policy;
+    private final FloorPlan.Factory               floorPlanFactory;
 
     Impl(Policy policy, Set<Ref> refs, FloorPlan.Factory floorPlanFactory) {
       this.policy = requireNonNull(policy);
       this.refs = unmodifiableSet(requireNonNull(refs));
-      this.configurators = unmodifiableList(
-          refs.stream().map(
-              // Not all components require slots.
-              (Function<Ref, Configurator<?>>) ref -> ref.spec().configurator(ref.id())
-          ).collect(toList())
+
+      this.configurators = unmodifiableMap(
+          new HashMap<Ref, List<Configurator<?>>>() {
+            {
+              refs.forEach(
+                  ref -> {
+                    // Not all components require slots.
+                    Configurator<?> c = ref.spec().configurator(ref.id());
+                    Ref keyRef = c.ref();
+                    if (!containsKey(keyRef))
+                      put(keyRef, new LinkedList<>());
+                    List<Configurator<?>> list = get(keyRef);
+                    list.add(c);
+                  }
+              );
+            }
+          }
       );
       this.floorPlanFactory = requireNonNull(floorPlanFactory);
     }
@@ -52,14 +61,16 @@ public interface FloorPlanConfigurator {
     @SuppressWarnings("unchecked")
     @Override
     public <A extends Attribute> Configurator<A> lookUp(Ref ref) {
+      if (!configurators.containsKey(ref))
+        throw noSuchElement("Configurator for '%s' was not found.", ref).get();
       return (Configurator<A>) requireState(
-          configurators.stream().filter(
-              c -> Objects.equals(ref, c.ref())
-          ).collect(
-              singletonCollector()
-          ).orElseThrow(
-              Exceptions.noSuchElement("Configurator for '%s' was not found.", ref)
-          ), ret -> Objects.equals(ret.spec().attributeType(), ref.spec().attributeType())
+          configurators
+              .get(ref)
+              .stream()
+              .filter(c -> Objects.equals(ref, c.ref()))
+              .collect(singletonCollector())
+              .orElseThrow(noSuchElement("Configurator for '%s' was not found.", ref)),
+          ret -> Objects.equals(ret.spec().attributeType(), ref.spec().attributeType())
       );
     }
 

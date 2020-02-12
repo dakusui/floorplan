@@ -9,6 +9,7 @@ import com.github.dakusui.floorplan.ut.style.models.*;
 import com.github.dakusui.floorplan.ut.utils.UtBase;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.NoSuchElementException;
 
 import static com.github.dakusui.crest.Crest.*;
@@ -78,10 +79,25 @@ public class StyleTest extends UtBase {
     }
   }
 
+  @Test(expected = InvocationTargetException.class)
+  public void brokenClassStyle() throws Throwable {
+    Ref sandboxRef = Ref.ref(BrokenClassStyle.SPEC, "1");
+    try {
+      buildFloorPlan(
+          new FloorPlanDescriptor.Builder(new SimpleProfile())
+              .add(sandboxRef)
+              .configure(sandboxRef, BrokenClassStyle.Attr.NAME, immediate("helloWorld"))
+              .build()
+      );
+    } catch (RuntimeException e) {
+      throw e.getCause();
+    }
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void illegalArgument() {
+    Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
     try {
-      Ref sandboxRef = Ref.ref(ClassStyle.SPEC, "1");
       buildFloorPlan(
           new FloorPlanDescriptor.Builder(new SimpleProfile())
               .add(sandboxRef)
@@ -96,7 +112,6 @@ public class StyleTest extends UtBase {
       throw e;
     }
   }
-
 
   @Test
   public void interfaceStyle() {
