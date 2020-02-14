@@ -1,14 +1,14 @@
 package com.github.dakusui.floorplan.ut;
 
 import com.github.dakusui.floorplan.ut.utils.UtBase;
-import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
+import com.github.dakusui.objsynth.ObjectSynthesizer;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Objects;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.methodCall;
+import static com.github.dakusui.objsynth.ObjectSynthesizer.methodCall;
 
 public class ObjectSynthesizerTest extends UtBase {
   private X fallbackObject;
@@ -89,11 +89,10 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenMethodsCalled$thenProxiedToIntendedMethods() {
-    X x = ObjectSynthesizer.builder(X.class)
+    X x = new ObjectSynthesizer<>(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
     assertThat(
         x,
@@ -109,11 +108,10 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenEqualsOnSameObject$thenTrue() {
-    X x = ObjectSynthesizer.builder(X.class)
+    X x = ObjectSynthesizer.create(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
     assertThat(
         x,
@@ -125,11 +123,10 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenEqualsOnAnotherObjectNotEqual$thenFalse() {
-    X x = ObjectSynthesizer.builder(X.class)
+    X x = ObjectSynthesizer.create(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
     assertThat(
         x,
@@ -139,11 +136,10 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenEqualsOnAnotherXNotEqual$thenFalse() {
-    X x = ObjectSynthesizer.builder(X.class)
+    X x = ObjectSynthesizer.create(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
     assertThat(
         x,
@@ -153,17 +149,15 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenEqualsOnAnotherProxiedObjectEqualToIt$thenTrue() {
-    X x = ObjectSynthesizer.builder(X.class)
+    X x = ObjectSynthesizer.create(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
-    X x2 = ObjectSynthesizer.builder(X.class)
+    X x2 = ObjectSynthesizer.create(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(createX(""))
-        .build()
         .synthesize();
     assertThat(
         x,
@@ -173,11 +167,10 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenEqualsOnAnotherObjectEqualToIt$thenTrue() {
-    X x = ObjectSynthesizer.builder(X.class)
+    X x = ObjectSynthesizer.create(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
     X x2 = createX("");
     assertThat(
@@ -188,11 +181,10 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Test
   public void whenDefaultMethodCalled$thenValueReturned() {
-    Y y = ObjectSynthesizer.builder(Y.class)
+    Y y = ObjectSynthesizer.create(Y.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
         .fallbackTo(fallbackObject)
-        .build()
         .synthesize();
     assertThat(
         y.yMethod(),
