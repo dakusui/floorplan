@@ -1,5 +1,7 @@
 package com.github.dakusui.floorplan.utils;
 
+import com.github.dakusui.objsynth.MethodHandler;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Predicate;
@@ -7,7 +9,7 @@ import java.util.function.Predicate;
 @Deprecated
 public class ObjectSynthesizer<T> extends com.github.dakusui.objsynth.ObjectSynthesizer.ObjectFactory<T> {
 
-  protected ObjectSynthesizer(Class<T> anInterface, List<? extends com.github.dakusui.objsynth.ObjectSynthesizer.MethodHandler> handlers, Object fallbackObject) {
+  protected ObjectSynthesizer(Class<T> anInterface, List<? extends MethodHandler> handlers, Object fallbackObject) {
     super(anInterface, handlers, fallbackObject);
   }
 
@@ -15,12 +17,12 @@ public class ObjectSynthesizer<T> extends com.github.dakusui.objsynth.ObjectSynt
     return new Builder<>(anInterface);
   }
 
-  public static com.github.dakusui.objsynth.ObjectSynthesizer.MethodHandler.Builder methodCall(String methodName, Class<?>... parameterTypes) {
+  public static MethodHandler.Builder methodCall(String methodName, Class<?>... parameterTypes) {
     return com.github.dakusui.objsynth.ObjectSynthesizer.methodCall(methodName, parameterTypes);
   }
 
-  public interface Handler extends com.github.dakusui.objsynth.ObjectSynthesizer.MethodHandler, Predicate<Method> {
-    class Builder extends com.github.dakusui.objsynth.ObjectSynthesizer.MethodHandler.Builder {
+  public interface Handler extends MethodHandler, Predicate<Method> {
+    class Builder extends MethodHandler.Builder {
       public Builder(Predicate<Method> matcher) {
         super(matcher);
       }

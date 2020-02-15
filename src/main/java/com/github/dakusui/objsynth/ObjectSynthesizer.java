@@ -6,9 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.floorplan.exception.Exceptions.rethrow;
@@ -26,21 +24,8 @@ public class ObjectSynthesizer<T> {
     return new ObjectSynthesizer<>(anInterface);
   }
 
-
   public static MethodHandler.Builder methodCall(String methodName, Class<?>... parameterTypes) {
-    return methodCall(method -> {
-      AtomicInteger i = new AtomicInteger(-1);
-      return Objects.equals(
-          methodName, method.getName()) &&
-          parameterTypes.length == method.getParameterCount() &&
-          Arrays.stream(
-              parameterTypes
-          ).peek(
-              type -> i.getAndIncrement()
-          ).allMatch(
-              type -> type.isAssignableFrom(method.getParameterTypes()[i.get()])
-          );
-    });
+    return MethodHandler.builderByNameAndParameterTypes(methodName, parameterTypes);
   }
 
   public ObjectSynthesizer<T> fallbackTo(Object fallbackObject) {
@@ -66,40 +51,6 @@ public class ObjectSynthesizer<T> {
     return new ObjectFactory<>(this.anInterface, new ArrayList<>(handlers), fallbackObject);
   }
 
-  private static MethodHandler.Builder methodCall(Predicate<Method> predicate) {
-    return new MethodHandler.Builder(predicate);
-  }
-
-  public interface MethodHandler extends BiFunction<Object, Object[], Object>, Predicate<Method> {
-    class Builder {
-      private final Predicate<Method>                    matcher;
-      private       BiFunction<Object, Object[], Object> function;
-
-      public Builder(Predicate<Method> matcher) {
-        this.matcher = Objects.requireNonNull(matcher);
-      }
-
-      public MethodHandler with(BiFunction<Object, Object[], Object> function) {
-        this.function = Objects.requireNonNull(function);
-        return this.build();
-      }
-
-      public MethodHandler build() {
-        return new MethodHandler() {
-          @Override
-          public Object apply(Object self, Object[] objects) {
-            return function.apply(self, objects);
-          }
-
-          @Override
-          public boolean test(Method method) {
-            return matcher.test(method);
-          }
-        };
-      }
-    }
-  }
-
   /**
    * A factory class to synthesize an implementation of a given interface (semi-)automatically.
    *
@@ -107,7 +58,7 @@ public class ObjectSynthesizer<T> {
    */
   public static class ObjectFactory<T> {
     private final Class<T>                                          anInterface;
-    private final List<? extends ObjectSynthesizer.MethodHandler>         handlers;
+    private final List<? extends MethodHandler>                     handlers;
     private final Map<Method, BiFunction<Object, Object[], Object>> handlersCache;
     private final Object                                            fallbackObject;
     private final Map<Class<?>, MethodHandles.Lookup>               lookups;
@@ -116,7 +67,7 @@ public class ObjectSynthesizer<T> {
       return createProxy();
     }
 
-    protected ObjectFactory(Class<T> anInterface, List<? extends ObjectSynthesizer.MethodHandler> handlers, Object fallbackObject) {
+    protected ObjectFactory(Class<T> anInterface, List<? extends MethodHandler> handlers, Object fallbackObject) {
       this.anInterface = Objects.requireNonNull(anInterface);
       this.handlers = handlers;
       this.handlersCache = new HashMap<>();
