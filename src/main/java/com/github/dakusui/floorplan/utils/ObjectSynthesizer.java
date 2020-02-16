@@ -9,7 +9,6 @@ import java.util.function.Predicate;
  * A class for backward compatibility.
  * Use {@code com.github.dakusui.osynth.ObjectSynthesizer} directly.
  * @param <T> A type of object to be synthesized.
- * @deprecated use
  */
 @Deprecated
 public class ObjectSynthesizer<T> {
@@ -41,9 +40,8 @@ public class ObjectSynthesizer<T> {
       return (Builder<T>) super.handle(handler);
     }
 
-    @Override
     public Builder<T> fallbackTo(Object fallbackObject) {
-      return (Builder<T>) super.fallbackTo(fallbackObject);
+      return (Builder<T>) super.addHandlerObject(fallbackObject);
     }
 
     public ObjectSynthesizer<T> build() {
