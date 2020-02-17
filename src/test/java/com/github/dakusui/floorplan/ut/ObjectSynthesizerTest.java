@@ -11,7 +11,7 @@ import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.utils.ObjectSynthesizer.methodCall;
 
 public class ObjectSynthesizerTest extends UtBase {
-  private X fallbackObject;
+  private X handlerObject;
 
   interface A {
     // ReflectivelyCalled
@@ -38,7 +38,7 @@ public class ObjectSynthesizerTest extends UtBase {
 
   }
 
-  public interface Y extends X {
+  interface Y extends X {
     default String yMethod() {
       return "yMethod";
     }
@@ -46,7 +46,8 @@ public class ObjectSynthesizerTest extends UtBase {
 
   @Before
   public void before() {
-    this.fallbackObject = createX("");
+    super.before();
+    this.handlerObject = createX("");
   }
 
   private X createX(String value) {
@@ -92,15 +93,14 @@ public class ObjectSynthesizerTest extends UtBase {
     X x = ObjectSynthesizer.builder(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     assertThat(
         x,
         allOf(
             asString("aMethod").equalTo("a is called").$(),
             asString("bMethod").equalTo("b is called").$(),
-            asString("toString").startsWith("com.github.dakusui.floorplan.ut.ObjectSynthesizerTest$1@").$(),
+            asString("toString").startsWith("proxy:osynth:").$(),
             asString("cMethod").equalTo("cMethod").$(),
             asString("xMethod").equalTo("xMethod").$(),
             asInteger(call("xMethod").andThen("toString").andThen("length").$()).equalTo(7).$()
@@ -112,14 +112,13 @@ public class ObjectSynthesizerTest extends UtBase {
     X x = ObjectSynthesizer.builder(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     assertThat(
         x,
         allOf(
             asBoolean("equals", x).isTrue().$(),
-            asBoolean("equals", fallbackObject).isTrue().$()
+            asBoolean("equals", handlerObject).isTrue().$()
         ));
   }
 
@@ -128,8 +127,7 @@ public class ObjectSynthesizerTest extends UtBase {
     X x = ObjectSynthesizer.builder(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     assertThat(
         x,
@@ -142,8 +140,7 @@ public class ObjectSynthesizerTest extends UtBase {
     X x = ObjectSynthesizer.builder(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     assertThat(
         x,
@@ -156,14 +153,12 @@ public class ObjectSynthesizerTest extends UtBase {
     X x = ObjectSynthesizer.builder(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     X x2 = ObjectSynthesizer.builder(X.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(createX(""))
-        .build()
+        .addHandlerObject(createX(""))
         .synthesize();
     assertThat(
         x,
@@ -174,10 +169,7 @@ public class ObjectSynthesizerTest extends UtBase {
   @Test
   public void whenEqualsOnAnotherObjectEqualToIt$thenTrue() {
     X x = ObjectSynthesizer.builder(X.class)
-        .handle(methodCall("aMethod").with((self, args) -> "a is called"))
-        .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     X x2 = createX("");
     assertThat(
@@ -191,12 +183,50 @@ public class ObjectSynthesizerTest extends UtBase {
     Y y = ObjectSynthesizer.builder(Y.class)
         .handle(methodCall("aMethod").with((self, args) -> "a is called"))
         .handle(methodCall("bMethod").with((self, args) -> "b is called"))
-        .fallbackTo(fallbackObject)
-        .build()
+        .addHandlerObject(handlerObject)
         .synthesize();
     assertThat(
         y.yMethod(),
         asString().equalTo("yMethod").$()
     );
+  }
+
+  @Test
+  public void thenPass() {
+    Y y = createY();
+    Y x1 = createProxyFor(Y.class, y);
+    Y x2 = createProxyFor(Y.class, y);
+    System.out.println(x1);
+    System.out.println(x2);
+    System.out.println(x1.equals(x2));
+    assertThat(x1, asObject().equalTo(x2).$());
+  }
+
+  private static <T> T createProxyFor(Class<T> klass, T obj) {
+    return ObjectSynthesizer.builder(klass).addHandlerObject(obj).synthesize(klass);
+  }
+
+  private Y createY() {
+    return new Y() {
+      @Override
+      public String xMethod() {
+        return "xMethod";
+      }
+
+      @Override
+      public String cMethod() {
+        return "cMethod";
+      }
+
+      @Override
+      public String bMethod() {
+        return "bMethod";
+      }
+
+      @Override
+      public String aMethod() {
+        return "aMethod";
+      }
+    };
   }
 }

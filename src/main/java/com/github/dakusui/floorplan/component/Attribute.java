@@ -3,6 +3,7 @@ package com.github.dakusui.floorplan.component;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
+import com.github.dakusui.osynth.MethodHandler;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -161,6 +162,7 @@ public interface Attribute {
         .handle(new ObjectSynthesizer.Handler.Builder(
             method -> method.getName().equals("name") && method.getParameterCount() == 0)
             .with((o, args) -> fallback.name()))
+        .handle(MethodHandler.toStringHandler(fallback, v -> ((Attr) v).name()))
         .fallbackTo(fallback)
         .build()
         .synthesize();

@@ -5,12 +5,13 @@ import com.github.dakusui.floorplan.component.Configurator;
 import com.github.dakusui.floorplan.resolver.Mapper;
 import com.github.dakusui.floorplan.resolver.Resolvers;
 import com.github.dakusui.floorplan.ut.components.SimpleComponent;
+import com.github.dakusui.floorplan.ut.utils.UtBase;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.floorplan.component.Ref.ref;
 
-public class ResolversTest {
+public class ResolversTest extends UtBase {
   @Test
   public void givenImmediateResolver$whenToString$thenAppropriateMessageReturned() {
     assertThat(
