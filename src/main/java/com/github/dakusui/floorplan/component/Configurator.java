@@ -5,6 +5,7 @@ import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
+import com.github.dakusui.osynth.MethodHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
@@ -117,12 +118,14 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       Class<Component<A>> componentType = this.spec.componentType();
       if (componentType.equals(Component.class))
         ret = new Component.Impl<>(this.ref, (Map<A, Supplier<Object>>) values, pool);
-      else if (componentType.isInterface())
+      else if (componentType.isInterface()) {
+        Component.Impl<Attribute> fallbackObject = new Component.Impl<>(this.ref, values, pool);
         ret = ObjectSynthesizer.builder(componentType)
-            .fallbackTo(new Component.Impl<>(this.ref, values, pool))
+            .handle(MethodHandler.toStringHandler(fallbackObject, Object::toString))
+            .fallbackTo(fallbackObject)
             .build()
             .synthesize();
-      else {
+      } else {
         try {
           ret = componentType.getConstructor(Ref.class, Map.class, Map.class).newInstance(this.ref, values, pool);
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {

@@ -7,6 +7,7 @@ import com.github.dakusui.floorplan.component.Ref;
 import com.github.dakusui.floorplan.core.FloorPlan;
 import com.github.dakusui.floorplan.core.FloorPlanConfigurator;
 import com.github.dakusui.floorplan.resolver.Resolver;
+import com.github.dakusui.floorplan.ut.utils.UtBase;
 import com.github.dakusui.floorplan.ut.utils.UtUtils;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import static com.github.dakusui.floorplan.resolver.Resolvers.referenceTo;
 import static com.github.dakusui.floorplan.resolver.Resolvers.transform;
 import static com.github.dakusui.floorplan.ut.utils.UtUtils.buildPolicy;
 
-public class InheritanceTest {
+public class InheritanceTest extends UtBase {
   @Test
   public void testL1() {
     assertThat(
