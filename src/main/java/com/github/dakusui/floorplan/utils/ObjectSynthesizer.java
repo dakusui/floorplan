@@ -3,6 +3,7 @@ package com.github.dakusui.floorplan.utils;
 import com.github.dakusui.osynth.MethodHandler;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -31,6 +32,8 @@ public class ObjectSynthesizer<T> {
   }
 
   public static class Builder<T> extends com.github.dakusui.osynth.SimpleObjectSynthesizer<T> {
+    private boolean fallbackIsSet = false;
+
     public Builder(Class<T> anInterface) {
       super(anInterface);
     }
@@ -41,11 +44,24 @@ public class ObjectSynthesizer<T> {
     }
 
     public Builder<T> fallbackTo(Object fallbackObject) {
+      fallbackIsSet = true;
       return (Builder<T>) super.addHandlerObject(fallbackObject);
     }
 
     public ObjectSynthesizer<T> build() {
+      if (!fallbackIsSet)
+        this.addHandlerObject(new Object());
       return new ObjectSynthesizer<>(this);
+    }
+
+    @Override
+    protected ProxyDescriptor createProxyDescriptor(List<Class<?>> interfaces, List<MethodHandler> handlers, List<Object> handlerObjects) {
+      return new ProxyDescriptor(interfaces, handlers, handlerObjects) {
+        @Override
+        public boolean equals(Object anotherObject) {
+          return super.equals(anotherObject) || this.handlerObjects().contains(anotherObject);
+        }
+      };
     }
   }
 
