@@ -5,7 +5,7 @@ import com.github.dakusui.floorplan.policy.Policy;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.FloorPlanUtils;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
-import com.github.dakusui.osynth.MethodHandler;
+import com.github.dakusui.osynth.core.MethodHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
@@ -79,9 +79,9 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
   }
 
   class Impl<A extends Attribute> implements Configurator<A> {
-    private final ComponentSpec<A>       spec;
+    private final ComponentSpec<A> spec;
     private final Map<A, Resolver<A, ?>> resolvers = new LinkedHashMap<>();
-    private final Ref                    ref;
+    private final Ref ref;
 
     Impl(ComponentSpec<A> spec, String id) {
       this.spec = spec;
@@ -110,7 +110,7 @@ public interface Configurator<A extends Attribute> extends AttributeBundle<A> {
       return this;
     }
 
-    @SuppressWarnings({ "unchecked", "JavaReflectionMemberAccess" })
+    @SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
     @Override
     public <C extends Component<A>> C build(Policy policy, Map<Ref, Component<?>> pool) {
       LinkedHashMap<Attribute, Supplier<Object>> values = composeValues(policy);

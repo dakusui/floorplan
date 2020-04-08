@@ -3,7 +3,7 @@ package com.github.dakusui.floorplan.component;
 import com.github.dakusui.floorplan.resolver.Resolver;
 import com.github.dakusui.floorplan.utils.InternalUtils;
 import com.github.dakusui.floorplan.utils.ObjectSynthesizer;
-import com.github.dakusui.osynth.MethodHandler;
+import com.github.dakusui.osynth.core.MethodHandler;
 
 import java.util.Objects;
 import java.util.Optional;
