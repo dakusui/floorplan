@@ -1,6 +1,8 @@
 package com.github.dakusui.floorplan.utils;
 
-import com.github.dakusui.osynth.MethodHandler;
+import com.github.dakusui.osynth.core.FallbackHandlerFactory;
+import com.github.dakusui.osynth.core.MethodHandler;
+import com.github.dakusui.osynth.core.ProxyDescriptor;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -55,8 +57,8 @@ public class ObjectSynthesizer<T> {
     }
 
     @Override
-    protected ProxyDescriptor createProxyDescriptor(List<Class<?>> interfaces, List<MethodHandler> handlers, List<Object> handlerObjects) {
-      return new ProxyDescriptor(interfaces, handlers, handlerObjects) {
+    protected ProxyDescriptor createProxyDescriptor(List<Class<?>> interfaces, List<MethodHandler> handlers, List<Object> handlerObjects, FallbackHandlerFactory fallbackHandlerFactory) {
+      return new ProxyDescriptor(interfaces, handlers, handlerObjects, fallbackHandlerFactory) {
         @Override
         public boolean equals(Object anotherObject) {
           return super.equals(anotherObject) || this.handlerObjects().contains(anotherObject);
